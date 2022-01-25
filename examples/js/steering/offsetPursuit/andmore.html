@@ -1,0 +1,237 @@
+<html lang="en">
+	<head>
+		<title>Yuka | Steering Behaviors | Offset Pursuit</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="../../lib/styles.css">
+		<link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico">
+
+		<script src="https://cdn.jsdelivr.net/npm/babylonjs@4.2.0/babylon.min.js"></script>
+		<script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+	</head>
+<body>
+
+	<section id="info">
+		<p>
+			This steering behavior produces a force that keeps a vehicle at a specified offset from a leader vehicle.
+		</p>
+	</section>
+	<canvas id="renderCanvas" style="width: 100%; height: 100%; touch-action: none"></canvas>
+	<script type="module">
+
+		import * as YUKA from '../../../build/yuka.module.js';
+
+		let engine, scene;
+
+		let entityManager, time, target;
+
+		const entityMatrix = new BABYLON.Matrix();
+
+		init();
+		animate();
+
+		function init() {
+
+			const canvas = document.getElementById( 'renderCanvas' );
+			engine = new BABYLON.Engine( canvas, true, {}, true )
+
+			scene = new BABYLON.Scene( engine );
+			scene.clearColor = new BABYLON.Color3( 0, 0, 0 );
+		//	scene.debugLayer.show();
+
+        scene.useRightHandedSystem = true;
+
+			const camera = new BABYLON.ArcRotateCamera("camera", BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(0), 15, BABYLON.Vector3.Zero(), scene);
+
+			camera.target = new BABYLON.Vector3( 0, 0, 0 );
+			camera.attachControl(canvas, true);
+
+		    const light =	new BABYLON.HemisphericLight( 'light', new BABYLON.Vector3( 1, 1, 0 ) );
+            light.intensity = 20;
+			//
+
+			const leaderMesh = BABYLON.MeshBuilder.CreateCylinder( 'cone', { height: 0.5, diameterTop: 0, diameterBottom: 0.25 }, scene );
+			leaderMesh.rotation.x = Math.PI * 0.5;
+			leaderMesh.bakeCurrentTransformIntoVertices();
+			leaderMesh.isVisible = false;
+
+			const followerMeshTemplate = BABYLON.MeshBuilder.CreateCylinder( 'cone', { height: 0.5, diameterTop: 0, diameterBottom: 0.25 }, scene );
+			followerMeshTemplate.rotation.x = Math.PI * 0.5;
+			followerMeshTemplate.bakeCurrentTransformIntoVertices();
+			followerMeshTemplate.isVisible = false;
+
+			const ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 10, height: 10}, scene);
+			ground.position.y = -1;
+    		ground.material = new BABYLON.GridMaterial("grid", scene);
+
+			/*
+			const grid = new THREE.GridHelper( 10, 25 );
+			scene.add( grid );
+*/
+			//
+
+
+            const modelArray = [];
+
+BABYLON.SceneLoader.ImportMesh("", "./", "space-fighter.glb", scene, function (meshes) {
+console.log("Meshes loaded from gltf file: " + meshes.length);
+for (var index = 0; index < meshes.length; index++) {
+// console.log(meshes[index].toString());
+}
+
+meshes[0].scaling.scaleInPlace(0.001);
+
+meshes[0].parent = leaderMesh;
+meshes[0].position = leaderMesh.position;
+
+meshes[0].rotationQuaternion = null;
+meshes[0].rotate(new BABYLON.Vector3(0, 1, 0), 
+Math.PI / 4, BABYLON.Space.WORLD);        
+
+
+meshes.forEach(m => {
+
+})
+
+let ship = meshes[0];
+console.log(ship);
+modelArray[0] = ship;
+});
+
+
+scene.onBeforeRenderObservable.add(function(){
+    if(modelArray[0]){
+        modelArray[0].position = leaderMesh.position;
+        modelArray[0].rotation = leaderMesh.rotation;
+    }
+})
+
+			//
+
+			window.addEventListener( 'resize', onWindowResize, false );
+
+			// game setup
+
+			entityManager = new YUKA.EntityManager();
+			time = new YUKA.Time();
+
+			target = new YUKA.Vector3();
+
+			// leader
+
+			const leader = new YUKA.Vehicle();
+			leader.setRenderComponent( leaderMesh, sync );
+
+			const seekBehavior = new YUKA.SeekBehavior( target );
+			leader.steering.add( seekBehavior );
+
+			entityManager.add( leader );
+
+			// follower
+
+
+
+			const offsets = [
+				new YUKA.Vector3( 1, 0, - 1 ),
+				new YUKA.Vector3( - 1, 0, - 1 ),
+				new YUKA.Vector3( 2, 0, - 2 ),
+				new YUKA.Vector3( - 2, 0, - 2 )
+			];
+
+
+/*
+        var duplicate = function (container, offset) {
+        let entries = container.instantiateModelsToScene();
+            console.log(entries);
+        for (var node of entries.rootNodes) {
+            node.position.x += offset;
+        }
+    }
+
+    BABYLON.SceneLoader.LoadAssetContainer("./", "enemy-fighter.glb",scene,function (container) {
+
+        container.meshes[0].scaling.scaleInPlace(0.001);
+
+            container.addAllToScene();
+
+            duplicate(container, 1.0);
+
+
+
+        });
+
+*/
+			for ( let i = 0; i < 4; i ++ ) {
+
+				const followerMesh = followerMeshTemplate.clone();
+				followerMesh.isVisible = false;
+
+                BABYLON.SceneLoader.ImportMesh("", "./", "enemy-fighter.glb", scene, function (meshes) {
+                    meshes[0].scaling.scaleInPlace(0.001);
+                    meshes[0].parent = followerMesh;
+
+				const follower = new YUKA.Vehicle();
+				follower.maxSpeed = 2;
+				follower.position.copy( offsets[ i ] ); // initial position
+				follower.scale.set( 0.6, 0.6, 0.6 ); // make the followers a bit smaller
+				follower.setRenderComponent( followerMesh, sync );
+
+				const offsetPursuitBehavior = new YUKA.OffsetPursuitBehavior( leader, offsets[ i ] );
+				follower.steering.add( offsetPursuitBehavior );
+
+				entityManager.add( follower );
+
+                scene.onBeforeRenderObservable.add(function(){
+    if(meshes[0]){
+        meshes[0].position = followerMesh.position;
+        meshes[0].rotation = followerMesh.rotation;
+    }
+})
+
+            });
+
+
+			}
+
+		}
+
+		function onWindowResize() {
+
+			engine.resize();
+
+		}
+
+
+		function animate() {
+
+			requestAnimationFrame( animate );
+
+			time.update();
+
+			const deltaTime = time.getDelta();
+			const elapsedTime = time.getElapsed();
+
+			target.z = Math.cos( elapsedTime * 0.2 ) * 5;
+			target.x = Math.sin( elapsedTime * 0.2 ) * 5;
+
+			entityManager.update( deltaTime );
+
+			scene.render();
+
+		}
+
+		function sync( entity, renderComponent ) {
+
+			entity.worldMatrix.toArray( entityMatrix.m );
+
+			const matrix = renderComponent.getWorldMatrix();
+			matrix.copyFrom( entityMatrix );
+
+		}
+
+	</script>
+
+</body>
+</html>

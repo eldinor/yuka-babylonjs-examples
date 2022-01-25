@@ -1,0 +1,26 @@
+{
+  "name": "yuka-babylon-examples",
+  "version": "1.0.0",
+  "description": "YUKA BabylonJS examples",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eldinor/yuka-babylon-examples.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eldinor/yuka-babylon-examples/issues"
+  },
+  "homepage": "https://github.com/eldinor/yuka-babylon-examples#readme",
+  "devDependencies": {
+    "prettier": "2.5.1"
+  },
+  "dependencies": {
+    "@types/yuka": "^0.7.1",
+    "yuka": "^0.7.7"
+  }
+}

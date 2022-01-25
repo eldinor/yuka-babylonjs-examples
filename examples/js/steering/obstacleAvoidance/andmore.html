@@ -1,0 +1,264 @@
+<html lang="en">
+	<head>
+		<title>Yuka | Steering Behaviors | Obstacle Avoidance</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="../../lib/styles.css">
+		<link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico">
+
+		<script src="https://cdn.jsdelivr.net/npm/babylonjs@4.2.0/babylon.min.js"></script>
+		<script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+	</head>
+<body>
+
+	<section id="info">
+		<p>
+			This steering behavior produces a force so a vehicle avoids obstacles lying in its path.
+		</p>
+	</section>
+	<canvas id="renderCanvas" style="width: 100%; height: 100%; touch-action: none"></canvas>
+	<script type="module">
+
+		import * as YUKA from '../../../build/yuka.module.js';
+
+		let engine, scene;
+
+		let entityManager, time, vehicle;
+
+		const obstacles = new Array();
+
+		const entityMatrix = new BABYLON.Matrix();
+
+		init();
+		animate();
+
+		function init() {
+
+			const canvas = document.getElementById( 'renderCanvas' );
+			engine = new BABYLON.Engine( canvas, true, {}, true );
+
+			scene = new BABYLON.Scene( engine );
+			scene.clearColor = new BABYLON.Color3( 0, 0, 0 );
+		//	scene.debugLayer.show();
+
+                    scene.createDefaultEnvironment({createSkybox:false});
+
+			scene.useRightHandedSystem = true;
+
+		const camera = new BABYLON.ArcRotateCamera("camera", BABYLON.Tools.ToRadians(0), BABYLON.Tools.ToRadians(0), 35, BABYLON.Vector3.Zero(), scene);
+
+camera.target = new BABYLON.Vector3( 0, 0, 0 );
+camera.attachControl(canvas, true);
+
+new BABYLON.HemisphericLight( 'light', new BABYLON.Vector3( 1, 1, 0 ) );
+
+			const ground = BABYLON.MeshBuilder.CreatePlane("plane", {width: 25, height: 25}, scene);
+			ground.position.x = -1;
+			ground.rotation.x = Math.PI/2;
+
+    		ground.material = new BABYLON.GridMaterial("grid", scene);
+			ground.material.backFaceCulling = true;
+
+			const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder( 'cone', { height: 1.5, diameterTop: 0.3, diameterBottom: 0.8 }, scene );
+			vehicleMesh.rotation.x = Math.PI ;
+
+			vehicleMesh.bakeCurrentTransformIntoVertices();
+            vehicleMesh.isVisible = false;
+            vehicleMesh.position.y = 2;
+
+const modelArray = [];
+
+            BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/eldinor/ForBJS/master/power/", "carrier.glb", scene, function (meshes) {
+        console.log("Meshes loaded from gltf file: " + meshes.length);
+        for (var index = 0; index < meshes.length; index++) {
+            // console.log(meshes[index].toString());
+        }
+
+        meshes[0].scaling.scaleInPlace(0.0015);
+
+        meshes[0].parent = vehicleMesh;
+        meshes[0].position = vehicleMesh.position;
+        
+        meshes[0].rotationQuaternion = null;
+        meshes[0].rotate(new BABYLON.Vector3(0, 1, 0), 
+Math.PI / 4, BABYLON.Space.WORLD);        
+   
+
+        meshes.forEach(m => {
+            
+        })
+
+        let ship = meshes[0];
+            console.log(ship);
+            modelArray[0] = ship;
+    });
+
+
+
+			/*
+			const ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
+			scene.add( ambientLight );
+
+			const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.8 );
+			directionalLight.position.set( 1, 1, 0 ).normalize();
+			scene.add( directionalLight );
+
+			const gridHelper = new THREE.GridHelper( 25, 25 );
+			scene.add( gridHelper );
+*/
+
+scene.onBeforeRenderObservable.add(function(){
+    if(modelArray[0]){
+        modelArray[0].position = vehicleMesh.position;
+        modelArray[0].rotation = vehicleMesh.rotation;
+    }
+})
+
+			// renderer
+
+
+			//
+
+			window.addEventListener( 'resize', onWindowResize, false );
+
+			// game setup
+
+			entityManager = new YUKA.EntityManager();
+			time = new YUKA.Time();
+
+			const path = new YUKA.Path();
+			path.loop = true;
+			path.add( new YUKA.Vector3( 10, 0, 10 ) );
+			path.add( new YUKA.Vector3( 10, 0, - 10 ) );
+			path.add( new YUKA.Vector3( - 10, 0, - 10 ) );
+			path.add( new YUKA.Vector3( - 10, 0, 10 ) );
+
+			vehicle = new YUKA.Vehicle();
+			vehicle.maxSpeed = 3;
+			vehicle.setRenderComponent( vehicleMesh, sync );
+
+
+
+			vehicle.boundingRadius = vehicleMesh.getBoundingInfo().boundingSphere.radius;
+			vehicle.smoother = new YUKA.Smoother( 20 );
+
+			entityManager.add( vehicle );
+
+			const obstacleAvoidanceBehavior = new YUKA.ObstacleAvoidanceBehavior( obstacles );
+			vehicle.steering.add( obstacleAvoidanceBehavior );
+
+			const followPathBehavior = new YUKA.FollowPathBehavior( path );
+			vehicle.steering.add( followPathBehavior );
+
+			// obstacles
+
+			setupObstacles();
+
+		}
+
+		function onWindowResize() {
+
+			engine.resize();
+
+		}
+
+		function animate() {
+
+			requestAnimationFrame( animate );
+
+			const delta = time.update().getDelta();
+
+			entityManager.update( delta );
+
+			scene.render();
+		}
+
+		function sync( entity, renderComponent ) {
+
+			entity.worldMatrix.toArray( entityMatrix.m );
+
+			const matrix = renderComponent.getWorldMatrix();
+			matrix.copyFrom( entityMatrix );
+
+		}
+
+		function setupObstacles() {
+
+			const mesh1 = BABYLON.MeshBuilder.CreateBox("mesh1", {size: 2}, scene);
+			const mesh2 = BABYLON.MeshBuilder.CreateBox("mesh1", {size: 2}, scene);
+			const mesh3 = BABYLON.MeshBuilder.CreateBox("mesh1", {size: 2}, scene);
+/*
+            BABYLON.SceneLoader.ImportMesh("", 
+    "https://raw.githubusercontent.com/eldinor/ForBJS/master/power/", 
+    "geotermal.glb", scene,
+        function (meshes) {
+            var mesh = meshes[0];
+           mesh.scaling = new BABYLON.Vector3(0.001,0.001,0.001)
+           mesh.position = mesh1.position;
+
+                mesh.rotate(new BABYLON.Vector3(0, 1, 0), 
+Math.PI / 2, BABYLON.Space.WORLD);        
+              });
+*/
+			const meshMat = new BABYLON.StandardMaterial( 'meshMat', scene );
+			meshMat.disableLighting = true;
+			meshMat.emissiveColor =  BABYLON.Color3.Red( );
+
+			mesh1.material = meshMat;
+			mesh2.material = meshMat;
+			mesh3.material = meshMat;
+
+            mesh1.isVisible = false;
+            mesh2.isVisible = false;
+            mesh3.isVisible = false;
+
+			mesh1.position.set( -10, 0, 0 );
+			mesh2.position.set( 12, 0, 0 );
+			mesh3.position.set( 4, 0, -10 );
+
+
+            BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/eldinor/ForBJS/master/power/", "mining-station.glb", scene, function (meshes) {          
+        meshes[0].scaling.scaleInPlace(0.0004 );
+        meshes[0].position = mesh1.position;
+        
+    });
+
+    BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/eldinor/ForBJS/master/power/", "mining-station.glb", scene, function (meshes) {          
+        meshes[0].scaling.scaleInPlace(0.0004 );
+        meshes[0].position = mesh2.position;
+        
+    });
+
+    BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/eldinor/ForBJS/master/power/", "mining-station.glb", scene, function (meshes) {          
+        meshes[0].scaling.scaleInPlace(0.0004 );
+        meshes[0].position = mesh3.position;
+        
+    });
+
+
+			const obstacle1 = new YUKA.GameEntity();
+			obstacle1.position.copy( mesh1.position );
+			obstacle1.boundingRadius = mesh1.getBoundingInfo().boundingSphere.radius;
+			entityManager.add( obstacle1 );
+			obstacles.push( obstacle1 );
+
+			const obstacle2 = new YUKA.GameEntity();
+			obstacle2.position.copy( mesh2.position );
+			obstacle2.boundingRadius = mesh2.getBoundingInfo().boundingSphere.radius;
+			entityManager.add( obstacle2 );
+			obstacles.push( obstacle2 );
+
+			const obstacle3 = new YUKA.GameEntity();
+			obstacle3.position.copy( mesh3.position );
+			obstacle3.boundingRadius = mesh3.getBoundingInfo().boundingSphere.radius;
+			entityManager.add( obstacle3 );
+			obstacles.push( obstacle3 );
+
+		}
+
+	</script>
+
+</body>
+</html>
