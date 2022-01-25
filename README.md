@@ -1,4 +1,4 @@
-# yuka-babylon-examples
+# yuka-babylonjs-examples
 
 Yuka Game AI + 3D rendering with Babylon.js
 
