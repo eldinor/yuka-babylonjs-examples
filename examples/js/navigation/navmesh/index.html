@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="../../../css/styles.css" />
     <link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico" />
+    <!-- 
+    <script src="https://cdn.jsdelivr.net/npm/babylonjs@4.2.0/babylon.max.js"></script>
+    <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script> -->
 
     <script src="https://preview.babylonjs.com/babylon.max.js"></script>
     <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
@@ -27,7 +31,7 @@
       import { createGraphHelper } from '../../graph/GraphHelper.js'
       import { createConvexRegionHelper } from '../common/NavMeshHelper.js'
 
-      let engine, scene, plane, pathHelper, graphHelper, navMeshGroup
+      let engine, scene, plane, pathHelper, graphHelper, navMeshGroup, vehicleMesh
       let entityManager, time, vehicle, target
       let navMesh
 
@@ -46,6 +50,7 @@
 
         scene = new BABYLON.Scene(engine)
         scene.clearColor = new BABYLON.Color3(0, 0, 0)
+        scene.useRightHandedSystem = true
 
         const camera = new BABYLON.ArcRotateCamera(
           'camera',
@@ -61,30 +66,16 @@
 
         const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, -1, 0))
         light.intensity = 0.7
+
         //
 
-        const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
+        vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
           'cone',
           { height: 2, diameterTop: 0, diameterBottom: 1 },
           scene
         )
         vehicleMesh.rotation.x = Math.PI * 0.5
         vehicleMesh.bakeCurrentTransformIntoVertices()
-
-        scene.onPointerMove = () => {
-          var pickResult = scene.pick(scene.pointerX, scene.pointerY)
-          if (pickResult?.pickedPoint) {
-            target.x = pickResult.pickedPoint.x
-            target.y = pickResult.pickedPoint.y
-            target.z = pickResult.pickedPoint.z
-          }
-        }
-
-        scene.onPointerPick = (e, pickResult) => {
-          if (pickResult?.pickedPoint) {
-            findPathTo(new YUKA.Vector3().copy(pickResult.pickedPoint))
-          }
-        }
 
         window.addEventListener('resize', onWindowResize, false)
 
@@ -104,13 +95,13 @@
         entityManager = new YUKA.EntityManager()
         time = new YUKA.Time()
 
-        vehicle = new YUKA.Vehicle()
-        vehicle.maxSpeed = 1.5
-        vehicle.maxForce = 10
-        vehicle.setRenderComponent(vehicleMesh, sync)
-
         const loader = new YUKA.NavMeshLoader()
         loader.load('../common/navmeshes/basic/navmesh.gltf').then((navigationMesh) => {
+          vehicle = new YUKA.Vehicle()
+          vehicle.maxSpeed = 1.5
+          vehicle.maxForce = 10
+          vehicle.setRenderComponent(vehicleMesh, sync)
+
           // visualize convex regions
           navMesh = navigationMesh
           navMeshGroup = createConvexRegionHelper(navMesh, scene)
@@ -119,14 +110,27 @@
           const graph = navMesh.graph
           graphHelper = createGraphHelper(scene, graph, 0.2)
 
+          scene.onPointerMove = () => {
+            var pickResult = scene.pick(scene.pointerX, scene.pointerY)
+            if (pickResult?.pickedPoint) {
+              target.x = pickResult.pickedPoint.x
+              target.y = pickResult.pickedPoint.y
+              target.z = pickResult.pickedPoint.z
+            }
+          }
+
+          scene.onPointerPick = (e, pickResult) => {
+            if (pickResult?.pickedPoint) {
+              findPathTo(new YUKA.Vector3().copy(pickResult.pickedPoint))
+            }
+          }
+          const followPathBehavior = new YUKA.FollowPathBehavior()
+          followPathBehavior.active = false
+          vehicle.steering.add(followPathBehavior)
+
+          entityManager.add(vehicle)
           animate()
         })
-
-        const followPathBehavior = new YUKA.FollowPathBehavior()
-        followPathBehavior.active = false
-        vehicle.steering.add(followPathBehavior)
-
-        entityManager.add(vehicle)
       }
 
       function onWindowResize() {
@@ -174,10 +178,12 @@
         }
       }
 
+      let updateFlas = 1
       function sync(entity, renderComponent) {
         entity.worldMatrix.toArray(entityMatrix.m)
         const matrix = renderComponent.getWorldMatrix()
         matrix.copyFrom(entityMatrix)
+        matrix.updateFlag = updateFlas++
       }
     </script>
   </body>

@@ -36,6 +36,7 @@
 
         scene = new BABYLON.Scene(engine)
         scene.clearColor = new BABYLON.Color3(0, 0, 0)
+        scene.useRightHandedSystem = true
 
         const camera = new BABYLON.ArcRotateCamera(
           'camera',
