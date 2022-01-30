@@ -2,6 +2,8 @@ function createGraphHelper(scene, graph, nodeSize = 1, nodeColor = '#4e84c4', ed
   const nodes = []
   graph.getNodes(nodes)
 
+  const parent = new BABYLON.TransformNode('nodes-parent', scene)
+
   for (let node of nodes) {
     const nodeMaterial = new BABYLON.StandardMaterial('node', scene)
     nodeMaterial.emmissiveColor = BABYLON.Color3.FromHexString(nodeColor)
@@ -14,6 +16,7 @@ function createGraphHelper(scene, graph, nodeSize = 1, nodeColor = '#4e84c4', ed
       },
       scene
     )
+    nodeMesh.parent = parent
     nodeMesh.material = nodeMaterial
     nodeMesh.position = new BABYLON.Vector3(node.position.x, node.position.y, node.position.z)
 
@@ -39,9 +42,12 @@ function createGraphHelper(scene, graph, nodeSize = 1, nodeColor = '#4e84c4', ed
           scene
         )
         pathHelper.color = BABYLON.Color3.Green()
+        pathHelper.parent = parent
       }
     }
   }
+
+  return parent
 }
 
 function createPathHelper(graph, path, nodeSize, color = 0x00ff00) {
