@@ -1,0 +1,227 @@
+<html lang="en">
+	<head>
+		<title>Yuka | First-Person Controls</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="../../lib/styles.css">
+		<link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico">
+	</head>
+<body>
+
+	<section id="loading-screen">
+		<div class="spinner">
+			<div class="rect1"></div>
+			<div class="rect2"></div>
+			<div class="rect3"></div>
+			<div class="rect4"></div>
+			<div class="rect5"></div>
+		</div>
+	</section>
+
+	<section id="intro">
+		<p>
+			Click to Play
+		</p>
+		<p class="sub">
+			A navigation mesh defines the walkable area of this level.
+		</p>
+	</section>
+
+	<script type="module">
+
+	import * as YUKA from '../../../build/yuka.module.js';
+	import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.109/build/three.module.js';
+	import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.109/examples/jsm/loaders/GLTFLoader.js';
+
+	import { FirstPersonControls } from './src/FirstPersonControls.js';
+	import { Player } from './src/Player.js';
+	// import { createConvexRegionHelper } from '../../navigation/common/js/NavMeshHelper.js';
+
+	let camera, scene, renderer;
+
+	let entityManager, time, controls;
+
+	init();
+
+	//
+
+	function init() {
+
+		camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 200 );
+		camera.matrixAutoUpdate = false;
+
+		scene = new THREE.Scene();
+		scene.background = new THREE.Color( 0xa0a0a0 );
+		scene.fog = new THREE.Fog( 0xa0a0a0, 20, 40 );
+
+		//
+
+		const geometry = new THREE.PlaneBufferGeometry( 150, 150 );
+		const material = new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } );
+
+		const ground = new THREE.Mesh( geometry, material );
+		ground.rotation.x = - Math.PI / 2;
+		ground.matrixAutoUpdate = false;
+		ground.updateMatrix();
+		scene.add( ground );
+
+		//
+
+		const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444, 0.6 );
+		hemiLight.position.set( 0, 100, 0 );
+		scene.add( hemiLight );
+
+		const dirLight = new THREE.DirectionalLight( 0xffffff, 0.8 );
+		dirLight.position.set( 0, 20, 10 );
+		scene.add( dirLight );
+
+		//
+
+		const loadingManager = new THREE.LoadingManager( () => {
+
+			// 3D assets are loaded, now load nav mesh
+
+			const loader = new YUKA.NavMeshLoader();
+			loader.load( './navmesh/navmesh.glb', { epsilonCoplanarTest: 0.25 } ).then( ( navMesh ) => {
+
+				// visualize convex regions
+
+				// const navMeshGroup = createConvexRegionHelper( navMesh );
+				// scene.add( navMeshGroup );
+
+				player.navMesh = navMesh;
+
+				const loadingScreen = document.getElementById( 'loading-screen' );
+
+				loadingScreen.classList.add( 'fade-out' );
+				loadingScreen.addEventListener( 'transitionend', onTransitionEnd );
+
+				animate();
+
+			} );
+
+		} );
+
+		//
+
+		const audioLoader = new THREE.AudioLoader( loadingManager );
+		const listener = new THREE.AudioListener();
+		camera.add( listener );
+
+		const step1 = new THREE.Audio( listener );
+		const step2 = new THREE.Audio( listener );
+
+		audioLoader.load( 'audio/step1.ogg', buffer => step1.setBuffer( buffer ) );
+		audioLoader.load( 'audio/step2.ogg', buffer => step2.setBuffer( buffer ) );
+
+		//
+
+		const glTFLoader = new GLTFLoader( loadingManager );
+		glTFLoader.load( 'model/house.glb', ( gltf ) => {
+
+			// add object to scene
+
+			scene.add( gltf.scene );
+
+			gltf.scene.traverse( ( object ) => {
+
+				object.matrixAutoUpdate = false;
+				object.updateMatrix();
+
+				if ( object.isMesh ) object.material.alphaTest = 0.5;
+
+			} );
+
+		} );
+
+		//
+
+		renderer = new THREE.WebGLRenderer( { antialias: true } );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.gammaOutput = true;
+		document.body.appendChild( renderer.domElement );
+
+		window.addEventListener( 'resize', onWindowResize, false );
+
+		const intro = document.getElementById( 'intro' );
+
+		intro.addEventListener( 'click', () => {
+
+			controls.connect();
+
+			const context = THREE.AudioContext.getContext();
+
+			if ( context.state === 'suspended' ) context.resume();
+
+		}, false );
+
+		// game setup
+
+		entityManager = new YUKA.EntityManager();
+		time = new YUKA.Time();
+
+		const player = new Player();
+		player.head.setRenderComponent( camera, sync );
+		player.position.set( - 13, - 0.75, - 9 );
+
+		controls = new FirstPersonControls( player );
+		controls.setRotation( - 2.2, 0.2 );
+
+		controls.sounds.set( 'rightStep', step1 );
+		controls.sounds.set( 'leftStep', step2 );
+
+		controls.addEventListener( 'lock', ( ) => {
+
+			intro.classList.add( 'hidden' );
+
+		} );
+
+		controls.addEventListener( 'unlock', () => {
+
+			intro.classList.remove( 'hidden' );
+
+		} );
+
+		entityManager.add( player );
+
+	}
+
+	function onWindowResize() {
+
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+
+		renderer.setSize( window.innerWidth, window.innerHeight );
+
+	}
+
+	function animate() {
+
+		requestAnimationFrame( animate );
+
+		const delta = time.update().getDelta();
+
+		controls.update( delta );
+
+		entityManager.update( delta );
+
+		renderer.render( scene, camera );
+
+	}
+
+	function sync( entity, renderComponent ) {
+
+		renderComponent.matrixWorld.copy( entity.worldMatrix );
+
+	}
+
+	function onTransitionEnd( event ) {
+
+		event.target.remove();
+
+	}
+
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,190 @@
+<html lang="en">
+  <head>
+    <title>Yuka |</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="../../../css/styles.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico" />
+
+    <script src="https://cdn.jsdelivr.net/npm/babylonjs@4.2.0/babylon.min.js"></script>
+    <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+  </head>
+  <body>
+    <section id="info">
+      <p>Decription</p>
+    </section>
+    <canvas id="renderCanvas" style="width: 100%; height: 100%; touch-action: none"></canvas>
+
+    <script type="module">
+      import * as YUKA from '../../../../lib/yuka.module.js'
+      import * as DAT from 'https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.module.js'
+
+      import { createGraphHelper } from '../../graph/GraphHelper.js'
+      //   import { createConvexRegionHelper } from '../common/js/NavMeshHelper.js'
+
+      let engine, scene, plane, pathHelper, graphHelper
+      let entityManager, time, vehicle, target
+      let navMesh
+
+      const entityMatrix = new BABYLON.Matrix()
+      const pointer = new BABYLON.Vector2(1, 1)
+
+      const params = {
+        showNavigationGraph: true,
+      }
+
+      init()
+
+      function init() {
+        const canvas = document.getElementById('renderCanvas')
+        engine = new BABYLON.Engine(canvas, true, {}, true)
+
+        scene = new BABYLON.Scene(engine)
+        scene.clearColor = new BABYLON.Color3(0, 0, 0)
+
+        const camera = new BABYLON.ArcRotateCamera(
+          'camera',
+          BABYLON.Tools.ToRadians(90),
+          BABYLON.Tools.ToRadians(0),
+          30,
+          BABYLON.Vector3.Zero(),
+          scene
+        )
+
+        camera.target = new BABYLON.Vector3(0, 0, 0)
+        camera.attachControl(canvas, true)
+
+        new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
+        //
+
+        const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 40, height: 20 }, scene)
+        ground.position.y = -1
+        ground.material = new BABYLON.GridMaterial('grid', scene)
+
+        //
+        const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
+          'cone',
+          { height: 2, diameterTop: 0, diameterBottom: 1 },
+          scene
+        )
+        vehicleMesh.rotation.x = Math.PI * 0.5
+        vehicleMesh.bakeCurrentTransformIntoVertices()
+
+        scene.onPointerMove = () => {
+          var pickResult = scene.pick(scene.pointerX, scene.pointerY)
+          if (pickResult?.pickedPoint) {
+            target.x = pickResult.pickedPoint.x
+            // target.y = pickResult.pickedPoint.y;
+            target.z = pickResult.pickedPoint.z
+          }
+        }
+
+        scene.onPointerPick = (e, pickResult) => {
+          if (pickResult?.pickedPoint) {
+            findPathTo(new YUKA.Vector3().copy(pickResult.pickedPoint))
+          }
+        }
+
+        window.addEventListener('resize', onWindowResize, false)
+
+        // gui
+
+        const gui = new DAT.GUI({ width: 300 })
+
+        gui.add(params, 'showNavigationGraph', 1, 30).onChange((value) => {
+          if (graphHelper) graphHelper.visible = value
+        })
+
+        gui.open()
+
+        // YUKA specific
+        target = new YUKA.Vector3()
+
+        entityManager = new YUKA.EntityManager()
+        time = new YUKA.Time()
+
+        vehicle = new YUKA.Vehicle()
+        vehicle.maxSpeed = 1.5
+        vehicle.maxForce = 10
+        vehicle.setRenderComponent(vehicleMesh, sync)
+
+        const loader = new YUKA.NavMeshLoader()
+
+        loader.load('../common/navmeshes/basic/navmesh.gltf').then((navigationMesh) => {
+          // visualize convex regions
+
+          navMesh = navigationMesh
+          //   navMeshGroup = createConvexRegionHelper(navMesh)
+
+          //   scene.add(navMeshGroup)
+
+          // visualize graph
+
+          const graph = navMesh.graph
+
+          graphHelper = createGraphHelper(scene, graph, 0.2)
+
+          animate()
+        })
+
+        const followPathBehavior = new YUKA.FollowPathBehavior()
+        followPathBehavior.active = false
+        vehicle.steering.add(followPathBehavior)
+
+        entityManager.add(vehicle)
+      }
+
+      function onWindowResize() {
+        engine.resize()
+      }
+
+      function animate() {
+        requestAnimationFrame(animate)
+
+        const delta = time.update().getDelta()
+        entityManager.update(delta)
+
+        scene.render()
+      }
+
+      function findPathTo(target) {
+        const from = vehicle.position
+        const to = target
+
+        const path = navMesh.findPath(from, to)
+
+        //
+
+        if (pathHelper) {
+          pathHelper.dispose()
+        }
+        pathHelper = new BABYLON.MeshBuilder.CreateLines(
+          'path-helper',
+          {
+            points: path,
+            updatable: false,
+          },
+          scene
+        )
+        pathHelper.color = BABYLON.Color3.Red()
+
+        //
+
+        const followPathBehavior = vehicle.steering.behaviors[0]
+        followPathBehavior.active = true
+        followPathBehavior.path.clear()
+
+        for (const point of path) {
+          followPathBehavior.path.add(point)
+        }
+      }
+
+      function sync(entity, renderComponent) {
+        entity.worldMatrix.toArray(entityMatrix.m)
+        const matrix = renderComponent.getWorldMatrix()
+        matrix.copyFrom(entityMatrix)
+      }
+    </script>
+  </body>
+</html>
