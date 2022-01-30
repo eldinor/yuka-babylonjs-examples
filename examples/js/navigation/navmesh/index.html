@@ -6,13 +6,17 @@
     <link rel="stylesheet" type="text/css" href="../../../css/styles.css" />
     <link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico" />
 
-    <script src="https://cdn.jsdelivr.net/npm/babylonjs@4.2.0/babylon.min.js"></script>
-    <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
-    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+    <script src="https://preview.babylonjs.com/babylon.max.js"></script>
+    <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+    <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+    <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
   </head>
   <body>
     <section id="info">
-      <p>Decription</p>
+      <p>
+        Click on the navigation mesh to define a new target for the game entity.<br />
+        The colored areas represent the convex regions of the navigation mesh.
+      </p>
     </section>
     <canvas id="renderCanvas" style="width: 100%; height: 100%; touch-action: none"></canvas>
 
@@ -21,9 +25,9 @@
       import * as DAT from 'https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.module.js'
 
       import { createGraphHelper } from '../../graph/GraphHelper.js'
-      //   import { createConvexRegionHelper } from '../common/js/NavMeshHelper.js'
+      import { createConvexRegionHelper } from '../common/NavMeshHelper.js'
 
-      let engine, scene, plane, pathHelper, graphHelper
+      let engine, scene, plane, pathHelper, graphHelper, navMeshGroup
       let entityManager, time, vehicle, target
       let navMesh
 
@@ -45,8 +49,8 @@
 
         const camera = new BABYLON.ArcRotateCamera(
           'camera',
-          BABYLON.Tools.ToRadians(90),
-          BABYLON.Tools.ToRadians(0),
+          BABYLON.Tools.ToRadians(40),
+          BABYLON.Tools.ToRadians(60),
           30,
           BABYLON.Vector3.Zero(),
           scene
@@ -55,14 +59,10 @@
         camera.target = new BABYLON.Vector3(0, 0, 0)
         camera.attachControl(canvas, true)
 
-        new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
+        const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, -1, 0))
+        light.intensity = 0.7
         //
 
-        const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 40, height: 20 }, scene)
-        ground.position.y = -1
-        ground.material = new BABYLON.GridMaterial('grid', scene)
-
-        //
         const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
           'cone',
           { height: 2, diameterTop: 0, diameterBottom: 1 },
@@ -75,7 +75,7 @@
           var pickResult = scene.pick(scene.pointerX, scene.pointerY)
           if (pickResult?.pickedPoint) {
             target.x = pickResult.pickedPoint.x
-            // target.y = pickResult.pickedPoint.y;
+            target.y = pickResult.pickedPoint.y
             target.z = pickResult.pickedPoint.z
           }
         }
@@ -110,19 +110,13 @@
         vehicle.setRenderComponent(vehicleMesh, sync)
 
         const loader = new YUKA.NavMeshLoader()
-
         loader.load('../common/navmeshes/basic/navmesh.gltf').then((navigationMesh) => {
           // visualize convex regions
-
           navMesh = navigationMesh
-          //   navMeshGroup = createConvexRegionHelper(navMesh)
-
-          //   scene.add(navMeshGroup)
+          navMeshGroup = createConvexRegionHelper(navMesh, scene)
 
           // visualize graph
-
           const graph = navMesh.graph
-
           graphHelper = createGraphHelper(scene, graph, 0.2)
 
           animate()

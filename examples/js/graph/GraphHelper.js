@@ -3,7 +3,7 @@ function createGraphHelper(scene, graph, nodeSize = 1, nodeColor = '#4e84c4', ed
   graph.getNodes(nodes)
 
   for (let node of nodes) {
-    const nodeMaterial = new BABYLON.StandardMaterial('node-material', scene)
+    const nodeMaterial = new BABYLON.StandardMaterial('node', scene)
     nodeMaterial.emmissiveColor = BABYLON.Color3.FromHexString(nodeColor)
 
     const nodeMesh = BABYLON.MeshBuilder.CreatePolyhedron(
@@ -19,86 +19,29 @@ function createGraphHelper(scene, graph, nodeSize = 1, nodeColor = '#4e84c4', ed
 
     // edges
     const edges = []
-    const lines = []
     for (let node of nodes) {
       graph.getEdgesOfNode(node.index, edges)
 
-      const position = []
       for (let edge of edges) {
+        const position = []
         const fromNode = graph.getNode(edge.from)
         const toNode = graph.getNode(edge.to)
 
-        position.push(fromNode.position.x, fromNode.position.y, fromNode.position.z)
-        position.push(toNode.position.x, toNode.position.y, toNode.position.z)
+        position.push(new BABYLON.Vector3(fromNode.position.x, fromNode.position.y, fromNode.position.z))
+        position.push(new BABYLON.Vector3(toNode.position.x, toNode.position.y, toNode.position.z))
+
+        const pathHelper = new BABYLON.MeshBuilder.CreateLines(
+          'path-helper',
+          {
+            points: position,
+            updatable: false,
+          },
+          scene
+        )
+        pathHelper.color = BABYLON.Color3.Green()
       }
-
-      lines.push(position)
-    }
-
-    // TODO: use ribbon here
-    console.log(lines)
-    const edgesMesh = BABYLON.MeshBuilder.CreateLineSystem(
-      'graph-helper-edges',
-      {
-        lines,
-      },
-      scene
-    )
-  }
-}
-
-function createGraphHelper2(graph, nodeSize = 1, nodeColor = 0x4e84c4, edgeColor = 0xffffff) {
-  const group = new THREE.Group()
-
-  // nodes
-
-  const nodeMaterial = new THREE.MeshBasicMaterial({ color: nodeColor })
-  const nodeGeometry = new THREE.IcosahedronBufferGeometry(nodeSize, 2)
-
-  const nodes = []
-
-  graph.getNodes(nodes)
-
-  for (let node of nodes) {
-    const nodeMesh = new THREE.Mesh(nodeGeometry, nodeMaterial)
-    nodeMesh.position.copy(node.position)
-    nodeMesh.userData.nodeIndex = node.index
-
-    nodeMesh.matrixAutoUpdate = false
-    nodeMesh.updateMatrix()
-
-    group.add(nodeMesh)
-  }
-
-  // edges
-
-  const edgesGeometry = new THREE.BufferGeometry()
-  const position = []
-
-  const edgesMaterial = new THREE.LineBasicMaterial({ color: edgeColor })
-
-  const edges = []
-
-  for (let node of nodes) {
-    graph.getEdgesOfNode(node.index, edges)
-
-    for (let edge of edges) {
-      const fromNode = graph.getNode(edge.from)
-      const toNode = graph.getNode(edge.to)
-
-      position.push(fromNode.position.x, fromNode.position.y, fromNode.position.z)
-      position.push(toNode.position.x, toNode.position.y, toNode.position.z)
     }
   }
-
-  edgesGeometry.addAttribute('position', new THREE.Float32BufferAttribute(position, 3))
-
-  const lines = new THREE.LineSegments(edgesGeometry, edgesMaterial)
-  lines.matrixAutoUpdate = false
-
-  group.add(lines)
-
-  return group
 }
 
 function createPathHelper(graph, path, nodeSize, color = 0x00ff00) {
