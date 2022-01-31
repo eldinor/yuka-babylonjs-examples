@@ -1,56 +1,40 @@
-/**
- * @author Mugen87 / https://github.com/Mugen87
- */
+function createCellSpaceHelper(spatialIndex, scene) {
+  const cells = spatialIndex.cells
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.109/build/three.module.js';
+  const positions = []
 
-function createCellSpaceHelper( spatialIndex ) {
+  for (let i = 0, l = cells.length; i < l; i++) {
+    const cell = cells[i]
+    const min = cell.aabb.min
+    const max = cell.aabb.max
 
-	const cells = spatialIndex.cells;
+    // generate data for twelve lines segments
 
-	const geometry = new THREE.BufferGeometry();
-	const material = new THREE.LineBasicMaterial();
+    // bottom lines
 
-	const lines = new THREE.LineSegments( geometry, material );
+    positions.push([new BABYLON.Vector3(min.x, min.y, min.z), new BABYLON.Vector3(max.x, min.y, min.z)])
+    positions.push([new BABYLON.Vector3(min.x, min.y, min.z), new BABYLON.Vector3(min.x, min.y, max.z)])
+    positions.push([new BABYLON.Vector3(max.x, min.y, max.z), new BABYLON.Vector3(max.x, min.y, min.z)])
+    positions.push([new BABYLON.Vector3(max.x, min.y, max.z), new BABYLON.Vector3(min.x, min.y, max.z)])
 
-	const positions = [];
+    // top lines
 
-	for ( let i = 0, l = cells.length; i < l; i ++ ) {
+    positions.push([new BABYLON.Vector3(min.x, max.y, min.z), new BABYLON.Vector3(max.x, max.y, min.z)])
+    positions.push([new BABYLON.Vector3(min.x, max.y, min.z), new BABYLON.Vector3(min.x, max.y, max.z)])
+    positions.push([new BABYLON.Vector3(max.x, max.y, max.z), new BABYLON.Vector3(max.x, max.y, min.z)])
+    positions.push([new BABYLON.Vector3(max.x, max.y, max.z), new BABYLON.Vector3(min.x, max.y, max.z)])
 
-		const cell = cells[ i ];
-		const min = cell.aabb.min;
-		const max = cell.aabb.max;
+    // torso lines
 
-		// generate data for twelve lines segments
+    positions.push([new BABYLON.Vector3(min.x, min.y, min.z), new BABYLON.Vector3(min.x, max.y, min.z)])
+    positions.push([new BABYLON.Vector3(max.x, min.y, min.z), new BABYLON.Vector3(max.x, max.y, min.z)])
+    positions.push([new BABYLON.Vector3(max.x, min.y, max.z), new BABYLON.Vector3(max.x, max.y, max.z)])
+    positions.push([new BABYLON.Vector3(min.x, min.y, max.z), new BABYLON.Vector3(min.x, max.y, max.z)])
+  }
 
-		// bottom lines
+  const linesMesh = BABYLON.MeshBuilder.CreateLineSystem('lines', { lines: positions }, scene)
 
-		positions.push( min.x, min.y, min.z, 	max.x, min.y, min.z );
-		positions.push( min.x, min.y, min.z, 	min.x, min.y, max.z );
-		positions.push( max.x, min.y, max.z, 	max.x, min.y, min.z );
-		positions.push( max.x, min.y, max.z, 	min.x, min.y, max.z );
-
-		// top lines
-
-		positions.push( min.x, max.y, min.z, 	max.x, max.y, min.z );
-		positions.push( min.x, max.y, min.z, 	min.x, max.y, max.z );
-		positions.push( max.x, max.y, max.z, 	max.x, max.y, min.z );
-		positions.push( max.x, max.y, max.z, 	min.x, max.y, max.z );
-
-		// torso lines
-
-		positions.push( min.x, min.y, min.z, 	min.x, max.y, min.z );
-		positions.push( max.x, min.y, min.z, 	max.x, max.y, min.z );
-		positions.push( max.x, min.y, max.z, 	max.x, max.y, max.z );
-		positions.push( min.x, min.y, max.z, 	min.x, max.y, max.z );
-
-	}
-
-	geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
-
-	return lines;
-
+  return linesMesh
 }
 
-
-export { createCellSpaceHelper };
+export { createCellSpaceHelper }
