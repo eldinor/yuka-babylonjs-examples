@@ -28,7 +28,7 @@ body {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	background-color: rgba(0,0,0,0.7);
+	background-color: rgba(0,0,0,0.4);
 	color: #ffffff;
 	font-size: 40;
 	z-index: 999;
