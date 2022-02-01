@@ -1,146 +1,139 @@
 <html lang="en">
-<head>
-	<title>Yuka | Orientation</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<link rel="stylesheet" type="text/css" href="../../../css/styles.css">
-	<link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico">
-	<script src="https://cdn.jsdelivr.net/npm/babylonjs@4.2.0/babylon.min.js"></script>
-</head>
-<body>
+  <head>
+    <title>Yuka | Orientation</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="../../../css/styles.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico" />
+    <script src="https://cdn.jsdelivr.net/npm/babylonjs@4.2.0/babylon.min.js"></script>
+  </head>
+  <body>
+    <section id="info">
+      <p>The entity is rotated by a defined angular step per second in order to face a specific target.</p>
+    </section>
 
-	<section id="info">
-		<p>
-			The entity is rotated by a defined angular step per second in order to face a specific target.
-		</p>
-	</section>
+    <canvas id="renderCanvas" style="width: 100%; height: 100%; touch-action: none"></canvas>
 
-	<canvas id="renderCanvas" style="width: 100%; height: 100%; touch-action: none"></canvas>
+    <script type="module">
+      /* eslint no-undef: "off" */
 
-	<script type="module">
+      import * as YUKA from '../../../../../lib/yuka.module.js'
 
-        /* eslint no-undef: "off" */
+      let engine, scene
 
-		import * as YUKA from '../../../../../lib/yuka.module.js';
+      let entityManager, time, entity, target
 
-        let engine, scene;
+      const entityMatrix = new BABYLON.Matrix()
 
-		let entityManager, time, entity, target;
+      init()
+      animate()
 
-        const entityMatrix = new BABYLON.Matrix();
+      function init() {
+        const canvas = document.getElementById('renderCanvas')
+        engine = new BABYLON.Engine(canvas, true, {}, true)
 
-		init();
-		animate();
+        scene = new BABYLON.Scene(engine)
+        scene.clearColor = new BABYLON.Color4(0, 0, 0, 1)
 
-		function init() {
+        const camera = new BABYLON.ArcRotateCamera(
+          'camera',
+          BABYLON.Tools.ToRadians(90),
+          BABYLON.Tools.ToRadians(60),
+          10,
+          BABYLON.Vector3.Zero(),
+          scene
+        )
+        camera.target = new BABYLON.Vector3(0, 0, 0)
+        camera.useAutoRotationBehavior = true
+        camera.wheelDeltaPercentage = 0.002
+        camera.attachControl(canvas, true)
 
-            const canvas = document.getElementById('renderCanvas');
-			engine = new BABYLON.Engine(canvas, true, {}, true);
+        new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0))
 
-            scene = new BABYLON.Scene(engine);
-			scene.clearColor = new BABYLON.Color3(0, 0, 0);
+        //
 
-            const camera = new BABYLON.ArcRotateCamera("camera", BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(60), 10, BABYLON.Vector3.Zero(), scene);
-			camera.target = new BABYLON.Vector3(0, 0, 0);
-			camera.useAutoRotationBehavior = true;
-			camera.wheelDeltaPercentage = 0.002;
-            camera.attachControl(canvas, true);
+        const entityMesh = BABYLON.MeshBuilder.CreateCylinder(
+          'cone',
+          { height: 0.5, diameterTop: 0, diameterBottom: 0.25 },
+          scene
+        )
+        entityMesh.rotation.x = Math.PI * 0.5
+        entityMesh.bakeCurrentTransformIntoVertices()
 
+        const targetMesh = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 0.1, segments: 16 })
 
-            new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0));
+        const meshMat = new BABYLON.StandardMaterial('meshMat', scene)
+        meshMat.disableLighting = true
+        meshMat.emissiveColor = BABYLON.Color3.Red()
+        targetMesh.material = meshMat
 
-			//
+        const sphere = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 5, segments: 16 })
+        sphere.material = new BABYLON.StandardMaterial('sphereMaterial', scene)
+        sphere.material.disableLighting = true
+        sphere.material.emissiveColor = new BABYLON.Color3(0.8, 0.8, 0.8)
+        sphere.material.alpha = 0.2
+        sphere.material.wireframe = true
 
-            const entityMesh = BABYLON.MeshBuilder.CreateCylinder('cone', { height: 0.5, diameterTop: 0, diameterBottom: 0.25 }, scene);
-            entityMesh.rotation.x = Math.PI * 0.5;
-            entityMesh.bakeCurrentTransformIntoVertices();
+        // renderer
 
-			const targetMesh = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 0.1, segments: 16 });
+        //
 
-			const meshMat = new BABYLON.StandardMaterial('meshMat', scene);
-            meshMat.disableLighting = true;
-            meshMat.emissiveColor = BABYLON.Color3.Red();
-            targetMesh.material = meshMat;
+        window.addEventListener('resize', onWindowResize, false)
 
-            const sphere = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 5, segments: 16 });
-            sphere.material = new BABYLON.StandardMaterial('sphereMaterial', scene);
-            sphere.material.disableLighting = true;
-            sphere.material.emissiveColor = new BABYLON.Color3(0.8, 0.8, 0.8);
-            sphere.material.alpha = 0.2;
-            sphere.material.wireframe = true;
+        // game entity setup
 
-			// renderer
+        entityManager = new YUKA.EntityManager()
+        time = new YUKA.Time()
 
+        target = new YUKA.GameEntity()
+        target.setRenderComponent(targetMesh, sync)
 
-			//
+        entity = new YUKA.GameEntity()
+        entity.maxTurnRate = Math.PI * 0.5
+        entity.setRenderComponent(entityMesh, sync)
 
-			window.addEventListener('resize', onWindowResize, false);
+        entityManager.add(entity)
+        entityManager.add(target)
 
-			// game entity setup
+        //
 
-			entityManager = new YUKA.EntityManager();
-			time = new YUKA.Time();
+        generateTarget()
+      }
 
-			target = new YUKA.GameEntity();
-			target.setRenderComponent(targetMesh, sync);
+      function onWindowResize() {
+        engine.resize()
+      }
 
-			entity = new YUKA.GameEntity();
-			entity.maxTurnRate = Math.PI * 0.5;
-			entity.setRenderComponent(entityMesh, sync);
+      function animate() {
+        requestAnimationFrame(animate)
 
-			entityManager.add(entity);
-			entityManager.add(target);
+        const delta = time.update().getDelta()
 
-			//
+        entity.rotateTo(target.position, delta)
 
-			generateTarget();
+        entityManager.update()
 
-		}
+        scene.render()
+      }
 
-		function onWindowResize() {
+      function sync(entity, renderComponent) {
+        entity.worldMatrix.toArray(entityMatrix.m)
 
-            engine.resize();
+        const matrix = renderComponent.getWorldMatrix()
+        matrix.copyFrom(entityMatrix)
+      }
 
-		}
+      function generateTarget() {
+        // generate a random point on a sphere
 
-		function animate() {
+        const radius = 2
+        const phi = Math.acos(2 * Math.random() - 1)
+        const theta = Math.random() * Math.PI * 2
 
-			requestAnimationFrame(animate);
+        target.position.fromSpherical(radius, phi, theta)
 
-			const delta = time.update().getDelta();
-
-			entity.rotateTo(target.position, delta);
-
-			entityManager.update();
-
-            scene.render();
-
-		}
-
-		function sync(entity, renderComponent) {
-
-            entity.worldMatrix.toArray(entityMatrix.m);
-
-            const matrix = renderComponent.getWorldMatrix();
-            matrix.copyFrom(entityMatrix);
-
-		}
-
-		function generateTarget() {
-
-			// generate a random point on a sphere
-
-			const radius = 2;
-			const phi = Math.acos((2 * Math.random()) - 1);
-			const theta = Math.random() * Math.PI * 2;
-
-			target.position.fromSpherical(radius, phi, theta);
-
-			setTimeout(generateTarget, 2000);
-
-		}
-
-	</script>
-
-</body>
+        setTimeout(generateTarget, 2000)
+      }
+    </script>
+  </body>
 </html>

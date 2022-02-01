@@ -147,12 +147,12 @@ function animate() {
   scene.render()
 }
 
-let updateFlag = 0
 function sync(entity, renderComponent) {
   entity.worldMatrix.toArray(entityMatrix.m)
+  entityMatrix._markAsUpdated()
+
   const matrix = renderComponent.getViewMatrix()
   matrix.copyFrom(entityMatrix)
-  matrix.updateFlag = updateFlag++
   // console.log(entity.position.x, entity.position.y, entity.position.z)
   // cameraParent.position.x = entity.position.x
   // cameraParent.position.y = entity.position.y

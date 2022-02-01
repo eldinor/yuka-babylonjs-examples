@@ -20,7 +20,7 @@ function init() {
   engine = new BABYLON.Engine(canvas, true, {}, true)
 
   scene = new BABYLON.Scene(engine)
-  scene.clearColor = new BABYLON.Color3(0, 0, 0)
+  scene.clearColor = new BABYLON.Color4(0, 0, 0, 1)
   //	scene.debugLayer.show();
 
   scene.useRightHandedSystem = true

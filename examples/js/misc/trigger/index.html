@@ -1,181 +1,165 @@
 <html lang="en">
-<head>
-	<title>Yuka | Trigger</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<link rel="stylesheet" type="text/css" href="../../../css/styles.css">
-	<link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico">
-	<script src="https://cdn.jsdelivr.net/npm/babylonjs@4.2.0/babylon.min.js"></script>
-	<script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
-	<script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
-</head>
-<body>
+  <head>
+    <title>Yuka | Trigger</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="../../../css/styles.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico" />
+    <script src="https://cdn.jsdelivr.net/npm/babylonjs@4.2.0/babylon.min.js"></script>
+    <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+  </head>
+  <body>
+    <section id="info">
+      <p>The game entity's color changes to green when it enters a trigger region.</p>
+      <p>Wireframe meshes are shown just for the visual hint. There is no need to render them actually.</p>
+      <p>They just show RectangularTriggerRegion and SphericalTriggerRegion.</p>
+    </section>
+    <canvas id="renderCanvas" style="width: 100%; height: 100%; touch-action: none"></canvas>
 
-	<section id="info">
-		<p>The game entity's color changes to green when it enters a trigger region.</p>
-		<p>Wireframe meshes are shown just for the visual hint. There is no need to render them actually.</p>
-		<p>They just show RectangularTriggerRegion and SphericalTriggerRegion.</p>
+    <script type="module">
+      import * as YUKA from '../../../../../lib/yuka.module.js'
 
-	</section>
-	<canvas id="renderCanvas" style="width: 100%; height: 100%; touch-action: none"></canvas>
+      //	import { CustomTrigger } from './src/CustomTrigger.js';
 
-	<script type="module">
+      //	TODO: Make it possible to use external files for such classes
 
-		import * as YUKA from '../../../../../lib/yuka.module.js';
+      //		import { Trigger } from '../../../../build/yuka.module.js';
 
-
-	//	import { CustomTrigger } from './src/CustomTrigger.js';
-
-	//	TODO: Make it possible to use external files for such classes
-	
-
-	//		import { Trigger } from '../../../../build/yuka.module.js';
-
-
-
-        class CustomTrigger extends YUKA.Trigger {
-
-            constructor(triggerRegion, scene) {
-
-				super(triggerRegion);
-				this.scene = scene;
-
-            }
-
-            execute(entity) {
-
-                super.execute();
-
-				scene.getMeshByName(entity._renderComponent.name).material.emissiveColor.r = 0;
-                scene.getMeshByName(entity._renderComponent.name).material.emissiveColor.g = 1;
-
-            }
-
+      class CustomTrigger extends YUKA.Trigger {
+        constructor(triggerRegion, scene) {
+          super(triggerRegion)
+          this.scene = scene
         }
 
-        let engine, scene;
+        execute(entity) {
+          super.execute()
 
-		let entityManager, time, entity;
+          scene.getMeshByName(entity._renderComponent.name).material.emissiveColor.r = 0
+          scene.getMeshByName(entity._renderComponent.name).material.emissiveColor.g = 1
+        }
+      }
 
-        const entityMatrix = new BABYLON.Matrix();
+      let engine, scene
 
-		init();
-		animate();
+      let entityManager, time, entity
 
-		function init() {
+      const entityMatrix = new BABYLON.Matrix()
 
-            const canvas = document.getElementById('renderCanvas');
-            engine = new BABYLON.Engine(canvas, true, {}, true);
+      init()
+      animate()
 
-			scene = new BABYLON.Scene(engine);
-            scene.useRightHandedSystem = true;
-            scene.clearColor = new BABYLON.Color3(0, 0, 0);
-		//	scene.debugLayer.show();
+      function init() {
+        const canvas = document.getElementById('renderCanvas')
+        engine = new BABYLON.Engine(canvas, true, {}, true)
 
-            const camera = new BABYLON.ArcRotateCamera("camera", BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(60), 15, BABYLON.Vector3.Zero(), scene);
+        scene = new BABYLON.Scene(engine)
+        scene.useRightHandedSystem = true
+        scene.clearColor = new BABYLON.Color4(0, 0, 0, 1)
+        //	scene.debugLayer.show();
 
-            camera.target = new BABYLON.Vector3(0, 0, 0);
-            camera.attachControl(canvas, true);
+        const camera = new BABYLON.ArcRotateCamera(
+          'camera',
+          BABYLON.Tools.ToRadians(90),
+          BABYLON.Tools.ToRadians(60),
+          15,
+          BABYLON.Vector3.Zero(),
+          scene
+        )
 
-            new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+        camera.target = new BABYLON.Vector3(0, 0, 0)
+        camera.attachControl(canvas, true)
 
-            const ground = BABYLON.MeshBuilder.CreatePlane("plane", { width: 25, height: 25 }, scene);
-            ground.position.y = -2;
-            ground.rotation.x = Math.PI / 2;
+        new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), scene)
 
-			ground.material = new BABYLON.GridMaterial("grid", scene);
-            ground.material.backFaceCulling = true;	
+        const ground = BABYLON.MeshBuilder.CreatePlane('plane', { width: 25, height: 25 }, scene)
+        ground.position.y = -2
+        ground.rotation.x = Math.PI / 2
 
-			//
+        ground.material = new BABYLON.GridMaterial('grid', scene)
+        ground.material.backFaceCulling = true
 
-            const entityMesh = BABYLON.MeshBuilder.CreateBox("entityMesh", { size: 0.5 }, scene);
+        //
 
-            const meshMat = new BABYLON.StandardMaterial('meshMat', scene);
-            meshMat.disableLighting = true;
-			meshMat.emissiveColor = BABYLON.Color3.Red();
-			entityMesh.material = meshMat;
+        const entityMesh = BABYLON.MeshBuilder.CreateBox('entityMesh', { size: 0.5 }, scene)
 
-			// game entity setup
+        const meshMat = new BABYLON.StandardMaterial('meshMat', scene)
+        meshMat.disableLighting = true
+        meshMat.emissiveColor = BABYLON.Color3.Red()
+        entityMesh.material = meshMat
 
-			entityManager = new YUKA.EntityManager();
-			time = new YUKA.Time();
+        // game entity setup
 
-			entity = new YUKA.GameEntity();
-			entity.boundingRadius = 0.25;
-			entity.setRenderComponent(entityMesh, sync);
+        entityManager = new YUKA.EntityManager()
+        time = new YUKA.Time()
 
-			entityManager.add(entity);
+        entity = new YUKA.GameEntity()
+        entity.boundingRadius = 0.25
+        entity.setRenderComponent(entityMesh, sync)
 
-			const radius = 2;
-			const size = new YUKA.Vector3(3, 3, 3);
+        entityManager.add(entity)
 
-			const sphericalTriggerRegion = new YUKA.SphericalTriggerRegion(radius);
-			const rectangularTriggerRegion = new YUKA.RectangularTriggerRegion(size);
+        const radius = 2
+        const size = new YUKA.Vector3(3, 3, 3)
 
-			const trigger1 = new CustomTrigger(sphericalTriggerRegion);
-			trigger1.position.set(3, 0, 0);
+        const sphericalTriggerRegion = new YUKA.SphericalTriggerRegion(radius)
+        const rectangularTriggerRegion = new YUKA.RectangularTriggerRegion(size)
 
-			const trigger2 = new CustomTrigger(rectangularTriggerRegion);
-			trigger2.position.set(-3, 0, 0);
+        const trigger1 = new CustomTrigger(sphericalTriggerRegion)
+        trigger1.position.set(3, 0, 0)
 
-			entityManager.add(trigger1);
-			entityManager.add(trigger2);
+        const trigger2 = new CustomTrigger(rectangularTriggerRegion)
+        trigger2.position.set(-3, 0, 0)
 
-			// visualize triggers
+        entityManager.add(trigger1)
+        entityManager.add(trigger2)
 
-            const triggerMesh1 = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 4, segments: 16 });
-			triggerMesh1.material = new BABYLON.StandardMaterial('sphereMaterial', scene);
-			triggerMesh1.material.diffuseColor = BABYLON.Color3.Gray();
-			triggerMesh1.material.wireframe = true;
-			triggerMesh1.position = new BABYLON.Vector3(3, 0, 0);
+        // visualize triggers
 
-			trigger1.setRenderComponent(triggerMesh1, sync);
+        const triggerMesh1 = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 4, segments: 16 })
+        triggerMesh1.material = new BABYLON.StandardMaterial('sphereMaterial', scene)
+        triggerMesh1.material.diffuseColor = BABYLON.Color3.Gray()
+        triggerMesh1.material.wireframe = true
+        triggerMesh1.position = new BABYLON.Vector3(3, 0, 0)
 
-            const triggerMesh2 = BABYLON.MeshBuilder.CreateBox("triggerMesh2", { size: 3 }, scene);
-			triggerMesh2.material = triggerMesh1.material;
-			triggerMesh2.position = new BABYLON.Vector3(-3, 0, 0);
+        trigger1.setRenderComponent(triggerMesh1, sync)
 
-			trigger2.setRenderComponent(triggerMesh2, sync);
+        const triggerMesh2 = BABYLON.MeshBuilder.CreateBox('triggerMesh2', { size: 3 }, scene)
+        triggerMesh2.material = triggerMesh1.material
+        triggerMesh2.position = new BABYLON.Vector3(-3, 0, 0)
 
-			window.addEventListener('resize', onWindowResize, false);
+        trigger2.setRenderComponent(triggerMesh2, sync)
 
-		}
+        window.addEventListener('resize', onWindowResize, false)
+      }
 
-		function onWindowResize() {
+      function onWindowResize() {
+        engine.resize()
+      }
 
-            engine.resize();
+      function animate() {
+        requestAnimationFrame(animate)
 
-		}
+        const delta = time.update().getDelta()
+        const elapsedTime = time.getElapsed()
 
-		function animate() {
+        entity.position.x = Math.sin(elapsedTime) * 2
+        //	entity._renderComponent.material.color.set(0xff0000); // reset color
 
-			requestAnimationFrame(animate);
+        scene.getMeshByName(entity._renderComponent.name).material.emissiveColor.r = 1
+        scene.getMeshByName(entity._renderComponent.name).material.emissiveColor.g = 0
 
-			const delta = time.update().getDelta();
-			const elapsedTime = time.getElapsed();
+        entityManager.update(delta)
 
-			entity.position.x = Math.sin(elapsedTime) * 2;
-		//	entity._renderComponent.material.color.set(0xff0000); // reset color
+        scene.render()
+      }
 
-            scene.getMeshByName(entity._renderComponent.name).material.emissiveColor.r = 1;
-            scene.getMeshByName(entity._renderComponent.name).material.emissiveColor.g = 0;
+      function sync(entity, renderComponent) {
+        entity.worldMatrix.toArray(entityMatrix.m)
 
-			entityManager.update(delta);
-
-            scene.render();
-
-		}
-
-		function sync(entity, renderComponent) {
-
-            entity.worldMatrix.toArray(entityMatrix.m);
-
-            const matrix = renderComponent.getWorldMatrix();
-            matrix.copyFrom(entityMatrix);
-
-		}
-
-	</script>
-
-</body>
+        const matrix = renderComponent.getWorldMatrix()
+        matrix.copyFrom(entityMatrix)
+      }
+    </script>
+  </body>
 </html>

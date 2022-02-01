@@ -25,7 +25,7 @@ function init() {
   engine = new BABYLON.Engine(canvas, true, {}, true)
 
   scene = new BABYLON.Scene(engine)
-  scene.clearColor = new BABYLON.Color3(0, 0, 0)
+  scene.clearColor = new BABYLON.Color4(0, 0, 0, 1)
   scene.useRightHandedSystem = true
 
   const camera = new BABYLON.ArcRotateCamera(
@@ -152,10 +152,10 @@ function findPathTo(target) {
   }
 }
 
-let updateFlag = 1
 function sync(entity, renderComponent) {
   entity.worldMatrix.toArray(entityMatrix.m)
+  entityMatrix._markAsUpdated()
+
   const matrix = renderComponent.getWorldMatrix()
   matrix.copyFrom(entityMatrix)
-  matrix.updateFlag = updateFlag++
 }

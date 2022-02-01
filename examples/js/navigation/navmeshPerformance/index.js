@@ -42,7 +42,7 @@ function init() {
   engine = new BABYLON.Engine(canvas, true, {}, true)
 
   scene = new BABYLON.Scene(engine)
-  scene.clearColor = new BABYLON.Color3(0, 0, 0)
+  scene.clearColor = new BABYLON.Color4(0, 0, 0, 1)
   scene.useRightHandedSystem = true
 
   camera = new BABYLON.ArcRotateCamera(
@@ -260,16 +260,15 @@ function updatePathfinding() {
   }
 }
 
-let updateFlag = 1
 function updateInstancing() {
   for (let i = 0, l = vehicles.length; i < l; i++) {
     const vehicle = vehicles[i]
     vehicle.worldMatrix.toArray(entityMatrix.m)
+    entityMatrix._markAsUpdated()
 
     const vehicleMesh = vehicleMeshes[i]
     const matrix = vehicleMesh.getWorldMatrix()
     matrix.copyFrom(entityMatrix)
-    matrix.updateFlag = updateFlag++
   }
 }
 
