@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="../../../css/styles.css" />
     <link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico" />
-
-    <script src="https://preview.babylonjs.com/babylon.js"></script>
-    <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
-    <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
-    <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
   </head>
   <body>
     <section id="loading-screen">
@@ -21,170 +16,13 @@
         <div class="rect5"></div>
       </div>
     </section>
-    <canvas id="renderCanvas" style="width: 100%; height: 100%; touch-action: none"></canvas>
 
     <section id="intro">
       <p>Click to Play</p>
       <p class="sub">A navigation mesh defines the walkable area of this level.</p>
     </section>
+    <canvas id="renderCanvas" style="width: 100%; height: 100%; touch-action: none"></canvas>
 
-    <script type="module">
-      import * as YUKA from '../../../../lib/yuka.module.js'
-
-      import { FirstPersonControls } from './src/FirstPersonControls.js'
-      import { Player } from './src/Player.js'
-      // import { createConvexRegionHelper } from '../../navigation/common/js/NavMeshHelper.js';
-
-      let engine, scene, camera
-
-      let entityManager, time, controls
-
-      init()
-
-      //
-
-      function init() {
-        const canvas = document.getElementById('renderCanvas')
-        engine = new BABYLON.Engine(canvas, true, {}, true)
-
-        scene = new BABYLON.Scene(engine)
-        scene.clearColor = BABYLON.Color3.FromHexString('#a0a0a0')
-        scene.useRightHandedSystem = true
-
-        // TODO: add fog
-        // scene.fog = new THREE.Fog( 0xa0a0a0, 20, 40 );
-
-        //
-
-        // const geometry = new THREE.PlaneBufferGeometry( 150, 150 );
-        // const material = new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } );
-
-        const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 150, height: 150 }, scene)
-        ground.position.y = -1
-        ground.material = new BABYLON.GridMaterial('grid', scene)
-
-        // const ground = new THREE.Mesh( geometry, material );
-        // ground.rotation.x = - Math.PI / 2;
-        // ground.matrixAutoUpdate = false;
-        // ground.updateMatrix();
-        // scene.add( ground );
-
-        //
-
-        new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0), scene)
-        new BABYLON.DirectionalLight('dir-light', new BABYLON.Vector3(1, 1, 0), scene)
-
-        //
-        BABYLON.SceneLoader.ImportMesh(null, 'model/', 'house.glb', scene, (meshes) => {
-          // TODO: set alpha
-          // if ( object.isMesh ) object.material.alphaTest = 0.5;
-
-          // 3D assets are loaded, now load nav mesh
-
-          const loader = new YUKA.NavMeshLoader()
-          loader.load('./navmesh/navmesh.glb', { epsilonCoplanarTest: 0.25 }).then((navMesh) => {
-            // visualize convex regions
-
-            // const navMeshGroup = createConvexRegionHelper( navMesh );
-            // scene.add( navMeshGroup );
-
-            player.navMesh = navMesh
-
-            const loadingScreen = document.getElementById('loading-screen')
-
-            loadingScreen.classList.add('fade-out')
-            loadingScreen.addEventListener('transitionend', onTransitionEnd)
-
-            animate()
-          })
-        })
-
-        //
-
-        // const audioLoader = new THREE.AudioLoader( loadingManager );
-        // const listener = new THREE.AudioListener();
-        // camera.add( listener );
-
-        // const step1 = new THREE.Audio( listener );
-        // const step2 = new THREE.Audio( listener );
-
-        // audioLoader.load( 'audio/step1.ogg', buffer => step1.setBuffer( buffer ) );
-        // audioLoader.load( 'audio/step2.ogg', buffer => step2.setBuffer( buffer ) );
-
-        //
-
-        //
-
-        // TODO: set gamma
-        // renderer.gammaOutput = true
-        document.body.appendChild(renderer.domElement)
-
-        window.addEventListener('resize', onWindowResize, false)
-
-        const intro = document.getElementById('intro')
-
-        intro.addEventListener(
-          'click',
-          () => {
-            controls.connect()
-
-            // TODO: set audio
-            // const context = THREE.AudioContext.getContext();
-
-            // if ( context.state === 'suspended' ) context.resume();
-          },
-          false
-        )
-
-        // game setup
-
-        entityManager = new YUKA.EntityManager()
-        time = new YUKA.Time()
-
-        const player = new Player()
-        player.head.setRenderComponent(camera, sync)
-        player.position.set(-13, -0.75, -9)
-
-        controls = new FirstPersonControls(player)
-        controls.setRotation(-2.2, 0.2)
-
-        controls.sounds.set('rightStep', step1)
-        controls.sounds.set('leftStep', step2)
-
-        controls.addEventListener('lock', () => {
-          intro.classList.add('hidden')
-        })
-
-        controls.addEventListener('unlock', () => {
-          intro.classList.remove('hidden')
-        })
-
-        entityManager.add(player)
-      }
-
-      function onWindowResize() {
-        engine.resize()
-      }
-
-      function animate() {
-        requestAnimationFrame(animate)
-
-        const delta = time.update().getDelta()
-
-        controls.update(delta)
-
-        entityManager.update(delta)
-
-        scene.render()
-      }
-
-      function sync(entity, renderComponent) {
-        renderComponent.matrixWorld.copy(entity.worldMatrix)
-      }
-
-      function onTransitionEnd(event) {
-        event.target.remove()
-      }
-    </script>
+    <script type="module" src="index.js"></script>
   </body>
 </html>

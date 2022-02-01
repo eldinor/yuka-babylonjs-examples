@@ -114,15 +114,15 @@ class FirstPersonControls extends EventDispatcher {
     if (sign < currentSign) {
       currentSign = sign
 
-      const audio = this.sounds.get('rightStep')
-      audio.play()
+      // const audio = this.sounds.get('rightStep')
+      // audio.play()
     }
 
     if (sign > currentSign) {
       currentSign = sign
 
-      const audio = this.sounds.get('leftStep')
-      audio.play()
+      // const audio = this.sounds.get('leftStep')
+      // audio.play()
     }
   }
 }
