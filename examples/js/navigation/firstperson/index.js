@@ -1,6 +1,7 @@
 import * as YUKA from '../../../../lib/yuka.module.js'
 import 'https://preview.babylonjs.com/babylon.js'
 import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js'
+import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
 import { FirstPersonControls } from './src/FirstPersonControls.js'
 import { Player } from './src/Player.js'
@@ -125,7 +126,7 @@ function animate() {
 function syncCamera(entity, camera) {
   entity.worldMatrix.toArray(entityMatrix.m)
   entityMatrix.invert()
-  entityMatrix._markAsUpdated()
+  entityMatrix.markAsUpdated()
 
   const matrix = camera.getViewMatrix()
   matrix.copyFrom(entityMatrix)

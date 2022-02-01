@@ -264,7 +264,7 @@ function updateInstancing() {
   for (let i = 0, l = vehicles.length; i < l; i++) {
     const vehicle = vehicles[i]
     vehicle.worldMatrix.toArray(entityMatrix.m)
-    entityMatrix._markAsUpdated()
+    entityMatrix.markAsUpdated()
 
     const vehicleMesh = vehicleMeshes[i]
     const matrix = vehicleMesh.getWorldMatrix()
