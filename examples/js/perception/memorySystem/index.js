@@ -2,7 +2,7 @@ import * as YUKA from '../../../../lib/yuka.module.js'
 // import * as DAT from 'https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.module.js';
 
 import 'https://preview.babylonjs.com/babylon.js'
-// import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js'
+import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js'
 // import 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js'
 // import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
@@ -10,8 +10,8 @@ import { CustomEntity } from './src/CustomEntity.js'
 import { Obstacle } from '../common/Obstacle.js'
 import { createVisionHelper } from '../common/VisionHelper.js'
 
-let engine, scene
-let entityManager, time, target
+let engine, scene, targetMaterial
+let entityManager, time, entity, target
 
 const entityMatrix = new BABYLON.Matrix()
 const pointer = new BABYLON.Vector2(1, 1)
@@ -27,63 +27,49 @@ function init() {
   scene.clearColor = new BABYLON.Color4(0, 0, 0, 1)
   scene.useRightHandedSystem = true
 
-  scene.debugLayer.show()
-
-  /*
-
-	//
-
-			const entityGeometry = new THREE.ConeBufferGeometry( 0.1, 0.5, 8 );
-			entityGeometry.rotateX( Math.PI * 0.5 );
-			const entityMaterial = new THREE.MeshNormalMaterial();
-
-			const entityMesh = new THREE.Mesh( entityGeometry, entityMaterial );
-			entityMesh.matrixAutoUpdate = false;
-			scene.add( entityMesh );
-
-			const obstacleGeometry = new THREE.PlaneBufferGeometry( 2, 2, 5, 5 );
-			obstacleGeometry.rotateY( Math.PI );
-			const obstacleMaterial = new THREE.MeshBasicMaterial( { color: 0x777777, side: THREE.DoubleSide } );
-
-			const obstacleMesh = new THREE.Mesh( obstacleGeometry, obstacleMaterial );
-			obstacleMesh.matrixAutoUpdate = false;
-			scene.add( obstacleMesh );
-
-			const targetGeometry = new THREE.SphereBufferGeometry( 0.05 );
-			targetMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
-
-			const targetMesh = new THREE.Mesh( targetGeometry, targetMaterial );
-			targetMesh.matrixAutoUpdate = false;
-			scene.add( targetMesh );
-
-			//
-*/
+  // scene.debugLayer.show()
 
   const camera = new BABYLON.ArcRotateCamera(
     'camera',
     BABYLON.Tools.ToRadians(90),
-    BABYLON.Tools.ToRadians(0),
-    30,
-    BABYLON.Vector3.Zero(),
+    BABYLON.Tools.ToRadians(40),
+    12,
+    new BABYLON.Vector3(0, 0, 0),
     scene
   )
 
-  camera.target = new BABYLON.Vector3(0, 0, 0)
+  camera.setTarget(new BABYLON.Vector3(0, -4, 0))
   camera.attachControl(canvas, true)
 
   new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
 
-  const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 40, height: 20 }, scene)
+  const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 10, height: 10 }, scene)
   ground.position.y = -1
-  ground.material = new BABYLON.GridMaterial('grid', scene)
+  ground.position.z = 1
+  const groundMaterial = new BABYLON.GridMaterial('grid', scene)
+  groundMaterial.gridRatio = 0.4
+  ground.visibility = 0.35
+  ground.material = groundMaterial
 
-  const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
+  const obstacleMesh = BABYLON.MeshBuilder.CreateBox('obstacleMesh', { width: 2, height: 2, depth: 0.2 }, scene)
+  obstacleMesh.rotation.y = Math.PI
+  obstacleMesh.position.z = 2
+  obstacleMesh.material = new BABYLON.StandardMaterial('obstacle', scene)
+  obstacleMesh.material.backFaceCulling = false
+
+  const entityMesh = BABYLON.MeshBuilder.CreateCylinder(
     'cone',
-    { height: 2, diameterTop: 0, diameterBottom: 1 },
+    { height: 0.5, diameterTop: 0, diameterBottom: 0.25 },
     scene
   )
-  vehicleMesh.rotation.x = Math.PI * 0.5
-  vehicleMesh.bakeCurrentTransformIntoVertices()
+  entityMesh.rotation.x = Math.PI * 0.5
+  entityMesh.bakeCurrentTransformIntoVertices()
+
+  const targetMesh = BABYLON.MeshBuilder.CreateSphere('target', { diameter: 0.15, segments: 8 }, scene)
+  targetMaterial = new BABYLON.StandardMaterial('target', scene)
+  targetMesh.material = targetMaterial
+  targetMaterial.emissiveColor = BABYLON.Color3.Red()
+  targetMaterial.disableLighting = true
 
   scene.onPointerMove = () => {
     var pickResult = scene.pick(scene.pointerX, scene.pointerY)
@@ -100,8 +86,8 @@ function init() {
   entityManager = new YUKA.EntityManager()
   time = new YUKA.Time()
 
-  const vertices = obstacleGeometry.attributes.position.array
-  const indices = obstacleGeometry.index.array
+  const vertices = obstacleMesh.getVerticesData(BABYLON.VertexBuffer.PositionKind)
+  const indices = obstacleMesh.getIndices()
   const geometry = new YUKA.MeshGeometry(vertices, indices)
 
   const obstacle = new Obstacle(geometry)
@@ -117,7 +103,6 @@ function init() {
   entity.setRenderComponent(entityMesh, sync)
 
   const helper = createVisionHelper(entity.vision)
-  entityMesh.add(helper)
 
   entityManager.add(entity)
   entityManager.add(obstacle)

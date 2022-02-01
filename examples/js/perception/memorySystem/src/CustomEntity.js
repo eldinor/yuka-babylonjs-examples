@@ -1,127 +1,96 @@
-/**
- * @author Mugen87 / https://github.com/Mugen87
- */
-
-import { GameEntity, Vision, MemorySystem } from '../../../../build/yuka.module.js';
+import { GameEntity, Vision, MemorySystem } from '../../../../../lib/yuka.module.js'
 
 class CustomEntity extends GameEntity {
+  constructor() {
+    super()
 
-	constructor() {
+    this.memorySystem = new MemorySystem()
+    this.memorySystem.memorySpan = 3
 
-		super();
+    this.vision = new Vision(this)
+    this.vision.range = 5
+    this.vision.fieldOfView = Math.PI * 0.5
 
-		this.memorySystem = new MemorySystem();
-		this.memorySystem.memorySpan = 3;
+    this.maxTurnRate = Math.PI * 0.5
 
-		this.vision = new Vision( this );
-		this.vision.range = 5;
-		this.vision.fieldOfView = Math.PI * 0.5;
+    this.currentTime = 0
+    this.memoryRecords = new Array()
 
-		this.maxTurnRate = Math.PI * 0.5;
+    this.target = null
+  }
 
-		this.currentTime = 0;
-		this.memoryRecords = new Array();
+  start() {
+    const target = this.manager.getEntityByName('target')
+    const obstacle = this.manager.getEntityByName('obstacle')
 
-		this.target = null;
+    this.target = target
+    this.vision.addObstacle(obstacle)
 
-	}
+    return this
+  }
 
-	start() {
+  update(delta) {
+    this.currentTime += delta
 
-		const target = this.manager.getEntityByName( 'target' );
-		const obstacle = this.manager.getEntityByName( 'obstacle' );
+    // In many scenarios it is not necessary to update the vision in each
+    // simulation step. A regulator could be used to restrict the update rate.
 
-		this.target = target;
-		this.vision.addObstacle( obstacle );
+    this.updateVision()
 
-		return this;
+    // get a list of all recently sensed game entities
 
-	}
+    this.memorySystem.getValidMemoryRecords(this.currentTime, this.memoryRecords)
 
-	update( delta ) {
+    if (this.memoryRecords.length > 0) {
+      // Pick the first one. It's highly application specific what record is chosen
+      // for further processing.
 
-		this.currentTime += delta;
+      const record = this.memoryRecords[0]
+      const entity = record.entity
 
-		 // In many scenarios it is not necessary to update the vision in each
-		 // simulation step. A regulator could be used to restrict the update rate.
+      // if the game entity is visible, directly rotate towards it. Otherwise, focus
+      // the last known position
 
-		this.updateVision();
+      if (record.visible === true) {
+        this.rotateTo(entity.position, delta)
+        entity._renderComponent.material.emissiveColor = new BABYLON.Color3(0, 1, 0) // some visual feedback
+      } else {
+        // only rotate to the last sensed position if the entity was seen at least once
 
-		// get a list of all recently sensed game entities
+        if (record.timeLastSensed !== -1) {
+          this.rotateTo(record.lastSensedPosition, delta)
 
-		this.memorySystem.getValidMemoryRecords( this.currentTime, this.memoryRecords );
+          entity._renderComponent.material.emissiveColor = new BABYLON.Color3(1, 0, 0) // some visual feedback
+        }
+      }
+    } else {
+      // rotate back to default
 
-		if ( this.memoryRecords.length > 0 ) {
+      this.rotateTo(this.forward, delta)
+    }
 
-			// Pick the first one. It's highly application specific what record is chosen
-			// for further processing.
+    return this
+  }
 
-			const record = this.memoryRecords[ 0 ];
-			const entity = record.entity;
+  updateVision() {
+    const memorySystem = this.memorySystem
+    const vision = this.vision
+    const target = this.target
 
-			// if the game entity is visible, directly rotate towards it. Otherwise, focus
-			// the last known position
+    if (memorySystem.hasRecord(target) === false) {
+      memorySystem.createRecord(target)
+    }
 
-			if ( record.visible === true ) {
+    const record = memorySystem.getRecord(target)
 
-				this.rotateTo( entity.position, delta );
-
-				entity._renderComponent.material.color.set( 0x00ff00 ); // some visual feedback
-
-			} else {
-
-				// only rotate to the last sensed position if the entity was seen at least once
-
-				if ( record.timeLastSensed !== - 1 ) {
-
-					this.rotateTo( record.lastSensedPosition, delta );
-
-					entity._renderComponent.material.color.set( 0xff0000 ); // some visual feedback
-
-				}
-
-			}
-
-		} else {
-
-			// rotate back to default
-
-			this.rotateTo( this.forward, delta );
-
-		}
-
-		return this;
-
-	}
-
-	updateVision() {
-
-		const memorySystem = this.memorySystem;
-		const vision = this.vision;
-		const target = this.target;
-
-		if ( memorySystem.hasRecord( target ) === false ) {
-
-			memorySystem.createRecord( target );
-
-		}
-
-		const record = memorySystem.getRecord( target );
-
-		if ( vision.visible( target.position ) === true ) {
-
-			record.timeLastSensed = this.currentTime;
-			record.lastSensedPosition.copy( target.position );
-			record.visible = true;
-
-		} else {
-
-			record.visible = false;
-
-		}
-
-	}
-
+    if (vision.visible(target.position) === true) {
+      record.timeLastSensed = this.currentTime
+      record.lastSensedPosition.copy(target.position)
+      record.visible = true
+    } else {
+      record.visible = false
+    }
+  }
 }
 
-export { CustomEntity };
+export { CustomEntity }
