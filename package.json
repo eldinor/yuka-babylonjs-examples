@@ -21,6 +21,10 @@
   },
   "dependencies": {
     "@types/yuka": "^0.7.1",
+    "babylonjs": "^5.0.0-beta.5",
+    "babylonjs-inspector": "^5.0.0-beta.5",
+    "babylonjs-loaders": "^5.0.0-beta.5",
+    "babylonjs-materials": "^5.0.0-beta.5",
     "yuka": "^0.7.7"
   }
 }
