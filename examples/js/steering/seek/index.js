@@ -1,60 +1,49 @@
 import * as YUKA from '../../../../lib/yuka.module.js'
-// import * as DAT from 'https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.module.js';
-
 import 'https://preview.babylonjs.com/babylon.js'
-import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js'
-// import 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js'
-// import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
-let renderer, scene, camera
-
+let engine, scene
 let entityManager, time, vehicle, target
+
+const entityMatrix = new BABYLON.Matrix()
 
 init()
 animate()
 
 function init() {
-  scene = new THREE.Scene()
+  const canvas = document.getElementById('renderCanvas')
+  engine = new BABYLON.Engine(canvas, true, {}, true)
 
-  camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000)
-  camera.position.set(0, 0, 10)
-  camera.lookAt(scene.position)
+  scene = new BABYLON.Scene(engine)
+  scene.clearColor = new BABYLON.Color3(0, 0, 0)
 
-  //
+  const camera = new BABYLON.UniversalCamera('UniversalCamera', new BABYLON.Vector3(0, 0, 10), scene)
+  camera.target = new BABYLON.Vector3(0, 0, 0)
 
-  const vehicleGeometry = new THREE.ConeBufferGeometry(0.1, 0.5, 8)
-  vehicleGeometry.rotateX(Math.PI * 0.5)
-  const vehicleMaterial = new THREE.MeshNormalMaterial()
-
-  const vehicleMesh = new THREE.Mesh(vehicleGeometry, vehicleMaterial)
-  vehicleMesh.matrixAutoUpdate = false
-  scene.add(vehicleMesh)
-
-  const targetGeometry = new THREE.SphereBufferGeometry(0.05)
-  const targetMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 })
-
-  const targetMesh = new THREE.Mesh(targetGeometry, targetMaterial)
-  targetMesh.matrixAutoUpdate = false
-  scene.add(targetMesh)
+  new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
 
   //
 
-  const sphereGeometry = new THREE.SphereBufferGeometry(2, 32, 32)
-  const sphereMaterial = new THREE.MeshBasicMaterial({
-    color: 0xcccccc,
-    wireframe: true,
-    transparent: true,
-    opacity: 0.2,
-  })
-  const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
-  scene.add(sphere)
+  const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
+    'cone',
+    { height: 0.5, diameterTop: 0, diameterBottom: 0.25 },
+    scene
+  )
+  vehicleMesh.rotation.x = Math.PI * 0.5
+  vehicleMesh.bakeCurrentTransformIntoVertices()
+
+  const sphere = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 5, segments: 16 })
+  sphere.material = new BABYLON.StandardMaterial('sphereMaterial', scene)
+  sphere.material.disableLighting = true
+  sphere.material.emissiveColor = new BABYLON.Color3(0.8, 0.8, 0.8)
+  sphere.material.alpha = 0.2
+  sphere.material.wireframe = true
 
   //
 
-  renderer = new THREE.WebGLRenderer({ antialias: true })
-  renderer.setPixelRatio(window.devicePixelRatio)
-  renderer.setSize(window.innerWidth, window.innerHeight)
-  document.body.appendChild(renderer.domElement)
+  const targetMesh = BABYLON.MeshBuilder.CreateSphere('target', { diameter: 0.1, segments: 16 })
+  targetMesh.material = new BABYLON.StandardMaterial('targetMaterial', scene)
+  targetMesh.material.disableLighting = true
+  targetMesh.material.emissiveColor = new BABYLON.Color3(1, 0, 0)
 
   //
 
@@ -81,24 +70,24 @@ function init() {
 }
 
 function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight
-  camera.updateProjectionMatrix()
-
-  renderer.setSize(window.innerWidth, window.innerHeight)
+  engine.resize()
 }
 
 function animate() {
   requestAnimationFrame(animate)
 
   const delta = time.update().getDelta()
-
   entityManager.update(delta)
 
-  renderer.render(scene, camera)
+  scene.render()
 }
 
 function sync(entity, renderComponent) {
-  renderComponent.matrix.copy(entity.worldMatrix)
+  entity.worldMatrix.toArray(entityMatrix.m)
+  entityMatrix._markAsUpdated()
+
+  const matrix = renderComponent.getWorldMatrix()
+  matrix.copyFrom(entityMatrix)
 }
 
 function generateTarget() {
