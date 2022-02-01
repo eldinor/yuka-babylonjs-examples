@@ -154,7 +154,7 @@ function findPathTo(target) {
 
 function sync(entity, renderComponent) {
   entity.worldMatrix.toArray(entityMatrix.m)
-  entityMatrix._markAsUpdated()
+  entityMatrix.markAsUpdated()
 
   const matrix = renderComponent.getWorldMatrix()
   matrix.copyFrom(entityMatrix)
