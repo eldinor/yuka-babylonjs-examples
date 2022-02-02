@@ -1,0 +1,113 @@
+<html lang="en">
+	<head>
+		<title>Yuka | First-Person Shooter</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" type="text/css" href="../../lib/styles.css">
+		<link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico">
+		<style>
+			#crosshairs {
+				position: absolute;
+				height: 100%;
+				width: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			#crosshairs.hidden {
+				display: none;
+			}
+			#crosshairs>div {
+				width: 10px;
+				height: 10px;
+				border-radius: 66px;
+				border: 2px solid #992129;
+				opacity: 0.5;
+			}
+			#hit {
+				position: absolute;
+				top: 0;
+				left: 48%;
+			}
+			#hit.hidden {
+				display: none;
+			}
+			#hit>div {
+				padding: 16px;
+			}
+			#hud {
+				position: absolute;
+				bottom: 4%;
+				right: 4%;
+			}
+			#hud>div {
+				padding: 16px;
+			}
+			#hud>div>span {
+				display: inline-block;
+			}
+			#roundsLeft {
+				font-weight: bold;
+				width: 32px;
+			}
+			#ammo {
+				font-size: 20px;
+				opacity: 0.5;
+				width: 32px;
+			}
+			.ui-container {
+				background-color: #282828;
+				font-size: 28px;
+				color: #ffffff;
+				text-align: center;
+				line-height: 20px;
+			}
+		</style>
+	</head>
+<body>
+
+	<section id="loading-screen">
+		<div class="spinner">
+			<div class="rect1"></div>
+			<div class="rect2"></div>
+			<div class="rect3"></div>
+			<div class="rect4"></div>
+			<div class="rect5"></div>
+		</div>
+	</section>
+
+	<section id="intro">
+		<p>
+			Click to Play
+		</p>
+		<p class="sub">
+			This demo implements some basic concepts of First-Person shooters e.g. simulating bullets and collision detection.
+		</p>
+	</section>
+
+	<section id="crosshairs" class="hidden">
+		<div></div>
+	</section>
+
+	<section id="hit" class="hidden ui-container">
+		<div>HIT!</div>
+	</section>
+
+	<section id="hud" class="ui-container">
+		<div>
+			<span id="roundsLeft"></span>
+			<span>|</span>
+			<span id="ammo"></span>
+		</div>
+	</section>
+
+	<script type="module">
+
+	import world from './src/World.js';
+
+	world.init();
+
+	</script>
+
+</body>
+</html>

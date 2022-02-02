@@ -1,0 +1,59 @@
+<html lang="en">
+  <head>
+    <title>Yuka | Fuzzy Logic</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="../../css/styles.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico" />
+    <style>
+      #status {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        color: #ffffff;
+        text-align: center;
+        line-height: 20px;
+        width: 100%;
+        bottom: 0;
+      }
+      #status > div {
+        background-color: #282828;
+        width: 400px;
+        padding: 16px;
+      }
+      #status > div > span {
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="renderCanvas" style="width: 100%; height: 100%; touch-action: none"></canvas>
+
+    <section id="loading-screen">
+      <div class="spinner">
+        <div class="rect1"></div>
+        <div class="rect2"></div>
+        <div class="rect3"></div>
+        <div class="rect4"></div>
+        <div class="rect5"></div>
+      </div>
+    </section>
+
+    <section id="info">
+      <p>
+        The soldier uses fuzzy inference to determine the best weapon<br />
+        based on the distance to the enemy and the available ammo.
+      </p>
+    </section>
+
+    <section id="status">
+      <div>
+        <span>Current Weapon:</span>
+        <span id="currentWeapon"></span>
+      </div>
+    </section>
+    <script type="module" src="index.js"></script>
+  </body>
+</html>
