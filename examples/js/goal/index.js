@@ -42,6 +42,12 @@ function init() {
 
   camera.setTarget(new BABYLON.Vector3.Zero());
 
+  scene.onBeforeRenderObservable.add(function(){
+    if(camera.beta > 1.4){
+      camera.beta = 1.4
+    }
+  })
+
   var light = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1.1,-1,-0.25), scene);
   light.position.x = 100;
   light.position.y = 400
