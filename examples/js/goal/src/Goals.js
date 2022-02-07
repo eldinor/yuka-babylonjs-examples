@@ -2,354 +2,278 @@
  * @author Mugen87 / https://github.com/Mugen87
  */
 
-import { Goal, CompositeGoal, Matrix4, Vector3 } from '../../../../lib/yuka.module.js';
+import { Goal, CompositeGoal, Matrix4, Vector3 } from '../../../../lib/yuka.module.js'
 
-const REST = 'REST';
-const GATHER = 'GATHER';
-const FIND_NEXT = 'FIND NEXT';
-const SEEK = 'SEEK';
-const PICK_UP = 'PICK UP';
-const PLACEHOLDER = '-';
+const REST = 'REST'
+const GATHER = 'GATHER'
+const FIND_NEXT = 'FIND NEXT'
+const SEEK = 'SEEK'
+const PICK_UP = 'PICK UP'
+const PLACEHOLDER = '-'
 
-const WALK = 'WALK';
-const RIGHT_TURN = 'RIGHT_TURN';
-const LEFT_TURN = 'LEFT_TURN';
-const IDLE = 'IDLE';
+const WALK = 'WALK'
+const RIGHT_TURN = 'RIGHT_TURN'
+const LEFT_TURN = 'LEFT_TURN'
+const IDLE = 'IDLE'
 
-const inverseMatrix = new Matrix4();
-const localPosition = new Vector3();
+const inverseMatrix = new Matrix4()
+const localPosition = new Vector3()
 
 class RestGoal extends Goal {
+  constructor(owner) {
+    super(owner)
+  }
 
-	constructor( owner ) {
+  activate() {
+    const owner = this.owner
 
-		super( owner );
+    owner.ui.currentGoal.textContent = REST
+    owner.ui.currentSubgoal.textContent = PLACEHOLDER
+    owner.ui.fatigueLevel.value = owner.fatigueLevel
 
-	}
+    console.log('REST GOAL')
+    //
 
-	activate() {
+    const idle = owner.animations.get(IDLE)
+    idle.play()
+    idle.loopAnimation = true
+  }
 
-		const owner = this.owner;
+  execute() {
+    const owner = this.owner
 
-		owner.ui.currentGoal.textContent = REST;
-		owner.ui.currentSubgoal.textContent = PLACEHOLDER;
-		owner.ui.fatigueLevel.value = owner.fatigueLevel
-		
-		console.log("REST GOAL")
-		//
+    owner.currentTime += owner.deltaTime
 
-		const idle = owner.animations.get( IDLE );
-		idle.play()
-		idle.loopAnimation = true
+    if (owner.currentTime >= owner.restDuration) {
+      this.status = Goal.STATUS.COMPLETED
+    }
+  }
 
-	}
+  terminate() {
+    const owner = this.owner
 
-	execute() {
-
-		const owner = this.owner;
-
-		owner.currentTime += owner.deltaTime;
-
-		if ( owner.currentTime >= owner.restDuration ) {
-
-			this.status = Goal.STATUS.COMPLETED;
-
-		}
-
-	}
-
-	terminate() {
-
-		const owner = this.owner;
-
-		owner.currentTime = 0;
-		owner.fatigueLevel = 0;
-
-	}
-
+    owner.currentTime = 0
+    owner.fatigueLevel = 0
+  }
 }
 
 //
 
 class GatherGoal extends CompositeGoal {
+  constructor(owner) {
+    super(owner)
+  }
 
-	constructor( owner ) {
+  activate() {
+    this.clearSubgoals()
 
-		super( owner );
+    const owner = this.owner
 
-	}
+    owner.ui.currentGoal.textContent = GATHER
 
-	activate() {
+    console.log('GATHER GOAL')
 
-		this.clearSubgoals();
+    this.addSubgoal(new FindNextCollectibleGoal(owner))
+    this.addSubgoal(new SeekToCollectibleGoal(owner))
+    this.addSubgoal(new PickUpCollectibleGoal(owner))
 
-		const owner = this.owner;
+    console.log('fatigueLevel', owner.fatigueLevel)
 
-		owner.ui.currentGoal.textContent = GATHER;
+    owner.ui.fatigueLevel.value = owner.fatigueLevel
 
-		console.log("GATHER GOAL")
+    const idle = owner.animations.get(IDLE)
+    idle.stop()
+  }
 
-		this.addSubgoal( new FindNextCollectibleGoal( owner ) );
-		this.addSubgoal( new SeekToCollectibleGoal( owner ) );
-		this.addSubgoal( new PickUpCollectibleGoal( owner ) );
+  execute() {
+    this.status = this.executeSubgoals()
 
-		console.log("fatigueLevel", owner.fatigueLevel)
-
-		owner.ui.fatigueLevel.value = owner.fatigueLevel
-
-		const idle = owner.animations.get( IDLE );
-		idle.stop( );
-
-	}
-
-	execute() {
-
-		this.status = this.executeSubgoals();
-
-		this.replanIfFailed();
-
-	}
-
+    this.replanIfFailed()
+  }
 }
 
 //
 
 class FindNextCollectibleGoal extends Goal {
+  constructor(owner) {
+    super(owner)
 
-	constructor( owner ) {
+    this.animationId = null
+  }
 
-		super( owner );
+  activate() {
+    const owner = this.owner
 
-		this.animationId = null;
+    // update UI
 
-	}
+    owner.ui.currentSubgoal.textContent = FIND_NEXT
 
-	activate() {
+    console.log('FindNextCollectibleGoal')
 
-		const owner = this.owner;
+    // select closest collectible
 
-		// update UI
+    const entities = owner.manager.entities
+    let minDistance = Infinity
 
-		owner.ui.currentSubgoal.textContent = FIND_NEXT;
+    for (let i = 0, l = entities.length; i < l; i++) {
+      const entity = entities[i]
 
-		console.log("FindNextCollectibleGoal")
+      if (entity !== owner) {
+        const squaredDistance = owner.position.squaredDistanceTo(entity.position)
 
-		// select closest collectible
+        if (squaredDistance < minDistance) {
+          minDistance = squaredDistance
+          owner.currentTarget = entity
+        }
+        //	console.log("owner.currentTarget ", owner.currentTarget.position)
+      }
+    }
 
-		const entities = owner.manager.entities;
-		let minDistance = Infinity;
+    // determine if the girl should perform a left or right turn in order to face
+    // the collectible
 
-		for ( let i = 0, l = entities.length; i < l; i ++ ) {
+    owner.worldMatrix.getInverse(inverseMatrix)
+    localPosition.copy(owner.currentTarget.position).applyMatrix4(inverseMatrix)
 
-			const entity = entities[ i ];
+    this.animationId = localPosition.x >= 0 ? LEFT_TURN : RIGHT_TURN
 
-			if ( entity !== owner ) {
+    console.log('this.animationId ', this.animationId)
 
-				const squaredDistance = owner.position.squaredDistanceTo( entity.position );
+    const turn = owner.animations.get(this.animationId)
 
-				if ( squaredDistance < minDistance ) {
+    turn.play()
+    turn.loopAnimation = true
+  }
 
-					minDistance = squaredDistance;
-					owner.currentTarget = entity;
-				}
-			//	console.log("owner.currentTarget ", owner.currentTarget.position)
-			}
+  execute() {
+    const owner = this.owner
 
-		}
+    if (owner.currentTarget !== null) {
+      if (owner.rotateTo(owner.currentTarget.position, owner.deltaTime) === true) {
+        this.status = Goal.STATUS.COMPLETED
+      }
+    } else {
+      this.status = Goal.STATUS.FAILED
+    }
+  }
 
-		// determine if the girl should perform a left or right turn in order to face
-		// the collectible
+  terminate() {
+    const owner = this.owner
 
-		owner.worldMatrix.getInverse( inverseMatrix );
-		localPosition.copy( owner.currentTarget.position ).applyMatrix4( inverseMatrix );
-	
-		this.animationId = ( localPosition.x >= 0 ) ? LEFT_TURN : RIGHT_TURN;
-		
-		console.log("this.animationId ", this.animationId)
-
-		const turn = owner.animations.get( this.animationId );
-
-		turn.play()
-		turn.loopAnimation = true;
-		
-	}
-
-	execute() {
-
-		const owner = this.owner;
-
-		if ( owner.currentTarget !== null ) {
-
-			if ( owner.rotateTo( owner.currentTarget.position, owner.deltaTime ) === true ) {
-
-				this.status = Goal.STATUS.COMPLETED;
-
-			}
-
-		} else {
-
-			this.status = Goal.STATUS.FAILED;
-
-		}
-
-	}
-
-	terminate() {
-
-		const owner = this.owner;
-
-		const turn = owner.animations.get( this.animationId );
-		turn.stop( );
-
-	}
-
+    const turn = owner.animations.get(this.animationId)
+    turn.stop()
+  }
 }
 
 //
 
 class SeekToCollectibleGoal extends Goal {
+  constructor(owner) {
+    super(owner)
+  }
 
-	constructor( owner ) {
+  activate() {
+    const owner = this.owner
 
-		super( owner );
+    // update UI
 
-	}
+    owner.ui.currentSubgoal.textContent = SEEK
 
-	activate() {
+    console.log('SeekToCollectibleGoal')
 
-		const owner = this.owner;
+    //
 
-		// update UI
+    if (owner.currentTarget !== null) {
+      const arriveBehavior = owner.steering.behaviors[0]
+      arriveBehavior.target = owner.currentTarget.position
+      arriveBehavior.active = true
+    } else {
+      this.status = Goal.STATUS.FAILED
+    }
 
-		owner.ui.currentSubgoal.textContent = SEEK;
+    //
 
-		console.log("SeekToCollectibleGoal")
+    const walk = owner.animations.get(WALK)
+    walk.play()
+    walk.loopAnimation = true
+  }
 
-		//
+  execute() {
+    if (this.active()) {
+      const owner = this.owner
 
-		if ( owner.currentTarget !== null ) {
+      const squaredDistance = owner.position.squaredDistanceTo(owner.currentTarget.position)
 
-			const arriveBehavior = owner.steering.behaviors[ 0 ];
-			arriveBehavior.target = owner.currentTarget.position;
-			arriveBehavior.active = true;
+      if (squaredDistance < 0.25) {
+        this.status = Goal.STATUS.COMPLETED
+      }
 
-		} else {
+      // adjust animation speed based on the actual velocity of the girl
 
-			this.status = Goal.STATUS.FAILED;
+      const animation = owner.animations.get(WALK)
+      animation.speedRatio = Math.min(1.1, owner.getSpeed() / owner.maxSpeed)
+      //	console.log(animation.speedRatio)
+    }
+  }
 
-		}
+  terminate() {
+    const arriveBehavior = this.owner.steering.behaviors[0]
+    arriveBehavior.active = false
+    this.owner.velocity.set(0, 0, 0)
 
-		//
+    const owner = this.owner
 
-		const walk = owner.animations.get( WALK );
-		walk.play();
-		walk.loopAnimation = true;
-
-	}
-
-	execute() {
-
-		if ( this.active() ) {
-
-			const owner = this.owner;
-
-			const squaredDistance = owner.position.squaredDistanceTo( owner.currentTarget.position );
-
-			if ( squaredDistance < 0.25 ) {
-
-				this.status = Goal.STATUS.COMPLETED;
-
-			}
-
-			// adjust animation speed based on the actual velocity of the girl
-
-			const animation = owner.animations.get( WALK );
-			animation.speedRatio = Math.min( 1.1, owner.getSpeed() / owner.maxSpeed );
-		//	console.log(animation.speedRatio)
-
-		}
-
-	}
-
-	terminate() {
-
-		const arriveBehavior = this.owner.steering.behaviors[ 0 ];
-		arriveBehavior.active = false;
-		this.owner.velocity.set( 0, 0, 0 );
-
-		const owner = this.owner;
-
-		const walk = owner.animations.get( WALK );
-		walk.stop();
-
-	}
-
+    const walk = owner.animations.get(WALK)
+    walk.stop()
+  }
 }
 
 //
 
 class PickUpCollectibleGoal extends Goal {
+  constructor(owner) {
+    super(owner)
 
-	constructor( owner ) {
+    this.collectibleRemoveTimeout = 3 // the time in seconds after a collectible is removed
+  }
 
-		super( owner );
+  activate() {
+    const owner = this.owner
 
-		this.collectibleRemoveTimeout = 3; // the time in seconds after a collectible is removed
+    owner.ui.currentSubgoal.textContent = PICK_UP
 
-	}
+    const gather = owner.animations.get(GATHER)
+    gather.play()
+    gather.loopAnimation = true
+    console.log('PickUpCollectibleGoal')
+  }
 
-	activate() {
+  execute() {
+    const owner = this.owner
+    owner.currentTime += owner.deltaTime
 
-		const owner = this.owner;
+    if (owner.currentTime >= owner.pickUpDuration) {
+      this.status = Goal.STATUS.COMPLETED
 
-		owner.ui.currentSubgoal.textContent = PICK_UP;
+      console.log('PickedUp Completed ')
+    } else if (owner.currentTime >= this.collectibleRemoveTimeout) {
+      if (owner.currentTarget !== null) {
+        owner.sendMessage(owner.currentTarget, 'PickedUp')
+        console.log('PickedUp sendMessage Completed ')
+        owner.currentTarget = null
+      }
+    }
+  }
 
-		const gather = owner.animations.get( GATHER );
-		gather.play()
-		gather.loopAnimation = true;
-		console.log("PickUpCollectibleGoal")
-	}
+  terminate() {
+    const owner = this.owner
 
-	execute() {
+    owner.currentTime = 0
+    owner.fatigueLevel++
 
-		const owner = this.owner;
-		owner.currentTime += owner.deltaTime;
-
-		if ( owner.currentTime >= owner.pickUpDuration ) {
-
-			this.status = Goal.STATUS.COMPLETED;
-
-			console.log('PickedUp Completed ' )
-
-		} else if ( owner.currentTime >= this.collectibleRemoveTimeout ) {
-
-			if ( owner.currentTarget !== null ) {
-
-				owner.sendMessage( owner.currentTarget, 'PickedUp' );
-				console.log('PickedUp sendMessage Completed ' )
-				owner.currentTarget = null;
-
-			}
-
-		}
-
-	}
-
-	terminate() {
-
-		const owner = this.owner;
-
-		owner.currentTime = 0;
-		owner.fatigueLevel ++;
-
-		const gather = owner.animations.get( GATHER );
-		gather.stop();
-
-	}
-
+    const gather = owner.animations.get(GATHER)
+    gather.stop()
+  }
 }
 
-export {
-	RestGoal,
-	GatherGoal
-};
+export { RestGoal, GatherGoal }
