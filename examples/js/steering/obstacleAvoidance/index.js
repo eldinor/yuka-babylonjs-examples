@@ -21,7 +21,7 @@ function init() {
 
   scene = new BABYLON.Scene(engine)
   scene.clearColor = new BABYLON.Color4(0, 0, 0, 1)
-  //	scene.debugLayer.show();
+  // scene.debugLayer.show()
 
   scene.useRightHandedSystem = true
 
@@ -36,15 +36,19 @@ function init() {
 
   camera.target = new BABYLON.Vector3(0, 0, 0)
   camera.attachControl(canvas, true)
+  camera.upperBetaLimit = 1.1
 
   new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
 
   const ground = BABYLON.MeshBuilder.CreatePlane('plane', { width: 25, height: 25 }, scene)
-  ground.position.x = -1
   ground.rotation.x = Math.PI / 2
 
   ground.material = new BABYLON.GridMaterial('grid', scene)
   ground.material.backFaceCulling = true
+
+  const wayPointsMat = new BABYLON.StandardMaterial('wayPointsMat', scene)
+  wayPointsMat.disableLighting = true
+  wayPointsMat.emissiveColor = BABYLON.Color3.Magenta()
 
   const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
     'cone',
@@ -53,22 +57,6 @@ function init() {
   )
   vehicleMesh.rotation.x = Math.PI * 0.5
   vehicleMesh.bakeCurrentTransformIntoVertices()
-
-  /*
-const ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
-scene.add( ambientLight );
-
-const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.8 );
-directionalLight.position.set( 1, 1, 0 ).normalize();
-scene.add( directionalLight );
-
-const gridHelper = new THREE.GridHelper( 25, 25 );
-scene.add( gridHelper );
-*/
-
-  // renderer
-
-  //
 
   window.addEventListener('resize', onWindowResize, false)
 
@@ -102,6 +90,7 @@ scene.add( gridHelper );
   // obstacles
 
   setupObstacles()
+  setupWaypoints(path)
 }
 
 function onWindowResize() {
@@ -140,12 +129,12 @@ function setupObstacles() {
   mesh3.material = meshMat
 
   mesh1.position.set(-10, 0, 0)
-  mesh2.position.set(12, 0, 0)
+  mesh2.position.set(11, 0, 0)
   mesh3.position.set(4, 0, -10)
 
   const obstacle1 = new YUKA.GameEntity()
   obstacle1.position.copy(mesh1.position)
-  obstacle1.boundingRadius = mesh1.getBoundingInfo().boundingSphere.radius
+  obstacle1.boundingRadius = mesh1.getBoundingInfo().boundingSphere.radius * 1.4
   entityManager.add(obstacle1)
   obstacles.push(obstacle1)
 
@@ -160,4 +149,15 @@ function setupObstacles() {
   obstacle3.boundingRadius = mesh3.getBoundingInfo().boundingSphere.radius
   entityManager.add(obstacle3)
   obstacles.push(obstacle3)
+}
+
+function setupWaypoints(path) {
+  console.log(path._waypoints)
+  path._waypoints.forEach((p) => {
+    const sphere = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 0.4 }, scene)
+    sphere.material = scene.getMaterialByName('wayPointsMat')
+    sphere.position.x = p.x
+    sphere.position.y = p.y
+    sphere.position.z = p.z
+  })
 }
