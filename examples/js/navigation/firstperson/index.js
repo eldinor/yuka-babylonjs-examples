@@ -24,6 +24,7 @@ function init() {
   scene.useRightHandedSystem = true
 
   camera = new BABYLON.UniversalCamera('camera', new BABYLON.Vector3(-13, 0.75, -9), scene, true)
+  camera.minZ = 0.1
 
   scene.fogMode = BABYLON.Scene.FOGMODE_EXP2
   scene.fogColor = BABYLON.Color3.FromHexString('#a0a0a0')
