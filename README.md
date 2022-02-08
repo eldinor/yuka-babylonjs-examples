@@ -1,6 +1,10 @@
 # yuka-babylonjs-examples
 
-Yuka Game AI + 3D rendering with Babylon.js
+### Yuka Game AI + 3D rendering with Babylon.js.
+
+#### Live example at ...
+
+Yuka library source: https://github.com/Mugen87/yuka
 
 # Installation
 
