@@ -1,25 +1,16 @@
-/**
- * @author Mugen87 / https://github.com/Mugen87
- */
-import { GameEntity } from '../../../../build/yuka.module.js';
+import { GameEntity } from '../../../../../lib/yuka.module.js'
 
 class Ground extends GameEntity {
+  constructor(geometry) {
+    super()
+    this.geometry = geometry
+  }
 
-	constructor( geometry ) {
+  handleMessage() {
+    // do nothing
 
-		super();
-		this.geometry = geometry;
-
-	}
-
-	handleMessage() {
-
-		// do nothing
-
-		return true;
-
-	}
-
+    return true
+  }
 }
 
-export { Ground };
+export { Ground }

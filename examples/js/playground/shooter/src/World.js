@@ -1,396 +1,324 @@
-/**
- * @author Mugen87 / https://github.com/Mugen87
- */
+import * as YUKA from '../../../../../lib/yuka.module.js'
 
-import * as YUKA from '../../../../build/yuka.module.js';
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.109/build/three.module.js';
-import { AssetManager } from './AssetManager.js';
-import { Bullet } from './Bullet.js';
-import { Ground } from './Ground.js';
-import { Player } from './Player.js';
-import { Target } from './Target.js';
-import { FirstPersonControls } from './FirstPersonControls.js';
+// import * as DAT from 'https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.module.js';
 
-const target = new YUKA.Vector3();
+import 'https://preview.babylonjs.com/babylon.max.js'
+import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js'
+// import 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js'
+// import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
+
+import { AssetManager } from './AssetManager.js'
+import { Bullet } from './Bullet.js'
+import { Ground } from './Ground.js'
+import { Player } from './Player.js'
+import { Target } from './Target.js'
+import { FirstPersonControls } from './FirstPersonControls.js'
+
+const target = new YUKA.Vector3()
 const intersection = {
-	point: new YUKA.Vector3(),
-	normal: new YUKA.Vector3()
-};
+  point: new YUKA.Vector3(),
+  normal: new YUKA.Vector3(),
+}
+
+const entityMatrix = new BABYLON.Matrix()
+const cameraEntityMatrix = new BABYLON.Matrix()
 
 class World {
+  constructor() {
+    this.maxBulletHoles = 20
 
-	constructor() {
+    this.entityManager = new YUKA.EntityManager()
+    this.time = new YUKA.Time()
+
+    this.camera = null
+    this.scene = null
+    this.renderer = null
+    this.audios = new Map()
+    this.animations = new Map()
 
-		this.maxBulletHoles = 20;
+    this.player = null
+    this.controls = null
+    this.obstacles = new Array()
+    this.bulletHoles = new Array()
 
-		this.entityManager = new YUKA.EntityManager();
-		this.time = new YUKA.Time();
+    this.assetManager = new AssetManager()
 
-		this.camera = null;
-		this.scene = null;
-		this.renderer = null;
-		this.audios = new Map();
-		this.animations = new Map();
+    this.animate = animate.bind(this)
+    this.onIntroClick = onIntroClick.bind(this)
+    this.onWindowResize = onWindowResize.bind(this)
 
-		this.player = null;
-		this.controls = null;
-		this.obstacles = new Array();
-		this.bulletHoles = new Array();
+    this.ui = {
+      intro: document.getElementById('intro'),
+      crosshairs: document.getElementById('crosshairs'),
+      loadingScreen: document.getElementById('loading-screen'),
+    }
+  }
 
-		this.assetManager = new AssetManager();
+  async init() {
+    this.initScene()
+    await this.assetManager.init(this.scene)
+    this.initGround()
+    this.initPlayer()
+    this.initControls()
+    this.initTarget()
+    this.initUI()
 
-		this._animate = animate.bind( this );
-		this._onIntroClick = onIntroClick.bind( this );
-		this._onWindowResize = onWindowResize.bind( this );
+    this.animate()
+  }
+
+  update() {
+    const delta = this.time.update().getDelta()
 
-		this.ui = {
-			intro: document.getElementById( 'intro' ),
-			crosshairs: document.getElementById( 'crosshairs' ),
-			loadingScreen: document.getElementById( 'loading-screen' )
-		};
+    this.controls.update(delta)
 
-	}
+    this.entityManager.update(delta)
 
-	init() {
+    // if (this.mixer) this.mixer.update(delta)
 
-		this.assetManager.init().then( () => {
+    // this.camera.rotation.x = delta
+    this.scene.render()
+  }
 
-			this._initScene();
-			this._initGround();
-			this._initPlayer();
-			this._initControls();
-			this._initTarget();
-			this._initUI();
+  add(entity) {
+    console.log('Adding entity', entity, entity._renderComponent)
+    this.entityManager.add(entity)
 
-			this._animate();
+    if (entity._renderComponent !== null) {
+      // TODO
+      // this.scene.add(entity._renderComponent)
+    }
+
+    if (entity.geometry) {
+      this.obstacles.push(entity)
+    }
+  }
+
+  remove(entity) {
+    this.entityManager.remove(entity)
+
+    if (entity._renderComponent !== null) {
+      entity._renderComponent.dispose()
+    }
 
-		} );
+    if (entity.geometry) {
+      const index = this.obstacles.indexOf(entity)
 
-	}
+      if (index !== -1) {
+        this.obstacles.splice(index, 1)
+      }
+    }
+  }
 
-	update() {
+  addBullet(owner, ray) {
+    const bulletLine = this.assetManager.models.get('bulletLine')
+    bulletLine.setEnabled(true)
 
-		const delta = this.time.update().getDelta();
+    const bullet = new Bullet(owner, ray)
+    bullet.setRenderComponent(bulletLine, sync)
 
-		this.controls.update( delta );
+    this.add(bullet)
+  }
 
-		this.entityManager.update( delta );
+  addBulletHole(position, normal, audio) {
+    const bulletHole = this.assetManager.models.get('bulletHole').clone('bullet-hole' + this.bulletHoles.length)
+    audio.attachToMesh(bulletHole)
 
-		if ( this.mixer ) this.mixer.update( delta );
+    // var newDecal = BABYLON.MeshBuilder.CreateDecal("decal", cat, pickInfo.pickedPoint, pickInfo.getNormal(true), decalSize);
+    // newDecal.material = decalMaterial;
 
-		this.renderer.render( this.scene, this.camera );
+    const s = 1 + Math.random() * 0.5
+    bulletHole.scaling = new BABYLON.Vector3(s, s, s)
+    bulletHole.position = new BABYLON.Vector3(position.x, position.y, position.z)
 
-	}
+    target.copy(position).add(normal)
 
-	add( entity ) {
+    // bulletHole.lookAt(new BABYLON.Vector3(target.x, target.y, target.z))
 
-		this.entityManager.add( entity );
+    if (this.bulletHoles.length >= this.maxBulletHoles) {
+      const toRemove = this.bulletHoles.shift()
+      toRemove.dispose()
+    }
 
-		if ( entity._renderComponent !== null ) {
+    this.bulletHoles.push(bulletHole)
+  }
 
-			this.scene.add( entity._renderComponent );
+  intersectRay(ray, intersectionPoint, normal = null) {
+    const obstacles = this.obstacles
+    let minDistance = Infinity
+    let closestObstacle = null
 
-		}
+    for (let i = 0, l = obstacles.length; i < l; i++) {
+      const obstacle = obstacles[i]
 
-		if ( entity.geometry ) {
+      if (
+        obstacle.geometry.intersectRay(ray, obstacle.worldMatrix, false, intersection.point, intersection.normal) !==
+        null
+      ) {
+        const squaredDistance = intersection.point.squaredDistanceTo(ray.origin)
 
-			this.obstacles.push( entity );
+        if (squaredDistance < minDistance) {
+          minDistance = squaredDistance
+          closestObstacle = obstacle
 
-		}
+          intersectionPoint.copy(intersection.point)
+          if (normal) normal.copy(intersection.normal)
+        }
+      }
+    }
 
-	}
+    return closestObstacle === null ? null : closestObstacle
+  }
 
-	remove( entity ) {
+  initScene() {
+    const canvas = document.getElementById('renderCanvas')
+    this.engine = new BABYLON.Engine(canvas, true, {}, true)
 
-		this.entityManager.remove( entity );
+    this.scene = new BABYLON.Scene(this.engine)
+    const scene = this.scene
 
-		if ( entity._renderComponent !== null ) {
+    scene.clearColor = new BABYLON.Color4(0.6, 0.6, 0.6, 1)
+    scene.useRightHandedSystem = true
 
-			this.scene.remove( entity._renderComponent );
+    scene.fogMode = BABYLON.Scene.FOGMODE_EXP2
+    scene.fogColor = BABYLON.Color3.FromHexString('#a0a0a0')
+    scene.fogDensity = 0.005
+    scene.debugLayer
+      .show({
+        embedMode: true,
+      })
+      .then(() => {
+        const host = document.getElementById('embed-host')
+        host.style.zIndex = '999999999'
+      })
 
-		}
+    const camera = new BABYLON.UniversalCamera('camera', new BABYLON.Vector3(0, 0, 0), scene, true)
+    this.camera = camera
 
-		if ( entity.geometry ) {
+    new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
 
-			const index = this.obstacles.indexOf( entity );
+    this.dirLight = new BABYLON.DirectionalLight('dirLight', new BABYLON.Vector3(-1, -3, 1), scene)
+    this.dirLight.position = new BABYLON.Vector3(3, 9, 3)
 
-			if ( index !== - 1 ) this.obstacles.splice( index, 1 );
+    this.audios = this.assetManager.audios
 
+    this.shadowGenerator = new BABYLON.ShadowGenerator(1024, this.dirLight)
 
-		}
+    // scene
 
-	}
+    window.addEventListener('resize', this.onWindowResize, false)
+    this.ui.intro.addEventListener('click', this.onIntroClick, false)
+  }
 
-	addBullet( owner, ray ) {
+  initGround() {
+    const groundMesh = this.assetManager.models.get('ground')
+    const vertices = groundMesh.getVerticesData(BABYLON.VertexBuffer.PositionKind)
+    const indices = groundMesh.getIndices()
+    const geometry = new YUKA.MeshGeometry(vertices, indices)
 
-		const bulletLine = this.assetManager.models.get( 'bulletLine' ).clone();
+    const ground = new Ground(geometry)
+    ground.setRenderComponent(groundMesh, sync)
 
-		const bullet = new Bullet( owner, ray );
-		bullet.setRenderComponent( bulletLine, sync );
+    this.add(ground)
+  }
 
-		this.add( bullet );
+  initPlayer() {
+    const player = new Player(this.camera)
+    player.head.setRenderComponent(this.camera, syncCamera)
 
-	}
+    this.add(player)
+    this.player = player
 
-	addBulletHole( position, normal, audio ) {
+    // weapon
+    const weapon = player.weapon
+    const weaponMesh = this.assetManager.models.get('weapon')
+    weapon.setRenderComponent(weaponMesh, sync)
 
-		const bulletHole = this.assetManager.models.get( 'bulletHole' ).clone();
-		bulletHole.add( audio );
+    this.shadowGenerator.addShadowCaster(weaponMesh)
 
-		const s = 1 + ( Math.random() * 0.5 );
-		bulletHole.scale.set( s, s, s );
+    // TODO: audios
+    this.audios.get('shot').attachToMesh(weaponMesh)
+    this.audios.get('reload').attachToMesh(weaponMesh)
+    this.audios.get('empty').attachToMesh(weaponMesh)
 
-		bulletHole.position.copy( position );
-		target.copy( position ).add( normal );
-		bulletHole.updateMatrix();
-		bulletHole.lookAt( target.x, target.y, target.z );
-		bulletHole.updateMatrix();
+    // animations
+    this.animations = this.assetManager.animations
+  }
 
-		if ( this.bulletHoles.length >= this.maxBulletHoles ) {
+  initControls() {
+    const player = this.player
 
-			const toRemove = this.bulletHoles.shift();
-			this.scene.remove( toRemove );
+    this.controls = new FirstPersonControls(player)
 
-		}
+    const intro = this.ui.intro
+    const crosshairs = this.ui.crosshairs
 
-		this.bulletHoles.push( bulletHole );
-		this.scene.add( bulletHole );
+    this.controls.addEventListener('lock', () => {
+      intro.classList.add('hidden')
+      crosshairs.classList.remove('hidden')
+    })
 
-	}
+    this.controls.addEventListener('unlock', () => {
+      intro.classList.remove('hidden')
+      crosshairs.classList.add('hidden')
+    })
+  }
 
-	intersectRay( ray, intersectionPoint, normal = null ) {
+  initTarget() {
+    const targetMesh = this.assetManager.models.get('target')
+    this.shadowGenerator.addShadowCaster(targetMesh)
 
-		const obstacles = this.obstacles;
-		let minDistance = Infinity;
-		let closestObstacle = null;
+    const vertices = targetMesh.getVerticesData(BABYLON.VertexBuffer.PositionKind)
+    const indices = targetMesh.getIndices()
 
-		for ( let i = 0, l = obstacles.length; i < l; i ++ ) {
+    const geometry = new YUKA.MeshGeometry(vertices, indices)
+    const target = new Target(geometry)
+    target.position.set(0, 5, -20)
 
-			const obstacle = obstacles[ i ];
+    target.setRenderComponent(targetMesh, sync)
 
-			if ( obstacle.geometry.intersectRay( ray, obstacle.worldMatrix, false, intersection.point, intersection.normal ) !== null ) {
+    this.add(target)
+  }
 
-				const squaredDistance = intersection.point.squaredDistanceTo( ray.origin );
+  initUI() {
+    const loadingScreen = this.ui.loadingScreen
 
-				if ( squaredDistance < minDistance ) {
-
-					minDistance = squaredDistance;
-					closestObstacle = obstacle;
-
-					intersectionPoint.copy( intersection.point );
-					if ( normal ) normal.copy( intersection.normal );
-
-				}
-
-			}
-
-		}
-
-		return ( closestObstacle === null ) ? null : closestObstacle;
-
-	}
-
-	_initScene() {
-
-		// camera
-
-		this.camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 200 );
-		this.camera.matrixAutoUpdate = false;
-		this.camera.add( this.assetManager.listener );
-
-		// audios
-
-		this.audios = this.assetManager.audios;
-
-		// scene
-
-		this.scene = new THREE.Scene();
-		this.scene.background = new THREE.Color( 0xa0a0a0 );
-		this.scene.fog = new THREE.Fog( 0xa0a0a0, 10, 50 );
-
-		// lights
-
-		const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444, 0.8 );
-		hemiLight.position.set( 0, 100, 0 );
-		this.scene.add( hemiLight );
-
-		const dirLight = new THREE.DirectionalLight( 0xffffff, 0.8 );
-		dirLight.castShadow = true;
-		dirLight.shadow.camera.top = 5;
-		dirLight.shadow.camera.bottom = - 5;
-		dirLight.shadow.camera.left = - 5;
-		dirLight.shadow.camera.right = 5;
-		dirLight.shadow.camera.near = 0.1;
-		dirLight.shadow.camera.far = 25;
-		dirLight.position.set( 5, 7.5, - 10 );
-		dirLight.target.position.set( 0, 0, - 25 );
-		dirLight.target.updateMatrixWorld();
-		this.scene.add( dirLight );
-
-		// this.scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
-
-		// renderer
-
-		this.renderer = new THREE.WebGLRenderer( { antialias: true } );
-		this.renderer.setSize( window.innerWidth, window.innerHeight );
-		this.renderer.shadowMap.enabled = true;
-		this.renderer.gammaOutput = true;
-		document.body.appendChild( this.renderer.domElement );
-
-		// listeners
-
-		window.addEventListener( 'resize', this._onWindowResize, false );
-		this.ui.intro.addEventListener( 'click', this._onIntroClick, false );
-
-	}
-
-	_initGround() {
-
-		const groundMesh = this.assetManager.models.get( 'ground' );
-
-		const vertices = groundMesh.geometry.attributes.position.array;
-		const indices = groundMesh.geometry.index.array;
-
-		const geometry = new YUKA.MeshGeometry( vertices, indices );
-		const ground = new Ground( geometry );
-		ground.setRenderComponent( groundMesh, sync );
-
-		this.add( ground );
-
-	}
-
-	_initPlayer() {
-
-		const player = new Player();
-		player.head.setRenderComponent( this.camera, syncCamera );
-
-		this.add( player );
-		this.player = player;
-
-		// weapon
-
-		const weapon = player.weapon;
-		const weaponMesh = this.assetManager.models.get( 'weapon' );
-		weapon.setRenderComponent( weaponMesh, sync );
-		this.scene.add( weaponMesh );
-
-		weaponMesh.add( this.audios.get( 'shot' ) );
-		weaponMesh.add( this.audios.get( 'reload' ) );
-		weaponMesh.add( this.audios.get( 'empty' ) );
-
-		// animations
-
-		this.mixer = new THREE.AnimationMixer( player.weapon );
-
-		const shotClip = this.assetManager.animations.get( 'shot' );
-		const shotAction = this.mixer.clipAction( shotClip );
-		shotAction.loop = THREE.LoopOnce;
-
-		this.animations.set( 'shot', shotAction );
-
-		const reloadClip = this.assetManager.animations.get( 'reload' );
-		const reloadAction = this.mixer.clipAction( reloadClip );
-		reloadAction.loop = THREE.LoopOnce;
-
-		this.animations.set( 'reload', reloadAction );
-
-	}
-
-	_initControls() {
-
-		const player = this.player;
-
-		this.controls = new FirstPersonControls( player );
-
-		const intro = this.ui.intro;
-		const crosshairs = this.ui.crosshairs;
-
-		this.controls.addEventListener( 'lock', () => {
-
-			intro.classList.add( 'hidden' );
-			crosshairs.classList.remove( 'hidden' );
-
-		} );
-
-		this.controls.addEventListener( 'unlock', () => {
-
-			intro.classList.remove( 'hidden' );
-			crosshairs.classList.add( 'hidden' );
-
-		} );
-
-	}
-
-	_initTarget() {
-
-		const targetMesh = this.assetManager.models.get( 'target' );
-
-		const vertices = targetMesh.geometry.attributes.position.array;
-		const indices = targetMesh.geometry.index.array;
-
-		const geometry = new YUKA.MeshGeometry( vertices, indices );
-		const target = new Target( geometry );
-		target.position.set( 0, 5, - 20 );
-		target.setRenderComponent( targetMesh, sync );
-
-		this.add( target );
-
-	}
-
-	_initUI() {
-
-		const loadingScreen = this.ui.loadingScreen;
-
-		loadingScreen.classList.add( 'fade-out' );
-		loadingScreen.addEventListener( 'transitionend', onTransitionEnd );
-
-	}
-
+    loadingScreen.classList.add('fade-out')
+    loadingScreen.addEventListener('transitionend', onTransitionEnd)
+  }
 }
 
-function sync( entity, renderComponent ) {
-
-	renderComponent.matrix.copy( entity.worldMatrix );
-
+function sync(entity, renderComponent) {
+  entity.worldMatrix.toArray(entityMatrix.m)
+  entityMatrix.markAsUpdated()
+  const matrix = renderComponent.getWorldMatrix()
+  matrix.copyFrom(entityMatrix)
 }
 
-function syncCamera( entity, renderComponent ) {
+function syncCamera(entity, renderComponent) {
+  entity.worldMatrix.toArray(cameraEntityMatrix.m)
+  cameraEntityMatrix.invert()
+  cameraEntityMatrix.markAsUpdated()
 
-	renderComponent.matrixWorld.copy( entity.worldMatrix );
-
+  const matrix = renderComponent.getViewMatrix()
+  matrix.copyFrom(cameraEntityMatrix)
 }
 
 function onIntroClick() {
-
-	this.controls.connect();
-
-	const context = THREE.AudioContext.getContext();
-
-	if ( context.state === 'suspended' ) context.resume();
-
+  this.controls.connect()
 }
 
 function onWindowResize() {
-
-	this.camera.aspect = window.innerWidth / window.innerHeight;
-	this.camera.updateProjectionMatrix();
-
-	this.renderer.setSize( window.innerWidth, window.innerHeight );
-
+  this.engine.resize()
 }
 
-function onTransitionEnd( event ) {
-
-	event.target.remove();
-
+function onTransitionEnd(event) {
+  event.target.remove()
 }
 
 function animate() {
+  requestAnimationFrame(this.animate)
 
-	requestAnimationFrame( this._animate );
-
-	this.update();
-
+  this.update()
 }
 
-export default new World();
+export default new World()

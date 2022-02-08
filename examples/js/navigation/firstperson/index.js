@@ -31,10 +31,12 @@ function init() {
 
   //
   const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 250, height: 250 }, scene)
-  ground.position.y = -2
+  ground.position.y = -5
   const groundMaterial = new BABYLON.StandardMaterial('grid', scene)
   groundMaterial.diffuseColor = BABYLON.Color3.FromHexString('#999999')
   ground.material = groundMaterial
+  // TODO: remove
+  ground.visibility = 0.2
 
   //
 

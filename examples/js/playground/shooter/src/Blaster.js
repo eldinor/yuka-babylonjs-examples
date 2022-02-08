@@ -1,227 +1,202 @@
-/**
- * @author Mugen87 / https://github.com/Mugen87
- */
+import { GameEntity, Ray, Vector3 } from '../../../../../lib/yuka.module.js'
+import world from './World.js'
 
-import { GameEntity, Ray, Vector3 } from '../../../../build/yuka.module.js';
-import world from './World.js';
-
-const intersectionPoint = new Vector3();
-const target = new Vector3();
+const intersectionPoint = new Vector3()
+const target = new Vector3()
 
 class Blaster extends GameEntity {
+  constructor(owner = null) {
+    super()
 
-	constructor( owner = null ) {
+    this.owner = owner
 
-		super();
+    this.camera = owner.camera
 
-		this.owner = owner;
+    this.status = STATUS.READY
 
-		this.status = STATUS.READY;
+    this.roundsLeft = 12
+    this.roundsPerClip = 12
+    this.ammo = 48
+    this.maxAmmo = 96
 
-		this.roundsLeft = 12;
-		this.roundsPerClip = 12;
-		this.ammo = 48;
-		this.maxAmmo = 96;
+    // times are in seconds
 
-		// times are in seconds
+    this.shotTime = 0.2
+    this.reloadTime = 1.5
+    this.muzzleFireTime = 0.1
 
-		this.shotTime = 0.2;
-		this.reloadTime = 1.5;
-		this.muzzleFireTime = 0.1;
+    this.currentTime = 0
+    this.endTimeShot = Infinity
+    this.endTimeReload = Infinity
+    this.endTimeMuzzleFire = Infinity
 
-		this.currentTime = 0;
-		this.endTimeShot = Infinity;
-		this.endTimeReload = Infinity;
-		this.endTimeMuzzleFire = Infinity;
+    this.muzzleSprite = world.assetManager.models.get('muzzle')
 
-		this.muzzleSprite = world.assetManager.models.get( 'muzzle' );
+    this.ui = {
+      roundsLeft: document.getElementById('roundsLeft'),
+      ammo: document.getElementById('ammo'),
+    }
 
-		this.ui = {
-			roundsLeft: document.getElementById( 'roundsLeft' ),
-			ammo: document.getElementById( 'ammo' )
-		};
+    this.updateUI()
+  }
 
-		this.updateUI();
+  update(delta) {
+    this.currentTime += delta
 
-	}
+    // check reload
 
-	update( delta ) {
+    if (this.currentTime >= this.endTimeReload) {
+      const toReload = this.roundsPerClip - this.roundsLeft
 
-		this.currentTime += delta;
+      if (this.ammo >= toReload) {
+        this.roundsLeft = this.roundsPerClip
+        this.ammo -= toReload
+      } else {
+        this.roundsLeft += this.ammo
+        this.ammo = 0
+      }
 
-		// check reload
+      this.status = STATUS.READY
 
-		if ( this.currentTime >= this.endTimeReload ) {
+      this.updateUI()
 
-			const toReload = this.roundsPerClip - this.roundsLeft;
+      this.endTimeReload = Infinity
+    }
 
-			if ( this.ammo >= toReload ) {
+    // check muzzle fire
 
-				this.roundsLeft = this.roundsPerClip;
-				this.ammo -= toReload;
+    if (this.currentTime >= this.endTimeMuzzleFire) {
+      this.muzzleSprite.isVisible = false
 
-			} else {
+      this.endTimeMuzzleFire = Infinity
+    }
 
-				this.roundsLeft += this.ammo;
-				this.ammo = 0;
+    // check shoot
 
-			}
+    if (this.currentTime >= this.endTimeShot) {
+      if (this.roundsLeft === 0) {
+        this.status = STATUS.EMPTY
+      } else {
+        this.status = STATUS.READY
+      }
 
-			this.status = STATUS.READY;
+      this.endTimeShot = Infinity
+    }
 
-			this.updateUI();
+    return this
+  }
 
-			this.endTimeReload = Infinity;
+  reload() {
+    if ((this.status === STATUS.READY || this.status === STATUS.EMPTY) && this.ammo > 0) {
+      this.status = STATUS.RELOAD
 
-		}
+      // audio
 
-		// check muzzle fire
+      const audio = world.audios.get('reload')
+      if (audio.isPlaying === true) {
+        audio.stop()
+      }
+      audio.play()
 
-		if ( this.currentTime >= this.endTimeMuzzleFire ) {
+      // animation
 
-			this.muzzleSprite.visible = false;
+      const reloadPositionAnimation = world.animations.get('reloadPosition')
+      const reloadRotationAnimation = world.animations.get('reloadRotation')
+      const scene = this.camera.getScene()
+      scene.beginDirectAnimation(this, [reloadPositionAnimation, reloadRotationAnimation], 0, 60, false)
 
-			this.endTimeMuzzleFire = Infinity;
+      //
 
-		}
+      this.endTimeReload = this.currentTime + this.reloadTime
+    }
 
-		// check shoot
+    return this
+  }
 
-		if ( this.currentTime >= this.endTimeShot ) {
+  shoot() {
+    if (this.status === STATUS.READY) {
+      this.status = STATUS.SHOT
 
-			if ( this.roundsLeft === 0 ) {
+      // audio
 
-				this.status = STATUS.EMPTY;
+      const audio = world.audios.get('shot')
+      if (audio.isPlaying === true) {
+        audio.stop()
+      }
+      audio.play()
 
-			} else {
+      // animation
 
-				this.status = STATUS.READY;
+      const shootPositionAnimation = world.animations.get('shootPosition')
+      const shootRotationAnimation = world.animations.get('shootRotation')
+      const scene = this.camera.getScene()
+      scene.beginDirectAnimation(this, [shootPositionAnimation, shootRotationAnimation], 0, 60, false)
 
-			}
+      // muzzle fire
 
-			this.endTimeShot = Infinity;
+      this.muzzleSprite.isVisible = true
+      this.muzzleSprite.angle = Math.random() * Math.PI
 
-		}
+      this.endTimeMuzzleFire = this.currentTime + this.muzzleFireTime
 
-		return this;
+      // create bullet
 
-	}
+      const owner = this.owner
+      const head = owner.head
 
-	reload() {
+      const ray = new Ray()
 
-		if ( ( this.status === STATUS.READY || this.status === STATUS.EMPTY ) && this.ammo > 0 ) {
+      // first calculate a ray that represents the actual look direction from the head position
+      ray.origin.extractPositionFromMatrix(head.worldMatrix)
+      owner.getDirection(ray.direction)
 
-			this.status = STATUS.RELOAD;
+      // determine closest intersection point with world object
+      const result = world.intersectRay(ray, intersectionPoint)
 
-			// audio
+      // now calculate the distance to the closest intersection point. if no point was found,
+      // choose a point on the ray far away from the origin
+      const distance = result === null ? 1000 : ray.origin.distanceTo(intersectionPoint)
 
-			const audio = world.audios.get( 'reload' );
-			if ( audio.isPlaying === true ) audio.stop();
-			audio.play();
+      // now let's change the origin to the weapon's position.
+      target.copy(ray.origin).add(ray.direction.multiplyScalar(distance))
+      ray.origin.extractPositionFromMatrix(this.worldMatrix)
+      ray.direction.subVectors(target, ray.origin).normalize()
+      world.addBullet(owner, ray)
 
-			// animation
+      const muzzlePosition = ray.origin
+      this.muzzleSprite.position.x = muzzlePosition.x - 0.65
+      this.muzzleSprite.position.y = muzzlePosition.y + 1.2
+      this.muzzleSprite.position.z = muzzlePosition.z
 
-			const animation = world.animations.get( 'reload' );
-			animation.stop();
-			animation.play();
+      // adjust ammo
 
-			//
+      this.roundsLeft--
 
-			this.endTimeReload = this.currentTime + this.reloadTime;
+      this.endTimeShot = this.currentTime + this.shotTime
 
-		}
+      this.updateUI()
+    } else if (this.status === STATUS.EMPTY) {
+      const audio = world.audios.get('empty')
+      if (audio.isPlaying === true) {
+        audio.stop()
+      }
+      audio.play()
+    }
 
-		return this;
+    return this
+  }
 
-	}
-
-	shoot() {
-
-		if ( this.status === STATUS.READY ) {
-
-			this.status = STATUS.SHOT;
-
-			// audio
-
-			const audio = world.audios.get( 'shot' );
-			if ( audio.isPlaying === true ) audio.stop();
-			audio.play();
-
-			// animation
-
-			const animation = world.animations.get( 'shot' );
-			animation.stop();
-			animation.play();
-
-			// muzzle fire
-
-			this.muzzleSprite.visible = true;
-			this.muzzleSprite.material.rotation = Math.random() * Math.PI;
-
-			this.endTimeMuzzleFire = this.currentTime + this.muzzleFireTime;
-
-			// create bullet
-
-			const owner = this.owner;
-			const head = owner.head;
-
-			const ray = new Ray();
-
-			// first calculate a ray that represents the actual look direction from the head position
-
-			ray.origin.extractPositionFromMatrix( head.worldMatrix );
-			owner.getDirection( ray.direction );
-
-			// determine closest intersection point with world object
-
-			const result = world.intersectRay( ray, intersectionPoint );
-
-			// now calculate the distance to the closest intersection point. if no point was found,
-			// choose a point on the ray far away from the origin
-
-			const distance = ( result === null ) ? 1000 : ray.origin.distanceTo( intersectionPoint );
-
-			// now let's change the origin to the weapon's position.
-
-			target.copy( ray.origin ).add( ray.direction.multiplyScalar( distance ) );
-			ray.origin.extractPositionFromMatrix( this.worldMatrix );
-			ray.direction.subVectors( target, ray.origin ).normalize();
-			world.addBullet( owner, ray );
-
-			// adjust ammo
-
-			this.roundsLeft --;
-
-			this.endTimeShot = this.currentTime + this.shotTime;
-
-			this.updateUI();
-
-		} else if ( this.status === STATUS.EMPTY ) {
-
-			const audio = world.audios.get( 'empty' );
-			if ( audio.isPlaying === true ) audio.stop();
-			audio.play();
-
-		}
-
-		return this;
-
-	}
-
-	updateUI() {
-
-		this.ui.roundsLeft.textContent = this.roundsLeft;
-		this.ui.ammo.textContent = this.ammo;
-
-	}
-
+  updateUI() {
+    this.ui.roundsLeft.textContent = this.roundsLeft
+    this.ui.ammo.textContent = this.ammo
+  }
 }
 
-const STATUS = Object.freeze( {
-	READY: 'ready', // the blaster is ready for the next action
-	SHOT: 'shot', // the blaster is firing
-	RELOAD: 'reload', // the blaster is reloading
-	EMPTY: 'empty' // the blaster is empty
-} );
+const STATUS = Object.freeze({
+  READY: 'ready', // the blaster is ready for the next action
+  SHOT: 'shot', // the blaster is firing
+  RELOAD: 'reload', // the blaster is reloading
+  EMPTY: 'empty', // the blaster is empty
+})
 
-export { Blaster };
+export { Blaster }
