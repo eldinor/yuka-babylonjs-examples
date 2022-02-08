@@ -27,6 +27,7 @@ function init() {
 
   scene = new BABYLON.Scene(engine)
   scene.clearColor = new BABYLON.Color4(0, 0, 0, 1)
+  scene.useRightHandedSystem = true
   //	scene.debugLayer.show();
 
   const camera = new BABYLON.ArcRotateCamera(
@@ -109,10 +110,6 @@ function init() {
     .onChange((value) => (separationBehavior.weight = value))
 
   gui.open()
-
-  //
-
-  //
 
   //
 

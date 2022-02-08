@@ -15,12 +15,13 @@ function init() {
 
   scene = new BABYLON.Scene(engine)
   scene.clearColor = new BABYLON.Color4(0, 0, 0, 1)
+  scene.useRightHandedSystem = true
 
   const camera = new BABYLON.UniversalCamera('UniversalCamera', new BABYLON.Vector3(0, 0, 10), scene)
   camera.target = new BABYLON.Vector3(0, 0, 0)
 
-  new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
-
+  const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
+  light.diffuse = BABYLON.Color3.Green()
   //
 
   const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
@@ -37,8 +38,6 @@ function init() {
   sphere.material.emissiveColor = new BABYLON.Color3(0.8, 0.8, 0.8)
   sphere.material.alpha = 0.2
   sphere.material.wireframe = true
-
-  //
 
   const targetMesh = BABYLON.MeshBuilder.CreateSphere('target', { diameter: 0.1, segments: 16 })
   targetMesh.material = new BABYLON.StandardMaterial('targetMaterial', scene)

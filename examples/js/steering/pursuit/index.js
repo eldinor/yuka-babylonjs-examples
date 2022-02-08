@@ -20,6 +20,7 @@ function init() {
 
   scene = new BABYLON.Scene(engine)
   scene.clearColor = new BABYLON.Color4(0, 0, 0, 1)
+  scene.useRightHandedSystem = true
   //	scene.debugLayer.show();
 
   const camera = new BABYLON.ArcRotateCamera(
@@ -32,6 +33,7 @@ function init() {
   )
 
   camera.target = new BABYLON.Vector3(0, 0, 0)
+  camera.upperBetaLimit = 1.2
   camera.attachControl(canvas, true)
 
   new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))

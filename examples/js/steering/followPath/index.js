@@ -30,22 +30,18 @@ function init() {
 
   scene = new BABYLON.Scene(engine)
   scene.clearColor = new BABYLON.Color4(0, 0, 0, 1)
+  scene.useRightHandedSystem = true
+
   //	scene.debugLayer.show();
 
-  const camera = new BABYLON.ArcRotateCamera(
-    'camera',
-    BABYLON.Tools.ToRadians(-90),
-    BABYLON.Tools.ToRadians(180),
-    15,
-    BABYLON.Vector3.Zero(),
-    scene
-  )
+  const camera = new BABYLON.UniversalCamera('UniversalCamera', new BABYLON.Vector3(0, 12, 10), scene)
 
   camera.target = new BABYLON.Vector3(0, 0, 0)
   camera.attachControl(canvas, true)
 
-  new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, -1, 0))
-
+  let light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, -1, 0))
+  light.intensity = 2
+  light.diffuse = BABYLON.Color3.Red()
   //
 
   const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
@@ -72,9 +68,6 @@ function init() {
   gui.open()
 
   //
-
-  //
-
   window.addEventListener('resize', onWindowResize, false)
 
   // game setup

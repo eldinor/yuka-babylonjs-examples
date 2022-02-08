@@ -21,9 +21,8 @@ function init() {
 
   scene = new BABYLON.Scene(engine)
   scene.clearColor = new BABYLON.Color4(0, 0, 0, 1)
-  // scene.debugLayer.show()
-
   scene.useRightHandedSystem = true
+  // scene.debugLayer.show()
 
   const camera = new BABYLON.ArcRotateCamera(
     'camera',
@@ -152,7 +151,6 @@ function setupObstacles() {
 }
 
 function setupWaypoints(path) {
-  console.log(path._waypoints)
   path._waypoints.forEach((p) => {
     const sphere = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 0.4 }, scene)
     sphere.material = scene.getMaterialByName('wayPointsMat')

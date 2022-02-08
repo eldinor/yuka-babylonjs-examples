@@ -32,10 +32,11 @@ function init() {
   )
 
   camera.target = new BABYLON.Vector3(0, 0, 0)
+  camera.upperBetaLimit = 1.2
   camera.attachControl(canvas, true)
 
-  new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
-
+  const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
+  light.diffuse = BABYLON.Color3.Green()
   //
 
   const leaderMesh = BABYLON.MeshBuilder.CreateCylinder(
@@ -58,12 +59,6 @@ function init() {
   const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 10, height: 10 }, scene)
   ground.position.y = -1
   ground.material = new BABYLON.GridMaterial('grid', scene)
-
-  /*
-			const grid = new THREE.GridHelper( 10, 25 );
-			scene.add( grid );
-*/
-  //
 
   //
 

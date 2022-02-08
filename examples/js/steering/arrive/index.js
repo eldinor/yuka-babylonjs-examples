@@ -15,6 +15,7 @@ function init() {
 
   scene = new BABYLON.Scene(engine)
   scene.clearColor = new BABYLON.Color4(0, 0, 0, 1)
+  scene.useRightHandedSystem = true
 
   const camera = new BABYLON.UniversalCamera('UniversalCamera', new BABYLON.Vector3(0, 0, 10), scene)
   camera.target = new BABYLON.Vector3(0, 0, 0)
