@@ -1,5 +1,6 @@
 import 'https://preview.babylonjs.com/babylon.js'
 import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js'
+
 import * as YUKA from '../../../../../lib/yuka.module.js'
 
 import { CustomTrigger } from './src/CustomTrigger.js'

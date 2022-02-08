@@ -7,7 +7,7 @@ import { Trigger } from '../../../../../lib/yuka.module.js'
 
 class CustomTrigger extends Trigger {
   constructor(triggerRegion, scene) {
-    // scene variable is using only to change the entity material color
+    // scene variable is using here only to change the entity material color
     super(triggerRegion)
     this.scene = scene
   }
