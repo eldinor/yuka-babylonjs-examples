@@ -1,604 +1,573 @@
 <html lang="en">
-<head>
-	<title>Yuka | Tic-Tac-Toe</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<link rel="stylesheet" type="text/css" href="../../../css/styles.css">
-	<link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico">
+  <head>
+    <title>Yuka | Tic-Tac-Toe</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="../../../css/styles.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico" />
 
-	<script src="https://preview.babylonjs.com/babylon.js"></script>
-	<script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
-	<style>
-		#container {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			height: 100%;
-			width: 100%;
-		}
+    <script src="https://preview.babylonjs.com/babylon.js"></script>
+    <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+    <style>
+      #container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
+      }
 
-		#board {
-			position:absolute;
-			left: 10px;
-			bottom:10px;
-			padding: 10px;
-			z-index:9000;
+      #board {
+        position: absolute;
+        left: 10px;
+        bottom: 10px;
+        padding: 10px;
+        z-index: 9000;
 
-			background-color: rgba(10, 6, 245, 0.4);
-			border: solid 1px;
-			border-radius: 20px;
-	
-		}
+        background-color: rgba(10, 6, 245, 0.4);
+        border: solid 1px;
+        border-radius: 20px;
+      }
 
-		.row {
-			display: flex;
-			justify-content: center;
-		}
+      .row {
+        display: flex;
+        justify-content: center;
+      }
 
-		.cell {
-			width: 20px;
-			height: 20px;
-			line-height: 18px;
-			margin: 8px;
-			background-color: #bb1f1f;
-			color: #ffffff;
-			text-align: center;
-			font-size: 20px;
-			cursor: pointer;
-			border-radius: 4px;
-		}
+      .cell {
+        width: 20px;
+        height: 20px;
+        line-height: 18px;
+        margin: 8px;
+        background-color: #bb1f1f;
+        color: #ffffff;
+        text-align: center;
+        font-size: 20px;
+        cursor: pointer;
+        border-radius: 4px;
+      }
 
-		@media (max-width: 768px) {
-			.cell {
-				width: 15px;
-				height: 15px;
-				line-height: 15px;
-				font-size: 15px;
-			}
-		}
+      @media (max-width: 768px) {
+        .cell {
+          width: 15px;
+          height: 15px;
+          line-height: 15px;
+          font-size: 15px;
+        }
+      }
 
-		@media (max-width: 576px) {
-			.cell {
-				width: 10px;
-				height: 10px;
-				line-height: 10px;
-				font-size: 10px;
-			}
-		}
+      @media (max-width: 576px) {
+        .cell {
+          width: 10px;
+          height: 10px;
+          line-height: 10px;
+          font-size: 10px;
+        }
+      }
 
-		button {
-			height: 40px;
-			width: 150px;
-			color: #ffffff;
-			background: transparent;
-			outline: 1px solid rgba(18, 195, 240, 0.7);
-			border: 0px;
-			cursor: pointer;
-			font-family: inherit;
-			font-size: 16px;
-		}
+      button {
+        height: 40px;
+        width: 150px;
+        color: #ffffff;
+        background: transparent;
+        outline: 1px solid rgba(18, 195, 240, 0.7);
+        border: 0px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 16px;
+      }
 
-		button:hover {
-			background-color: rgba(18, 195, 240, 0.363);
-			outline: 1px solid rgba(18, 195, 240, 0.7);
-		}
+      button:hover {
+        background-color: rgba(18, 195, 240, 0.363);
+        outline: 1px solid rgba(18, 195, 240, 0.7);
+      }
 
-		#github{
-			position:absolute;
-			right: 10px;
-			bottom:10px;
-			padding: 10px;
-			z-index:9000;
-			width: 30px;
-			height: 30px;
-		}
+      #github {
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        padding: 10px;
+        z-index: 9000;
+        width: 30px;
+        height: 30px;
+      }
 
-		#github a svg:hover{
-			fill:whitesmoke
-		}
+      #github a svg:hover {
+        fill: whitesmoke;
+      }
 
-		#intro div {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			text-align: center;
-		}
+      #intro div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
 
-		#renderCanvas {
-			width: 100%;
-			height: 100%;
-			touch-action: none;
-		}
-	</style>
-</head>
-<body>
+      #renderCanvas {
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+    </style>
+  </head>
+  <body>
+    <section id="github">
+      <a href="https://github.com/eldinor/yuka-babylonjs-examples" target="_blank" title="Github">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="30"
+          height="30"
+          fill="teal"
+          class="bi bi-github"
+          viewBox="0 0 16 16"
+        >
+          <path
+            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+          />
+        </svg>
+      </a>
+    </section>
 
-<section id="github">
-	<a href="https://github.com/eldinor/yuka-babylonjs-examples" target="_blank" title="Github">
-	<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="teal" class="bi bi-github" viewBox="0 0 16 16">
-		<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
-	  </svg>
-	</a>
-</section>
+    <section id="intro">
+      <div id="startSection">
+        <p>Welcome to "Tic-Tac-Toe"</p>
+        <p class="sub">Do you want to make the first move?</p>
+        <p>
+          <button type="button" data-player="1">Yes, please!</button>
+          <button type="button" data-player="2">Let Yuka AI begin!</button>
+        </p>
+      </div>
+      <div id="endSection" style="display: none">
+        <p id="result"></p>
+        <p>
+          <button type="button">Restart Game</button>
+        </p>
+      </div>
+    </section>
 
-	<section id="intro">
-		<div id="startSection">
-			<p>
-				Welcome to "Tic-Tac-Toe"
-			</p>
-			<p class="sub">
-				Do you want to make the first move?
-			</p>
-			<p>
-				<button type="button" data-player="1">Yes, please!</button> 
-				<button type="button" data-player="2">Let Yuka AI begin!</button>
-			</p>
-		</div>
-		<div id="endSection" style="display: none;">
-			<p id="result">
-			</p>
-			<p>
-				<button type="button">Restart Game</button>
-			</p>
-		</div>
-	</section>
+    <section id="board">
+      <div class="row">
+        <div class="cell" data-cellId="0"></div>
+        <div class="cell" data-cellId="1"></div>
+        <div class="cell" data-cellId="2"></div>
+      </div>
+      <div class="row">
+        <div class="cell" data-cellId="3"></div>
+        <div class="cell" data-cellId="4"></div>
+        <div class="cell" data-cellId="5"></div>
+      </div>
+      <div class="row">
+        <div class="cell" data-cellId="6"></div>
+        <div class="cell" data-cellId="7"></div>
+        <div class="cell" data-cellId="8"></div>
+      </div>
+    </section>
 
-		<section id="board">
-			<div class="row">
-				<div class="cell" data-cellId="0"></div>
-				<div class="cell" data-cellId="1"></div>
-				<div class="cell" data-cellId="2"></div>
-			</div>
-			<div class="row">
-				<div class="cell" data-cellId="3"></div>
-				<div class="cell" data-cellId="4"></div>
-				<div class="cell" data-cellId="5"></div>
-			</div>
-			<div class="row">
-				<div class="cell" data-cellId="6"></div>
-				<div class="cell" data-cellId="7"></div>
-				<div class="cell" data-cellId="8"></div>
-			</div>
-		</section>
+    <canvas id="renderCanvas"></canvas>
 
+    <script>
+      const canvas = document.getElementById('renderCanvas')
 
-		<canvas id="renderCanvas"></canvas>
+      var startRenderLoop = function (engine, canvas) {
+        engine.runRenderLoop(function () {
+          if (sceneToRender && sceneToRender.activeCamera) {
+            sceneToRender.render()
+          }
+        })
+      }
 
-	<script>
-		const canvas = document.getElementById("renderCanvas");
+      var engine = null
+      var scene = null
+      var sceneToRender = null
+      var createDefaultEngine = function () {
+        return new BABYLON.Engine(canvas, true, {
+          preserveDrawingBuffer: true,
+          stencil: true,
+          disableWebGL2Support: false,
+        })
+      }
 
-		var startRenderLoop = function (engine, canvas) {
-			engine.runRenderLoop(function () {
-				if (sceneToRender && sceneToRender.activeCamera) {
-					sceneToRender.render();
-				}
-			});
-		}
+      var gameState = ['', '', '', '', '', '', '', '', '']
 
-		var engine = null;
-		var scene = null;
-		var sceneToRender = null;
-		var createDefaultEngine = function () { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true, disableWebGL2Support: false }); };
-		
-		var gameState = ["", "", "", "", "", "", "", "", ""];
+      function bPos(fieldmesh, order) {
+        fieldmesh.position = new BABYLON.Vector3(boxPositions[order][0], boxPositions[order][1], boxPositions[order][2])
+      }
 
-        function bPos(fieldmesh, order) {
-            fieldmesh.position = new BABYLON.Vector3(boxPositions[order][0], boxPositions[order][1], boxPositions[order][2]);
+      const boxPositions = [
+        [0, 0, 0],
+        [1.1, 0, 0],
+        [2.2, 0, 0],
+        [0, 0, -1.1],
+        [1.1, 0, -1.1],
+        [2.2, 0, -1.1],
+        [0, 0, -2.2],
+        [1.1, 0, -2.2],
+        [2.2, 0, -2.2],
+      ]
+
+      const aniVecArray = []
+      const aniRate = 2
+      for (i = 0; i < boxPositions.length; i++) {
+        aniVecArray[i] = new BABYLON.Vector3(
+          boxPositions[i][0] * aniRate,
+          boxPositions[i][1],
+          boxPositions[i][2] * aniRate
+        )
+      }
+
+      var createScene = function () {
+        var scene = new BABYLON.Scene(engine)
+        scene.clearColor = new BABYLON.Color4(0.2, 0.2, 0.45, 1).toLinearSpace()
+        var hdrTexture = new BABYLON.CubeTexture('https://playground.babylonjs.com/textures/environment.env', scene)
+        hdrTexture.gammaSpace = false
+        scene.environmentTexture = hdrTexture
+        scene.environmentIntensity = 1
+
+        //	scene.debugLayer.show();
+
+        const camera = new BABYLON.ArcRotateCamera(
+          'Camera',
+          -Math.PI / 2,
+          Math.PI / 4,
+          9,
+          BABYLON.Vector3.Zero(),
+          scene
+        )
+        camera.attachControl(canvas, true)
+        camera.lowerRadiusLimit = 4
+        camera.upperRadiusLimit = 30
+        camera.wheelDeltaPercentage = 0.02
+
+        camera.setTarget(new BABYLON.Vector3(1, -1, -1))
+
+        camera.useAutoRotationBehavior = true
+
+        var pipeline = new BABYLON.DefaultRenderingPipeline(
+          'defaultPipeline', // The name of the pipeline
+          true, // Do you want the pipeline to use HDR texture?
+          scene, // The scene instance
+          [camera] // The list of cameras to be attached to
+        )
+        pipeline.samples = 4
+        pipeline.fxaaEnabled = true
+
+        pipeline.bloomEnabled = true
+        pipeline.bloomThreshold = 0.35
+        pipeline.bloomWeight = 0.6
+        pipeline.imageProcessing.toneMappingEnabled = true
+        pipeline.imageProcessing.toneMappingType = 1
+
+        // CREATE GAME FIELD
+        const proto = BABYLON.MeshBuilder.CreateBox(
+          'proto',
+          {
+            size: 1,
+          },
+          scene
+        )
+        proto.material = new BABYLON.PBRMaterial('proto')
+        proto.material.albedoColor = new BABYLON.Color4(0.1, 0.1, 0.89, 0.9)
+        proto.material.metallic = 0.9
+        proto.material.roughness = 0.15
+        proto.material.alpha = 1
+        proto.isVisible = false
+
+        const allBoxes = new BABYLON.TransformNode('allBoxes', scene)
+
+        function putBoxes(index) {
+          let iBox = proto.createInstance(String(index))
+          bPos(iBox, index)
+          iBox.parent = allBoxes
         }
 
-        const boxPositions = [
-            [0, 0, 0],
-            [1.1, 0, 0],
-            [2.2, 0, 0],
-            [0, 0, -1.1],
-            [1.1, 0, -1.1],
-            [2.2, 0, -1.1],
-            [0, 0, -2.2],
-            [1.1, 0, -2.2],
-            [2.2, 0, -2.2]
-        ];
-
-		const aniVecArray = [];
-		const aniRate = 2;
-		for(i=0;i<boxPositions.length;i++){
-    aniVecArray[i] = new BABYLON.Vector3(boxPositions[i][0]*aniRate, boxPositions[i][1], boxPositions[i][2]*aniRate);
-		}
-
-		var createScene = function () {
-			var scene = new BABYLON.Scene(engine);
-			scene.clearColor = new BABYLON.Color4(0.2, 0.2, 0.45,1).toLinearSpace();
-			var hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/environment.env", scene);
-			hdrTexture.gammaSpace = false;
-			scene.environmentTexture = hdrTexture;
-			scene.environmentIntensity = 1;
-
-		//	scene.debugLayer.show();
-
-            const camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 4, 9, BABYLON.Vector3.Zero(), scene);
-            camera.attachControl(canvas, true);
-            camera.lowerRadiusLimit = 4;
-            camera.upperRadiusLimit = 30;
-			camera.wheelDeltaPercentage = 0.02;
-
-			camera.setTarget(new BABYLON.Vector3(1, -1, -1));
-
-			camera.useAutoRotationBehavior = true;
-
-			var pipeline = new BABYLON.DefaultRenderingPipeline(
-    "defaultPipeline", // The name of the pipeline
-    true, // Do you want the pipeline to use HDR texture?
-    scene, // The scene instance
-    [camera] // The list of cameras to be attached to
-);
-pipeline.samples = 4;
-pipeline.fxaaEnabled = true;
-
-pipeline.bloomEnabled = true;
-pipeline.bloomThreshold = 0.35;
-pipeline.bloomWeight = 0.6;
-pipeline.imageProcessing.toneMappingEnabled = true;
-pipeline.imageProcessing.toneMappingType = 1;
-
-            
-// CREATE GAME FIELD
-            const proto = BABYLON.MeshBuilder.CreateBox("proto", {
-                size: 1
-            }, scene);
-            proto.material = new BABYLON.PBRMaterial("proto");
-            proto.material.albedoColor = new BABYLON.Color4(0.1, 0.1, 0.89, 0.9);
-            proto.material.metallic = 0.9;
-            proto.material.roughness = 0.15;
-            proto.material.alpha = 1
-            proto.isVisible = false;
-
-            const allBoxes = new BABYLON.TransformNode("allBoxes", scene)
-
-
-function putBoxes(index) {
-                let iBox = proto.createInstance(String(index));
-                bPos(iBox, index)
-                iBox.parent = allBoxes;
-            }
-
-            for (i = 0; i < 9; i++) {
-                putBoxes(i)
-            }
-
-            // CREATE GAME PIECES
-			// Create "O" 
-            const torus = BABYLON.MeshBuilder.CreateTorus("torus", {
-                thickness: 0.20,
-                diameter: 0.75,
-                tessellation: 64
-            }); 
-
-            torus.material = new BABYLON.PBRMaterial("torusmaterial");
-            torus.material.albedoColor = new BABYLON.Color3(0.98, 0.02, 0.12);
-            torus.material.metallic = 1;
-            torus.material.roughness = 0.6;
-            torus.isVisible = false;
-
-			// Create "X" 
-            let cylinder = BABYLON.MeshBuilder.CreateCylinder('cylinder', {
-                height: 1,
-                diameter: 0.2
-            }, scene);
-            let newcylinder = cylinder.clone();
-            newcylinder.rotation.x = -Math.PI / 2;
-
-            const cross = BABYLON.Mesh.MergeMeshes([cylinder, newcylinder], true); // "X"
-            cross.rotation.y = Math.PI / 4;
-            cross.rotation.z = -Math.PI / 2;
-            cross.position.y = 0.1;
-            cross.name = "cross";
-
-            cross.material = new BABYLON.PBRMaterial("meshmaterial");
-            cross.material.albedoColor = new BABYLON.Color3(0.2, 0.9, 0.3);
-            cross.material.metallic = 1;
-            cross.material.roughness = 0.25;
-            cross.isVisible = false;
-
-
-
-
-    // Creating an easing function
-    var oscillations = 2;
-    var springiness = 0.005; 
-
-    var easingFunction = new BABYLON.ElasticEase(oscillations, springiness)
-
-    // For each easing function, you can choose between EASEIN (default), EASEOUT, EASEINOUT
-    easingFunction.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEOUT);
-
-
-	let shootCounter = 0;
-let  shoot =  function (mesh,fRate, fTotal, startPos,endPos){  BABYLON.Animation.CreateAndStartAnimation("shoot", mesh, "position", 
-               fRate, fTotal, startPos, endPos, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT,easingFunction)
-
-  }
-
-
-
-for(i=0;i<boxPositions.length;i++){
-    let mesh = scene.getMeshByName(String(i))
-
-    shoot(mesh, 60, 120, aniVecArray[i], mesh.position)
-}
-
-
-			return scene;
-		};
-
-
-		
-
-		window.initFunction = async function () {
-
-
-			var asyncEngineCreation = async function () {
-				try {
-					return createDefaultEngine();
-				} catch (e) {
-					console.log("the available createEngine function failed. Creating the default engine instead");
-					return createDefaultEngine();
-				}
-			}
-
-			window.engine = await asyncEngineCreation();
-			if (!engine) throw 'engine should not be null.';
-			startRenderLoop(engine, canvas);
-			window.scene = createScene();
-		};
-		initFunction().then(() => {
-			sceneToRender = scene
-		});
-
-		// Resize
-		window.addEventListener("resize", function () {
-			engine.resize();
-		});
-	</script>
-	<script type="module">
-
-		import { TTTGraph } from './src/TTTGraph.js';
-
-		let player, graph, fin = false;
-
-		initUI();
-
-		function initUI() {
-
-			// init buttons
-
-			const buttons = document.querySelectorAll('#startSection button');
-
-			for (let button of buttons) {
-
-				button.addEventListener('click', onButtonClick);
-
-			}
-
-			const button = document.querySelector('#endSection button');
-
-			button.addEventListener('click', onRestart);
-
-			// init cells
-
-			const cells = document.querySelectorAll('.cell');
-
-			for (let cell of cells) {
-
-				cell.addEventListener('click', onCellClick);
-
-			}
-
-		}
-
-		const boxCells = scene.getTransformNodeByName("allBoxes").getChildren();
-
-		for (let boxCell of boxCells) {
-
-            boxCell.actionManager = new BABYLON.ActionManager(scene);
-            boxCell.actionManager.registerAction(
-                new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, (e) => {
-                    onCellBoxClick(e)
-                }));
-
-		}
-
-
-		function initGame() {
-
-			const intro = document.getElementById('intro');
-			intro.classList.add('hidden');
-
-			// create game state graph
-
-			graph = new TTTGraph(player);
-
-			// let the ai make its first move
-
-			if (player === 2) {
-
-				graph.aiTurn();
-				updateUI();
-
-			}
-
-		}
-
-		function onButtonClick(event) {
-
-			const button = event.target;
-			player = parseInt(button.dataset.player);
-
-			initGame();
-
-		}
-
-		function onRestart() {
-
-			window.location.reload();
-
-		}
-
-
-
-		function onCellBoxClick(event) {
-
-			const cellB = event.meshUnderPointer;
-
-			const cellBid = parseInt(cellB.name);
-
-            if (fin === false) {
-
-                const cell = event.target;
-
-                const cellid = cellBid;
-
-	           graph.turn(cellid, graph.currentPlayer);
-                evaluate();
-
-                if (fin === false) {
-
-                    graph.aiTurn();
-                    evaluate();
-
-                }
-
-                updateUI();
-
-            }
-
+        for (i = 0; i < 9; i++) {
+          putBoxes(i)
         }
 
+        // CREATE GAME PIECES
+        // Create "O"
+        const torus = BABYLON.MeshBuilder.CreateTorus('torus', {
+          thickness: 0.2,
+          diameter: 0.75,
+          tessellation: 64,
+        })
 
-		function onCellClick(event) {
+        torus.material = new BABYLON.PBRMaterial('torusmaterial')
+        torus.material.albedoColor = new BABYLON.Color3(0.98, 0.02, 0.12)
+        torus.material.metallic = 1
+        torus.material.roughness = 0.6
+        torus.isVisible = false
 
-			if (fin === false) {
+        // Create "X"
+        let cylinder = BABYLON.MeshBuilder.CreateCylinder(
+          'cylinder',
+          {
+            height: 1,
+            diameter: 0.2,
+          },
+          scene
+        )
+        let newcylinder = cylinder.clone()
+        newcylinder.rotation.x = -Math.PI / 2
 
-				const cell = event.target;
+        const cross = BABYLON.Mesh.MergeMeshes([cylinder, newcylinder], true) // "X"
+        cross.rotation.y = Math.PI / 4
+        cross.rotation.z = -Math.PI / 2
+        cross.position.y = 0.1
+        cross.name = 'cross'
 
-				const cellid = cell.dataset.cellid;
+        cross.material = new BABYLON.PBRMaterial('meshmaterial')
+        cross.material.albedoColor = new BABYLON.Color3(0.2, 0.9, 0.3)
+        cross.material.metallic = 1
+        cross.material.roughness = 0.25
+        cross.isVisible = false
 
-				graph.turn(cellid, graph.currentPlayer);
-				evaluate();
+        // Creating an easing function
+        var oscillations = 2
+        var springiness = 0.005
 
-				if (fin === false) {
+        var easingFunction = new BABYLON.ElasticEase(oscillations, springiness)
 
-					graph.aiTurn();
-					evaluate();
+        easingFunction.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEOUT)
 
-				}
+        let shootCounter = 0
+        let shoot = function (mesh, fRate, fTotal, startPos, endPos) {
+          BABYLON.Animation.CreateAndStartAnimation(
+            'shoot',
+            mesh,
+            'position',
+            fRate,
+            fTotal,
+            startPos,
+            endPos,
+            BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT,
+            easingFunction
+          )
+        }
 
-				updateUI();
+        for (i = 0; i < boxPositions.length; i++) {
+          let mesh = scene.getMeshByName(String(i))
 
-			}
+          shoot(mesh, 60, 120, aniVecArray[i], mesh.position)
+        }
 
-		}
+        return scene
+      }
 
-		function evaluate() {
+      window.initFunction = async function () {
+        var asyncEngineCreation = async function () {
+          try {
+            return createDefaultEngine()
+          } catch (e) {
+            console.log('the available createEngine function failed. Creating the default engine instead')
+            return createDefaultEngine()
+          }
+        }
 
-			const board = graph.getNode(graph.currentNode);
+        window.engine = await asyncEngineCreation()
+        if (!engine) throw 'engine should not be null.'
+        startRenderLoop(engine, canvas)
+        window.scene = createScene()
+      }
+      initFunction().then(() => {
+        sceneToRender = scene
+      })
 
-			if (board.win === true || board.finished === true) fin = true;
+      // Resize
+      window.addEventListener('resize', function () {
+        engine.resize()
+      })
+    </script>
+    <script type="module">
+      import { TTTGraph } from './src/TTTGraph.js'
 
-		}
+      let player,
+        graph,
+        fin = false
 
-		function updateUI() {
+      initUI()
 
-			const node = graph.getNode(graph.currentNode);
+      function initUI() {
+        // init buttons
 
-			const board = node.board;
-			const cells = document.querySelectorAll('.cell');
+        const buttons = document.querySelectorAll('#startSection button')
 
-            const cellBoxes = scene.getTransformNodeByName("allBoxes").getChildren();
+        for (let button of buttons) {
+          button.addEventListener('click', onButtonClick)
+        }
 
-			for (let cell of cells) {
+        const button = document.querySelector('#endSection button')
 
-				const cellid = cell.dataset.cellid;
-				const status = board[cellid];
-				
+        button.addEventListener('click', onRestart)
 
-				switch (status) {
+        // init cells
 
-					case 1:
-						cell.textContent = 'X';
-						cell.removeEventListener('click', onCellClick);
+        const cells = document.querySelectorAll('.cell')
 
-                        let crossMove = scene.getMeshByName("cross").clone("crossMove");
-						crossMove.isVisible = true;
+        for (let cell of cells) {
+          cell.addEventListener('click', onCellClick)
+        }
+      }
 
-						bPos(crossMove, cell.dataset.cellid)
-						
-						crossMove.position.y = 0.6;
+      const boxCells = scene.getTransformNodeByName('allBoxes').getChildren()
 
-						scene.getMeshByName(cell.dataset.cellid).isPickable = false;
-						crossMove.isPickable = false;
+      for (let boxCell of boxCells) {
+        boxCell.actionManager = new BABYLON.ActionManager(scene)
+        boxCell.actionManager.registerAction(
+          new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, (e) => {
+            onCellBoxClick(e)
+          })
+        )
+      }
 
-						break;
+      function initGame() {
+        const intro = document.getElementById('intro')
+        intro.classList.add('hidden')
 
-					case 2:
-						cell.textContent = 'O';
-						cell.removeEventListener('click', onCellClick);
+        // create game state graph
 
-                        let torusMove = scene.getMeshByName("torus").clone("crossMove");
-                        torusMove.isVisible = true;
+        graph = new TTTGraph(player)
 
-                        bPos(torusMove, cell.dataset.cellid)
-                        torusMove.position.y = 0.6;
+        // let the ai make its first move
 
-						scene.getMeshByName(cell.dataset.cellid).isPickable = false;
-                        torusMove.isPickable = false;
+        if (player === 2) {
+          graph.aiTurn()
+          updateUI()
+        }
+      }
 
-						break;
+      function onButtonClick(event) {
+        const button = event.target
+        player = parseInt(button.dataset.player)
 
-					default:
-						cell.textContent = '';
-                    //    console.log("DEFAULT")
-						break;
+        initGame()
+      }
 
-				}
+      function onRestart() {
+        window.location.reload()
+      }
 
-			}
+      function onCellBoxClick(event) {
+        const cellB = event.meshUnderPointer
 
-			if (fin === true) {
+        const cellBid = parseInt(cellB.name)
 
-				const intro = document.getElementById('intro');
-				intro.classList.remove('hidden');
+        if (fin === false) {
+          const cell = event.target
 
-				const startSection = document.getElementById('startSection');
-				startSection.style.display = 'none';
+          const cellid = cellBid
 
-				const endSection = document.getElementById('endSection');
-				endSection.style.display = 'flex';
+          graph.turn(cellid, graph.currentPlayer)
+          evaluate()
 
-				const result = document.getElementById('result');
+          if (fin === false) {
+            graph.aiTurn()
+            evaluate()
+          }
 
-				if (node.win === true) {
+          updateUI()
+        }
+      }
 
-					if (node.winPlayer === player) {
+      function onCellClick(event) {
+        if (fin === false) {
+          const cell = event.target
 
-						result.textContent = 'You win the game!';
+          const cellid = cell.dataset.cellid
 
-					} else {
+          graph.turn(cellid, graph.currentPlayer)
+          evaluate()
 
-						result.textContent = 'Yuka AI wins the game!';
+          if (fin === false) {
+            graph.aiTurn()
+            evaluate()
+          }
 
-					}
+          updateUI()
+        }
+      }
 
-				} else {
+      function evaluate() {
+        const board = graph.getNode(graph.currentNode)
 
-					result.textContent = 'Draw!';
+        if (board.win === true || board.finished === true) fin = true
+      }
 
-				}
+      function updateUI() {
+        const node = graph.getNode(graph.currentNode)
 
-			}
+        const board = node.board
+        const cells = document.querySelectorAll('.cell')
 
-		}
+        const cellBoxes = scene.getTransformNodeByName('allBoxes').getChildren()
 
-	</script>
+        for (let cell of cells) {
+          const cellid = cell.dataset.cellid
+          const status = board[cellid]
 
-</body>
+          switch (status) {
+            case 1:
+              cell.textContent = 'X'
+              cell.removeEventListener('click', onCellClick)
+
+              let crossMove = scene.getMeshByName('cross').clone('crossMove')
+              crossMove.isVisible = true
+
+              bPos(crossMove, cell.dataset.cellid)
+
+              crossMove.position.y = 0.6
+
+              scene.getMeshByName(cell.dataset.cellid).isPickable = false
+              crossMove.isPickable = false
+
+              break
+
+            case 2:
+              cell.textContent = 'O'
+              cell.removeEventListener('click', onCellClick)
+
+              let torusMove = scene.getMeshByName('torus').clone('crossMove')
+              torusMove.isVisible = true
+
+              bPos(torusMove, cell.dataset.cellid)
+              torusMove.position.y = 0.6
+
+              scene.getMeshByName(cell.dataset.cellid).isPickable = false
+              torusMove.isPickable = false
+
+              break
+
+            default:
+              cell.textContent = ''
+              //    console.log("DEFAULT")
+              break
+          }
+        }
+
+        if (fin === true) {
+          const intro = document.getElementById('intro')
+          intro.classList.remove('hidden')
+
+          const startSection = document.getElementById('startSection')
+          startSection.style.display = 'none'
+
+          const endSection = document.getElementById('endSection')
+          endSection.style.display = 'flex'
+
+          const result = document.getElementById('result')
+
+          if (node.win === true) {
+            if (node.winPlayer === player) {
+              result.textContent = 'You win the game!'
+            } else {
+              result.textContent = 'Yuka AI wins the game!'
+            }
+          } else {
+            result.textContent = 'Draw!'
+          }
+        }
+      }
+    </script>
+  </body>
 </html>

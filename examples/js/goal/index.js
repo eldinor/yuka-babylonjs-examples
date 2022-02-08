@@ -36,15 +36,10 @@ function init() {
   camera.attachControl(canvas, true)
   camera.lowerRadiusLimit = 10
   camera.upperRadiusLimit = 30
+  camera.upperBetaLimit = 1.4
   camera.wheelDeltaPercentage = 0.02
 
   camera.setTarget(new BABYLON.Vector3.Zero())
-
-  scene.onBeforeRenderObservable.add(function () {
-    if (camera.beta > 1.4) {
-      camera.beta = 1.4
-    }
-  })
 
   var light = new BABYLON.DirectionalLight('dirLight', new BABYLON.Vector3(-1.1, -1, -0.25), scene)
   light.position.x = 100

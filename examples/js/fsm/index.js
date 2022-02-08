@@ -6,7 +6,7 @@ import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.j
 // import 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js'
 import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
-import {Girl} from  './src/Girl.js'
+import { Girl } from './src/Girl.js'
 
 let engine, scene
 let entityManager, time, vehicle, target
@@ -23,11 +23,11 @@ function init() {
   scene = new BABYLON.Scene(engine)
   scene.clearColor = new BABYLON.Color4(0, 0, 0, 1)
   scene.useRightHandedSystem = true
-  const hdrTexture = new BABYLON.CubeTexture("https://playground.babylonjs.com/textures/environment.env", scene);
-  hdrTexture.gammaSpace = false;
-  scene.environmentTexture = hdrTexture;
-  scene.environmentIntensity = 1;
-//  scene.debugLayer.show()
+  const hdrTexture = new BABYLON.CubeTexture('https://playground.babylonjs.com/textures/environment.env', scene)
+  hdrTexture.gammaSpace = false
+  scene.environmentTexture = hdrTexture
+  scene.environmentIntensity = 1
+  //  scene.debugLayer.show()
 
   const camera = new BABYLON.ArcRotateCamera(
     'camera',
@@ -40,13 +40,20 @@ function init() {
 
   camera.target = new BABYLON.Vector3(0, 1.3, 0)
   camera.attachControl(canvas, true)
-  // camera.useAutoRotationBehavior = true;
+  camera.upperBetaLimit = 1.4
 
   new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
 
   const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 40, height: 20 }, scene)
-  ground.position.y = -1
   ground.material = new BABYLON.GridMaterial('grid', scene)
+
+  var pipeline = new BABYLON.DefaultRenderingPipeline(
+    'defaultPipeline', // The name of the pipeline
+    true, // Do you want the pipeline to use HDR texture?
+    scene, // The scene instance
+    [camera] // The list of cameras to be attached to
+  )
+  pipeline.samples = 4
 
   const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
     'cone',
@@ -54,38 +61,34 @@ function init() {
     scene
   )
   vehicleMesh.rotation.x = Math.PI * 0.5
+  vehicleMesh.position.y = 1
   vehicleMesh.bakeCurrentTransformIntoVertices()
 
-  vehicleMesh.material = new BABYLON.StandardMaterial("vmesh")
+  vehicleMesh.material = new BABYLON.StandardMaterial('vmesh')
 
-  BABYLON.SceneLoader.LoadAssetContainer("./model/",
-  "yuka.glb",
-  scene, function (container) {
+  BABYLON.SceneLoader.LoadAssetContainer('./model/', 'yuka.glb', scene, function (container) {
+    container.meshes[0].scaling.scaleInPlace(2)
+    container.addAllToScene()
 
-      container.meshes[0].scaling.scaleInPlace(2)
-      container.addAllToScene();
+    scene.getMaterialByName('kachujin_MAT').alpha = 1 // material correction
 
-scene.getMaterialByName("kachujin_MAT").alpha = 1; // material correction
+    for (let index = 0; index < container.animationGroups[0].targetedAnimations.length; index++) {
+      let animation = container.animationGroups[0].targetedAnimations[index].animation
+      animation.enableBlending = true
+      animation.blendingSpeed = 0.02
+    }
 
-for (let index = 0; index < container.animationGroups[0].targetedAnimations.length; index++) {
-  let animation = container.animationGroups[0].targetedAnimations[index].animation;
-  animation.enableBlending = true;
-  animation.blendingSpeed = 0.02;
-}
+    for (let index = 0; index < container.animationGroups[2].targetedAnimations.length; index++) {
+      let animation = container.animationGroups[2].targetedAnimations[index].animation
+      animation.enableBlending = true
+      animation.blendingSpeed = 0.015
+    }
 
-for (let index = 0; index < container.animationGroups[2].targetedAnimations.length; index++) {
-  let animation = container.animationGroups[2].targetedAnimations[index].animation;
-  animation.enableBlending = true;
-  animation.blendingSpeed = 0.015;
-}  
-
-    girl.animations = container.animationGroups; // All GLTF animations - to the Yuka entity
+    girl.animations = container.animationGroups // All GLTF animations - to the Yuka entity
 
     girl.idle = girl.animations[0]
     girl.walk = girl.animations[2]
-
-  });
-
+  })
 
   window.addEventListener('resize', onWindowResize, false)
 
@@ -98,40 +101,36 @@ for (let index = 0; index < container.animationGroups[2].targetedAnimations.leng
   vehicle.setRenderComponent(vehicleMesh, sync)
 
   // add behavior here
-  const path = new YUKA.Path();
-  path.loop = true;
-  path.add( new YUKA.Vector3( - 4, 0, 4 ) );
-  path.add( new YUKA.Vector3( - 6, 0, 0 ) );
-  path.add( new YUKA.Vector3( - 4, 0, - 4 ) );
-  path.add( new YUKA.Vector3( -2, 0, -2 ) );
-  path.add( new YUKA.Vector3( 4, 0, - 4 ) );
-  path.add( new YUKA.Vector3( 6, 0, 0 ) );
-  path.add( new YUKA.Vector3( 4, 0, 4 ) );
-  path.add( new YUKA.Vector3( 0, 0, 6 ) );
+  const path = new YUKA.Path()
+  path.loop = true
+  path.add(new YUKA.Vector3(-4, 0, 4))
+  path.add(new YUKA.Vector3(-6, 0, 0))
+  path.add(new YUKA.Vector3(-4, 0, -4))
+  path.add(new YUKA.Vector3(-2, 0, -2))
+  path.add(new YUKA.Vector3(4, 0, -4))
+  path.add(new YUKA.Vector3(6, 0, 0))
+  path.add(new YUKA.Vector3(4, 0, 4))
+  path.add(new YUKA.Vector3(0, 0, 6))
 
-  vehicle.position.copy( path.current() );
+  vehicle.position.copy(path.current())
 
   // use "FollowPathBehavior" for basic path following
 
-  const followPathBehavior = new YUKA.FollowPathBehavior( path, 0.5 );
-  vehicle.steering.add( followPathBehavior );
+  const followPathBehavior = new YUKA.FollowPathBehavior(path, 0.5)
+  vehicle.steering.add(followPathBehavior)
 
-  const position = [];
+  const position = []
 
-  for ( let i = 0; i < path._waypoints.length; i ++ ) {
+  for (let i = 0; i < path._waypoints.length; i++) {
+    const waypoint = path._waypoints[i]
 
-    const waypoint = path._waypoints[ i ];
-
-    position.push( waypoint.x, waypoint.y, waypoint.z );
-
+    position.push(waypoint.x, waypoint.y, waypoint.z)
   }
   //
   entityManager.add(vehicle)
 
-
-const girl = new Girl(vehicleMesh );
-entityManager.add( girl );
-
+  const girl = new Girl(vehicleMesh)
+  entityManager.add(girl)
 }
 
 function onWindowResize() {

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="../../../css/styles.css" />
     <link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico" />
-    <script src="https://cdn.jsdelivr.net/npm/babylonjs@4.2.0/babylon.min.js"></script>
+    <script src="https://preview.babylonjs.com/babylon.js"></script>
     <style>
       button {
         height: 20px;
@@ -153,20 +153,24 @@
 
       function sync(entity, renderComponent) {
         entity.worldMatrix.toArray(entityMatrix.m)
+        entityMatrix.markAsUpdated()
 
         if (renderComponent.getWorldMatrix() !== undefined) {
           const matrix = renderComponent.getWorldMatrix()
           matrix.copyFrom(entityMatrix)
+          matrix.markAsUpdated()
         }
       }
 
       // Test function
       function syncTest(entity, renderComponent) {
         entity.worldMatrix.toArray(entityMatrix.m)
+        entityMatrix.markAsUpdated()
 
         if (renderComponent.getWorldMatrix() !== undefined) {
           const matrix = renderComponent.getWorldMatrix()
           matrix.copyFrom(entityMatrix)
+          matrix.markAsUpdated()
         }
         if (renderComponent.getWorldMatrix() == undefined) {
           console.log('UNDEFINED')
