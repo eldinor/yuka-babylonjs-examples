@@ -1,49 +1,36 @@
-/**
- * @author Mugen87 / https://github.com/Mugen87
- */
-
-import { GameEntity } from '../../../../build/yuka.module.js';
+import { GameEntity } from '../../../../../lib/yuka.module.js'
 
 class Target extends GameEntity {
+  constructor(geometry) {
+    super()
 
-	constructor( geometry ) {
+    this.uiElement = document.getElementById('hit')
 
-		super();
+    this.name = 'target'
+    this.endTime = Infinity
+    this.currentTime = 0
+    this.duration = 1 // 1 second
+    this.geometry = geometry
+  }
 
-		this.uiElement = document.getElementById( 'hit' );
+  update(delta) {
+    this.currentTime += delta
 
-		this.endTime = Infinity;
-		this.currentTime = 0;
-		this.duration = 1; // 1 second
-		this.geometry = geometry;
+    if (this.currentTime >= this.endTime) {
+      this.uiElement.classList.add('hidden')
+      this.endTime = Infinity
+    }
 
-	}
+    return this
+  }
 
-	update( delta ) {
+  handleMessage() {
+    this.uiElement.classList.remove('hidden')
 
-		this.currentTime += delta;
+    this.endTime = this.currentTime + this.duration
 
-		if ( this.currentTime >= this.endTime ) {
-
-			this.uiElement.classList.add( 'hidden' );
-			this.endTime = Infinity;
-
-		}
-
-		return this;
-
-	}
-
-	handleMessage() {
-
-		this.uiElement.classList.remove( 'hidden' );
-
-		this.endTime = this.currentTime + this.duration;
-
-		return true;
-
-	}
-
+    return true
+  }
 }
 
-export { Target };
+export { Target }

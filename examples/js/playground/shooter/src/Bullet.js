@@ -1,92 +1,71 @@
-/**
- * @author Mugen87 / https://github.com/Mugen87
- */
+import { MovingEntity, MathUtils, Ray, Vector3 } from '../../../../../lib/yuka.module.js'
+import world from './World.js'
 
-import { MovingEntity, MathUtils, Ray, Vector3 } from '../../../../build/yuka.module.js';
-import world from './World.js';
-
-const intersectionPoint = new Vector3();
-const normal = new Vector3();
-const ray = new Ray();
+const intersectionPoint = new Vector3()
+const normal = new Vector3()
+const ray = new Ray()
 
 class Bullet extends MovingEntity {
+  constructor(owner = null, ray = new Ray()) {
+    super()
 
-	constructor( owner = null, ray = new Ray() ) {
+    this.owner = owner
+    this.ray = ray
 
-		super();
+    this.maxSpeed = 400 // 400 m/s
 
-		this.owner = owner;
-		this.ray = ray;
+    this.position.copy(ray.origin)
+    this.velocity.copy(ray.direction).multiplyScalar(this.maxSpeed)
 
-		this.maxSpeed = 400; // 400 m/s
+    const s = 1 + Math.random() * 3 // scale the shot line a bit
 
-		this.position.copy( ray.origin );
-		this.velocity.copy( ray.direction ).multiplyScalar( this.maxSpeed );
+    this.scale.set(s, s, s)
 
-		const s = 1 + ( Math.random() * 3 ); // scale the shot line a bit
+    this.lifetime = 1
+    this.currentTime = 0
+  }
 
-		this.scale.set( s, s, s );
+  update(delta) {
+    this.currentTime += delta
 
-		this.lifetime = 1;
-		this.currentTime = 0;
+    if (this.currentTime > this.lifetime) {
+      world.remove(this)
+    } else {
+      ray.copy(this.ray)
+      ray.origin.copy(this.position)
 
-	}
+      super.update(delta)
 
-	update( delta ) {
+      const entity = world.intersectRay(ray, intersectionPoint, normal)
 
-		this.currentTime += delta;
+      if (entity !== null && entity.name === 'target') {
+        // calculate distance from origin to intersection point
+        const distanceToIntersection = ray.origin.squaredDistanceTo(intersectionPoint)
+        const validDistance = ray.origin.squaredDistanceTo(this.position)
 
-		if ( this.currentTime > this.lifetime ) {
+        if (distanceToIntersection <= validDistance) {
+          // hit!
+          const audio = world.audios.get('impact' + MathUtils.randInt(1, 5))
 
-			world.remove( this );
+          if (audio.isPlaying === true) {
+            audio.stop()
+          }
+          audio.play()
 
-		} else {
+          // inform game entity about hit
+          this.owner.sendMessage(entity, 'hit')
 
-			ray.copy( this.ray );
-			ray.origin.copy( this.position );
+          // add visual feedback
+          world.addBulletHole(intersectionPoint, normal, audio)
 
-			super.update( delta );
+          // remove bullet from world
+          world.remove(this)
+        }
+      }
+    }
 
-			const entity = world.intersectRay( ray, intersectionPoint, normal );
-
-			if ( entity !== null ) {
-
-				// calculate distance from origin to intersection point
-
-				const distanceToIntersection = ray.origin.squaredDistanceTo( intersectionPoint );
-				const validDistance = ray.origin.squaredDistanceTo( this.position );
-
-				if ( distanceToIntersection <= validDistance ) {
-
-					// hit!
-
-					const audio = world.audios.get( 'impact' + MathUtils.randInt( 1, 5 ) );
-
-					if ( audio.isPlaying === true ) audio.stop();
-					audio.play();
-
-					// inform game entity about hit
-
-					this.owner.sendMessage( entity, 'hit' );
-
-					// add visual feedback
-
-					world.addBulletHole( intersectionPoint, normal, audio );
-
-					// remove bullet from world
-
-					world.remove( this );
-
-				}
-
-			}
-
-		}
-
-		return this;
-
-	}
-
+    return this
+  }
 }
 
-export { Bullet };
+export { Bullet }

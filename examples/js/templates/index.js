@@ -6,7 +6,7 @@ import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.j
 // import 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js'
 // import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
-let engine, scene, plane
+let engine, scene
 let entityManager, time, vehicle, target
 
 const entityMatrix = new BABYLON.Matrix()
@@ -69,8 +69,6 @@ function init() {
   time = new YUKA.Time()
   vehicle = new YUKA.Vehicle()
   vehicle.setRenderComponent(vehicleMesh, sync)
-
-  // add behavior here
 
   //
   entityManager.add(vehicle)
