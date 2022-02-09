@@ -88,6 +88,11 @@ function init() {
 
     girl.idle = girl.animations[0]
     girl.walk = girl.animations[2]
+
+    const loadingScreen = document.getElementById('loading-screen')
+
+    loadingScreen.classList.add('fade-out')
+    loadingScreen.addEventListener('transitionend', onTransitionEnd)
   })
 
   window.addEventListener('resize', onWindowResize, false)
@@ -114,11 +119,16 @@ function init() {
 
   vehicle.position.copy(path.current())
 
-  // use "FollowPathBehavior" for basic path following
+  // Steering behaviors
 
-  const followPathBehavior = new YUKA.FollowPathBehavior(path, 0.5)
+  const followPathBehavior = new YUKA.FollowPathBehavior(path, 1.5)
   vehicle.steering.add(followPathBehavior)
 
+  const arriveBehavior = new YUKA.ArriveBehavior(target, 2.5, 0.1)
+  arriveBehavior.active = false
+  vehicle.steering.add(arriveBehavior)
+
+  // Waypoints for the followPathBehavior
   const position = []
 
   for (let i = 0; i < path._waypoints.length; i++) {
@@ -129,7 +139,7 @@ function init() {
   //
   entityManager.add(vehicle)
 
-  const girl = new Girl(vehicleMesh)
+  const girl = new Girl(vehicleMesh, vehicle)
   entityManager.add(girl)
 }
 
@@ -152,4 +162,7 @@ function sync(entity, renderComponent) {
 
   const matrix = renderComponent.getWorldMatrix()
   matrix.copyFrom(entityMatrix)
+}
+function onTransitionEnd(event) {
+  event.target.remove()
 }

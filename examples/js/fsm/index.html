@@ -30,11 +30,21 @@
     </style>
   </head>
   <body>
+    <section id="loading-screen">
+      <div class="spinner">
+        <div class="rect1"></div>
+        <div class="rect2"></div>
+        <div class="rect3"></div>
+        <div class="rect4"></div>
+        <div class="rect5"></div>
+      </div>
+    </section>
     <section id="info">
       <p>
         The game entity continuously changes its status between "IDLE" and "WALK".<br />
         The State-driven agent design enables a clean implementation of basic AI logic.<br />
-        The cone uses FollowPath behavior and changes its color depending on the current state.
+        The cone changes its color depending on the current state and uses FollowPath behavior when IDLE and Arrive
+        behavior (to zero point) in the WALK state.
       </p>
     </section>
     <section id="status">
