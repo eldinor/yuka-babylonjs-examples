@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="A JavaScript library for developing Game AI" />
+
+    <title>Yuka | Examples with Babylon.js</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://mugen87.github.io/yuka/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <link href="https://mugen87.github.io/yuka/css/app.css" rel="stylesheet" />
+    <link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico" />
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-md fixed-top bg-light container">
+        
+      <h3 style="color: rgb(187, 70, 75);">Yuka + Babylon.js Examples</h3>
+      
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarsExampleDefault"
+        aria-controls="navbarsExampleDefault"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+
+          <!--
+                    <li class="nav-item">
+						<a class="nav-link active" href=".">Examples</a>
+					</li>
+              
+          <li class="nav-item">
+            <a class="nav-link active" href="https://mugen87.github.io/yuka/showcases/" target="_blank"
+              >Showcases with Three.js</a
+            >
+          </li>
+            -->
+            <ul class="navbar-nav ml-auto ">
+              <li class="nav-item">
+                <a class="nav-link" href="https://github.com/eldinor/yuka-babylonjs-examples" target="_blank">Examples at Github</a>
+              </li>
+          <li class="nav-item">
+            <a class="nav-link" href="https://mugen87.github.io/yuka/docs/" target="_blank">Yuka Documentation</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <main role="main">
+      <div class="container" style="padding-top: 3rem">
+        <div class="row">
+          <div class="col-sm-8">
+        <h1>Game AI Examples with Babylon.js<br/><small class="text-black-50">All what you need for web-based 3D game</small></h1>
+
+        <br />
+
+        <h3>Autonomous Agent Design</h3>
+
+        <br />
+
+        <h5><a href="./js/fsm/" target="_blank">State-driven Agent Design</a></h5>
+        <p>The Finite State Machine enables a clean implementation of basic AI logic for every entity. The State-driven Agent Design is still most commonly used AI method in games.</p>
+        <hr />
+       
+				<h5><a href=".js//goal/" target="_blank">Goal-driven Agent Design</a></h5>
+				<p>The Goal-driven agent design enables a clean implementation of more advanced AI logic with simple Goals and Composite Goals.</p>
+
+				<br/>
+      
+				<h3>Fuzzy Logic</h3>
+
+				<br/>
+
+				<h5><a href=".js//fuzzy/" target="_blank">Weapon Selection</a></h5>
+				<p>The soldier's weapon selection is implemented via fuzzy inference. In fuzzy logic, the truth of any statement becomes just a matter of a degree.</p>
+
+				<br/>
+
+				<h3>Graphs and Navigation</h3>
+        <br/>
+
+<!--
+				<h5><a href="./graph/basic/" target="_blank">Graphs</a></h5>
+				<p>Demonstrates basic graph search algorithms.</p>
+				<hr/>
+-->
+				<h5><a href="./js/graph/tictactoe/" target="_blank">Tic-Tac-Toe</a></h5>
+				<p>An implementation of the MinMax algorithm based on Yuka's graph class.</p>
+				<hr/>
+
+				<h5><a href="./js/navigation/navmesh/" target="_blank">Navigation Mesh (Basic)</a></h5>
+				<p>A simple showcase of a navigation mesh.</p>
+				<hr/>
+
+				<h5><a href="./js/navigation/navmeshPerformance/" target="_blank">Navigation Mesh (Advanced)</a></h5>
+				<p>An advanced showcase that shows the usage of a spatial index and tasks.</p>
+				<hr/>
+
+				<h5><a href="./js/navigation/firstperson/" target="_blank">First-Person Controls</a></h5>
+				<p>First-Person example with navigation mesh usage to restrict movement.</p>
+
+				<br/>
+
+				<h3>Math</h3>
+
+				<br/>
+<!--
+				<h5><a href="./math/boundingVolumes/" target="_blank">Bounding Volumes</a></h5>
+				<p>Demonstrates different types of auto-generated bounding volumes.</p>
+				<hr/>
+
+				<h5><a href="./math/bvh/" target="_blank">Bounding Volume Hierarchy (BVH)</a></h5>
+				<p>Enables faster intersection tests by introducing a hierarchy of bounding volumes for a single geometry.</p>
+				<hr/>
+-->
+				<h5><a href="./js/math/orientation/" target="_blank">Orientation</a></h5>
+				<p>Demonstrates how to orient a game entity towards a specific target.</p>
+
+				<br/>
+
+				<h3>Misc</h2>
+
+				<br/>
+
+				<h5><a href="./misc/savegame/" target="_blank">Savegames</a></h5>
+				<p>Shows how the current game state can be saved and loaded.</p>
+				<hr/>
+
+				<h5><a href="./misc/trigger/" target="_blank">Triggers</a></h5>
+				<p>Usage of triggers to dynamically generate actions in the game world.</p>
+
+				<br/>
+
+				<h3>Perception</h3>
+
+				<br/>
+
+				<h5><a href="./perception/lineOfSight/" target="_blank">Line of Sight</a></h5>
+				<p>Demonstrates a basic line of sight test.</p>
+				<hr/>
+
+				<h5><a href="./perception/memorySystem/" target="_blank">Memory System</a></h5>
+				<p>Enables game entites to have a short-term memory so they react in a more natural way.</p>
+
+				<br/>
+
+        <h3>Steering Behaviors</h3>
+
+        <br />
+
+        <h5><a href="./js/steering/arrive/" target="_blank">Arrive Steering Behavior</a></h5>
+        <p>This behavior steers the agent in such a way it decelerates onto the target position.</p>
+        <hr />
+
+				<h5><a href="./js/steering/flee/" target="_blank">Flee Steering Behavior</a></h5>
+				<p>Produces a force that steers an agent away from a target position.</p>
+				<hr/>
+
+        <h5><a href="./js/steering/flocking/" target="_blank">Flocking Steering Behavior</a></h5>
+        <p>A group steering behavior based on "Alignment", "Cohesion" and "Separation".</p>
+        <hr />
+
+        <h5><a href="./js/steering/followPath/" target="_blank">Follow Path Steering Behavior</a></h5>
+        <p>Produces a force that moves a vehicle along a series of waypoints.</p>
+        <hr />
+
+        <h5><a href="./js/steering/interpose/" target="_blank">Interpose Steering Behavior</a></h5>
+        <p>Produces a force that moves a vehicle to the midpoint of the imaginary line connecting two other agents.</p>
+        <hr />
+
+        <h5><a href="./js/steering/obstacleAvoidance/" target="_blank">Obstacle Avoidance Steering Behavior</a></h5>
+        <p>Produces a force so a vehicle avoids obstacles lying in its path.</p>
+        <hr />
+
+        <h5><a href="./js/steering/offsetPursuit/" target="_blank">Offset Pursuit Steering Behavior</a></h5>
+        <p>Produces a force that keeps a vehicle at a specified offset from a leader vehicle.</p>
+        <hr />
+
+        <h5><a href="./js/steering/pursuit/" target="_blank">Pursuit Steering Behavior</a></h5>
+        <p>Useful when an agent is required to intercept a moving agent.</p>
+        <hr />
+
+        <h5><a href="./js/steering/seek/" target="_blank">Seek Steering Behavior</a></h5>
+        <p>Produces a force that directs an agent toward a target position.</p>
+        <hr />
+
+        <h5><a href="./js/steering/wander/" target="_blank">Wander Steering Behavior</a></h5>
+        <p>Produces a force that will give the impression of a random walk through the agent’s environment.</p>
+
+        <br />
+        <!--
+				<h3>Playground</h3>
+
+				<br/>
+
+				<h5><a href="./playground/blackjack/" target="_blank">Blackjack</a></h5>
+				<p>A Blackjack implementation based on Monte Carlo prediction.</p>
+				<hr/>
+
+				<h5><a href="./playground/shooter/" target="_blank">First-Person Shooter</a></h5>
+				<p>Basic concepts of FPS like simulating bullets and collision detection.</p>
+				<hr/>
+
+				<h5><a href="./playground/hideAndSeek/" target="_blank">Hide And Seek</a></h5>
+				<p>A little game that experiments with steering and shooter mechanics.</p>
+				<hr/>
+-->
+
+        <h4>The work in progress, more examples and showcases will follow!</h4>
+        <br/>
+        <p>
+        <a href="https://github.com/eldinor/yuka-babylonjs-examples" class="btn btn-outline-secondary">Examples at Github</a>
+      </p>
+
+      </div>
+      <div class="col=sm-4 mx-4 ">
+        <div class="card" style="width: 20rem;">
+          <img style="width: 220px;" src="https://raw.githubusercontent.com/BabylonJS/Brand-Toolkit/master/babylonjs_identity/fullColor/babylonjs_identity_color.svg" class="" alt="...">
+          <div class="card-body ">
+ 
+            <p class="card-text">One of the most powerful, beautiful and simple Web rendering engines in the world.</p>
+            <a href="https://www.babylonjs.com/" class="btn btn-outline-secondary" target="_blank">Go to Babylon</a>
+          </div>
+        </div>
+<br/>
+<br/>
+        <div class="card" style="width: 20rem; ">
+          <img style="width: 98px;"  src="https://mugen87.github.io/yuka/images/logo_header.png" class="m-4" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">Autonomous Agent Design</h5>
+            <p class="card-text">Yuka provides a basic game entity concept and classes for state-driven and goal-driven agent design.</p>
+            
+            <h5 class="card-title">Steering and Navigation</h5>
+            <p class="card-text">Use the build-in vehicle model and steering behaviors in order to develop moving game entities. Graph classes, search algorithms and a navigation mesh implementation enables advanced path finding.</p>
+          
+            <h5 class="card-title">Perception and Triggers</h5>
+            <p class="card-text">Create game entities with a short-term memory and a vision component. Use triggers to generate dynamic actions in your game.</p>
+            
+
+            <a href="https://mugen87.github.io/yuka/" class="btn btn-outline-secondary" target="_blank">Go to Yuka</a>
+          </div>
+        </div>
+        <br/>
+        <br/>
+        <div class="card" style="width: 20rem;">
+          <div class="card-body ">
+            <h5 class="card-title">Download</h5>
+            <a href="https://github.com/eldinor/yuka-babylonjs-examples" class="btn btn-outline-secondary" target="_blank">Examples at Github</a>
+          </div>
+        </div>
+        <br/>
+        <br/>
+        <div class="card" style="width: 20rem;">
+          <div class="card-body ">
+            <h5 class="card-title ">Examples Contributors</h5>
+            <a href="https://forum.babylonjs.com/u/labris/summary" target="_blank" >
+              <img class="rounded-circle w-25 float-left" src="https://sea2.discourse-cdn.com/business7/user_avatar/forum.babylonjs.com/labris/240/12576_2.png" alt="">
+                <p class="float-right p-3">Andrei Stepanov</p>
+            </a>
+
+
+            <div class="clearfix m-3"></div>
+            <a href="https://forum.babylonjs.com/u/roland/summary" target="_blank">
+              <img class="rounded-circle w-25 float-left" src="https://sea2.discourse-cdn.com/business7/user_avatar/forum.babylonjs.com/roland/240/18498_2.png" alt="">
+                <p class="float-right p-3">Roland Csibrei</p>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- /row -->
+      </div>
+      <!-- /container -->
+    </main>
+
+    <footer class="container-fluid bg-light mt-5">
+      <div class="container pt-3">
+        <br />
+      <p>&copy; Babylon.js <br/>&copy; Yuka Game AI Library</p>
+      <p><small>Many thanks to Michael Herzog for YUKA and for the first Babylon.js example!</small></p>
+
+      <br />
+    </div>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+		================================================== -->
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')
+    </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+  </body>
+</html>
