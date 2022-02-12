@@ -97,7 +97,7 @@ class AssetManager {
     const gunMesh = gunMeshes.find((m) => m.name === 'BaseMesh')
     gunMesh.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6)
     // gunMesh.position = new BABYLON.Vector3(0, 0, 0.4)
-    gunMesh.rotation = new BABYLON.Vector3(0, 0, Math.PI / 2 - 0.1)
+    gunMesh.rotation = new BABYLON.Vector3(0, 0, Math.PI / 2)
     gunMesh.bakeCurrentTransformIntoVertices()
     gunMesh.renderingGroupId = 2
     gunMeshes.forEach((m) => {

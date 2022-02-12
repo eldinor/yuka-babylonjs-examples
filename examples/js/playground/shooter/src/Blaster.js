@@ -170,7 +170,7 @@ class Blaster extends GameEntity {
       ray.direction.subVectors(target, ray.origin).normalize()
       world.addBullet(owner, ray)
 
-      this.muzzleSprite.position.x = ray.origin.x
+      this.muzzleSprite.position.x = ray.origin.x - 0.2
       this.muzzleSprite.position.y = ray.origin.y
       this.muzzleSprite.position.z = ray.origin.z
 

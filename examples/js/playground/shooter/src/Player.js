@@ -12,7 +12,7 @@ class Player extends MovingEntity {
     this.add(this.headContainer)
 
     this.head = new GameEntity()
-    this.head.position.set(0, 2, 0)
+    this.head.position.set(0, 2, 10)
     this.headContainer.add(this.head)
 
     this.weaponContainer = new GameEntity()
