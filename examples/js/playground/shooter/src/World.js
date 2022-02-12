@@ -110,7 +110,7 @@ class World {
   }
 
   addBullet(owner, ray) {
-    const bulletLine = this.assetManager.models.get('bulletLine')
+    const bulletLine = this.assetManager.models.get('bulletLine').clone('bullet-line')
     bulletLine.setEnabled(true)
 
     const bullet = new Bullet(owner, ray)
@@ -121,10 +121,8 @@ class World {
 
   addBulletHole(position, normal, audio) {
     const bulletHole = this.assetManager.models.get('bulletHole').clone('bullet-hole' + this.bulletHoles.length)
+    bulletHole.setEnabled(true)
     audio.attachToMesh(bulletHole)
-
-    // var newDecal = BABYLON.MeshBuilder.CreateDecal("decal", cat, pickInfo.pickedPoint, pickInfo.getNormal(true), decalSize);
-    // newDecal.material = decalMaterial;
 
     const s = 1 + Math.random() * 0.5
     bulletHole.scaling = new BABYLON.Vector3(s, s, s)
@@ -132,7 +130,7 @@ class World {
 
     target.copy(position).add(normal)
 
-    // bulletHole.lookAt(new BABYLON.Vector3(target.x, target.y, target.z))
+    bulletHole.lookAt(new BABYLON.Vector3(target.x, target.y, target.z))
 
     if (this.bulletHoles.length >= this.maxBulletHoles) {
       const toRemove = this.bulletHoles.shift()
@@ -192,6 +190,8 @@ class World {
       })
 
     const camera = new BABYLON.UniversalCamera('camera', new BABYLON.Vector3(0, 0, 0), scene, true)
+    camera.minZ = 0.01
+    camera.max = 1000
     this.camera = camera
 
     new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))

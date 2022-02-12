@@ -19,7 +19,6 @@ class Player extends MovingEntity {
     this.head.add(this.weaponContainer)
 
     this.weapon = new Blaster(this)
-    this.weapon.position.set(2, -2, -5)
     this.weaponContainer.add(this.weapon)
 
     //

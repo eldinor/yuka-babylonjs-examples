@@ -3,7 +3,6 @@ import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
 class AssetManager {
   constructor() {
-    this.animations = new Map()
     this.audios = new Map()
     this.models = new Map()
   }
@@ -13,7 +12,6 @@ class AssetManager {
 
     this._loadAudios()
     await this._loadModels()
-    this._loadAnimations()
   }
 
   _loadAudios() {
@@ -81,7 +79,7 @@ class AssetManager {
 
     // target
     const targetMeshes = (await BABYLON.SceneLoader.ImportMeshAsync(null, 'model/', 'target.glb', this.scene)).meshes
-    const gunMeshes = (await BABYLON.SceneLoader.ImportMeshAsync(null, 'model/', 'gun.glb', this.scene)).meshes
+    const gunMeshes = (await BABYLON.SceneLoader.ImportMeshAsync(null, 'model/', 'gun-orig.glb', this.scene)).meshes
 
     targetMeshes[0].name = 'target'
     const targetMesh = targetMeshes.find((m) => m.name === 'LowPoly.003__0')
@@ -97,7 +95,8 @@ class AssetManager {
     gunMeshes[0].name = 'gun'
     const gunMesh = gunMeshes.find((m) => m.name === 'BaseMesh')
     gunMesh.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6)
-    gunMesh.rotation = new BABYLON.Vector3(0, 0, Math.PI / 2)
+    gunMesh.position = new BABYLON.Vector3(0, 0, 0.4)
+    gunMesh.rotation = new BABYLON.Vector3(0, 0, Math.PI / 2 - 0.1)
     gunMesh.bakeCurrentTransformIntoVertices()
     gunMesh.renderingGroupId = 2
 
@@ -106,7 +105,7 @@ class AssetManager {
     const sprite = new BABYLON.Sprite('muzzle', spritemanager)
     sprite.position = new BABYLON.Vector3(0, 0.13, -0.4)
     sprite.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3)
-    sprite.isVisible = true
+    sprite.isVisible = false
 
     models.set('target', targetMesh)
     models.set('weapon', gunMesh)
@@ -122,16 +121,23 @@ class AssetManager {
     bulletHoleMesh.material = bulletHoleMaterial
     bulletHoleMesh.renderingGroupId = 3
     bulletHoleMesh.bakeCurrentTransformIntoVertices()
+    bulletHoleMesh.setEnabled(false)
     models.set('bulletHole', bulletHoleMesh)
 
     // bullet line
     const options = {
-      points: [new BABYLON.Vector3(0, 0, 0), new BABYLON.Vector3(0, 0, -10)],
+      points: [new BABYLON.Vector3(0, 0, 0), new BABYLON.Vector3(0, 0, -1)],
     }
     const bulletLine = BABYLON.MeshBuilder.CreateLines('bullet-line', options, this.scene)
-    bulletLine.color = new BABYLON.Color3.FromHexString('#fbf8e6')
-    // bulletLine.setEnabled(false)
+    // bulletLine.color = new BABYLON.Color3.FromHexString('#fbf8e6')
+    bulletLine.color = new BABYLON.Color3.FromHexString('#ff0000')
+    bulletLine.setEnabled(false)
+    bulletLine.renderingGroupId = 3
     models.set('bulletLine', bulletLine)
+
+    // const box = BABYLON.MeshBuilder.CreateBox('box', { size: 1 })
+    // box.renderingGroupId = 3
+    // models.set('bulletLine', box)
 
     // ground
 
@@ -152,133 +158,6 @@ class AssetManager {
     groundMesh.rotation = new BABYLON.Vector3(Math.PI / 2, Math.PI, 0)
     groundMesh.bakeCurrentTransformIntoVertices()
     models.set('ground', groundMesh)
-  }
-
-  _loadAnimations() {
-    const animations = this.animations
-
-    // shot
-    const frameRate = 60
-
-    const frameTiming = [0, 0.2, 1.3, 1.5]
-
-    const shotPositionAnimation = new BABYLON.Animation(
-      'shoot-position',
-      'position',
-      frameRate,
-      BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
-      BABYLON.Animation.ANIMATIONLOOPMODE_RELATIVE
-    )
-
-    const shotPositionKeyFrames = []
-    shotPositionKeyFrames.push({
-      frame: frameTiming[0],
-      value: new BABYLON.Vector3(0.3, -0.3, -1),
-    })
-    shotPositionKeyFrames.push({
-      frame: frameTiming[1],
-      value: new BABYLON.Vector3(0.3, -0.2, -0.7),
-    })
-    shotPositionKeyFrames.push({
-      frame: frameTiming[2],
-      frame: 0.05 * frameRate,
-      value: new BABYLON.Vector3(0.3, -0.305, -1),
-    })
-    shotPositionKeyFrames.push({
-      frame: frameTiming[3],
-      frame: 0.15 * frameRate,
-      value: new BABYLON.Vector3(0.3, -0.3, -1),
-    })
-    shotPositionAnimation.setKeys(shotPositionKeyFrames)
-
-    const shotRotationAnimation = new BABYLON.Animation(
-      'shoot-rotation',
-      'rotation',
-      frameRate,
-      BABYLON.Animation.ANIMATIONTYPE_QUATERNION,
-      BABYLON.Animation.ANIMATIONLOOPMODE_RELATIVE
-    )
-    const shotRotationKeyFrames = []
-    shotRotationKeyFrames.push({
-      frame: frameTiming[0],
-      value: new BABYLON.Quaternion(),
-    })
-    shotRotationKeyFrames.push({
-      frame: frameTiming[1],
-      value: BABYLON.Quaternion.FromEulerAngles(0.02, 0, 0),
-    })
-    shotRotationKeyFrames.push({
-      frame: frameTiming[2],
-      value: BABYLON.Quaternion.FromEulerAngles(-0.02, 0, 0),
-    })
-    shotRotationKeyFrames.push({
-      frame: frameTiming[3],
-      value: new BABYLON.Quaternion(),
-    })
-    shotRotationAnimation.setKeys(shotRotationKeyFrames)
-
-    animations.set('shootPosition', shotPositionAnimation)
-    animations.set('shootRotation', shotRotationAnimation)
-
-    // reload
-
-    const reloadPositionAnimation = new BABYLON.Animation(
-      'reload-position',
-      'position',
-      frameRate,
-      BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
-      BABYLON.Animation.ANIMATIONLOOPMODE_RELATIVE
-    )
-
-    const reloadPositionKeyFrames = []
-    reloadPositionKeyFrames.push({
-      frame: frameTiming[0],
-      value: new BABYLON.Vector3(0.3, -0.3, -1),
-    })
-    reloadPositionKeyFrames.push({
-      frame: frameTiming[1],
-      value: new BABYLON.Vector3(0.3, -0.2, -0.7),
-    })
-    reloadPositionKeyFrames.push({
-      frame: frameTiming[2],
-      frame: 0.05 * frameRate,
-      value: new BABYLON.Vector3(0.3, -0.305, -1),
-    })
-    reloadPositionKeyFrames.push({
-      frame: frameTiming[3],
-      frame: 0.15 * frameRate,
-      value: new BABYLON.Vector3(0.3, -0.3, -1),
-    })
-    reloadPositionAnimation.setKeys(reloadPositionKeyFrames)
-
-    const reloadRotationAnimation = new BABYLON.Animation(
-      'reload-rotation',
-      'rotation',
-      frameRate,
-      BABYLON.Animation.ANIMATIONTYPE_QUATERNION,
-      BABYLON.Animation.ANIMATIONLOOPMODE_RELATIVE
-    )
-    const reloadRotationKeyFrames = []
-    reloadRotationKeyFrames.push({
-      frame: frameTiming[0],
-      value: new BABYLON.Quaternion(),
-    })
-    reloadRotationKeyFrames.push({
-      frame: frameTiming[1],
-      value: BABYLON.Quaternion.FromEulerAngles(0.02, 0, 0),
-    })
-    reloadRotationKeyFrames.push({
-      frame: frameTiming[2],
-      value: BABYLON.Quaternion.FromEulerAngles(-0.02, 0, 0),
-    })
-    reloadRotationKeyFrames.push({
-      frame: frameTiming[3],
-      value: new BABYLON.Quaternion(),
-    })
-    reloadRotationAnimation.setKeys(reloadRotationKeyFrames)
-
-    animations.set('reloadPosition', reloadPositionAnimation)
-    animations.set('reloadRotation', reloadRotationAnimation)
   }
 }
 

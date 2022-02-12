@@ -11,8 +11,11 @@ class Blaster extends GameEntity {
     this.owner = owner
 
     this.camera = owner.camera
+    this.position.set(2, -2, -5)
 
     this.status = STATUS.READY
+
+    this.animations = new Map()
 
     this.roundsLeft = 12
     this.roundsPerClip = 12
@@ -37,6 +40,7 @@ class Blaster extends GameEntity {
       ammo: document.getElementById('ammo'),
     }
 
+    this.loadAnimations()
     this.updateUI()
   }
 
@@ -100,8 +104,8 @@ class Blaster extends GameEntity {
 
       // animation
 
-      const reloadPositionAnimation = world.animations.get('reloadPosition')
-      const reloadRotationAnimation = world.animations.get('reloadRotation')
+      const reloadPositionAnimation = this.animations.get('reloadPosition')
+      const reloadRotationAnimation = this.animations.get('reloadRotation')
       const scene = this.camera.getScene()
       scene.beginDirectAnimation(this, [reloadPositionAnimation, reloadRotationAnimation], 0, 60, false)
 
@@ -127,8 +131,8 @@ class Blaster extends GameEntity {
 
       // animation
 
-      const shootPositionAnimation = world.animations.get('shootPosition')
-      const shootRotationAnimation = world.animations.get('shootRotation')
+      const shootPositionAnimation = this.animations.get('shootPosition')
+      const shootRotationAnimation = this.animations.get('shootRotation')
       const scene = this.camera.getScene()
       scene.beginDirectAnimation(this, [shootPositionAnimation, shootRotationAnimation], 0, 60, false)
 
@@ -148,7 +152,13 @@ class Blaster extends GameEntity {
 
       // first calculate a ray that represents the actual look direction from the head position
       ray.origin.extractPositionFromMatrix(head.worldMatrix)
+      console.log(head.worldMatrix.elements)
+      // head.worldMatrix.elements[14] = -4
       owner.getDirection(ray.direction)
+      ray.origin.y += 0.001
+      ray.origin.x += 0.125
+      ray.direction.x += 0.125
+      ray.direction.y += 0.001
 
       // determine closest intersection point with world object
       const result = world.intersectRay(ray, intersectionPoint)
@@ -164,8 +174,8 @@ class Blaster extends GameEntity {
       world.addBullet(owner, ray)
 
       const muzzlePosition = ray.origin
-      this.muzzleSprite.position.x = muzzlePosition.x - 0.65
-      this.muzzleSprite.position.y = muzzlePosition.y + 1.2
+      this.muzzleSprite.position.x = muzzlePosition.x - 0.45
+      this.muzzleSprite.position.y = muzzlePosition.y + 1.7
       this.muzzleSprite.position.z = muzzlePosition.z
 
       // adjust ammo
@@ -189,6 +199,132 @@ class Blaster extends GameEntity {
   updateUI() {
     this.ui.roundsLeft.textContent = this.roundsLeft
     this.ui.ammo.textContent = this.ammo
+  }
+
+  loadAnimations() {
+    const animations = this.animations
+    // shot
+    const frameRate = 1
+
+    // shoot
+
+    const frameTimingShot = [0, 0.05, 0.15, 0.3].map((v) => frameRate * v)
+    const shotPositionAnimation = new BABYLON.Animation(
+      'shoot-position',
+      'position',
+      frameRate,
+      BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+      BABYLON.Animation.ANIMATIONLOOPMODE_RELATIVE
+    )
+
+    const startPosition = new BABYLON.Vector3(this.position.x, this.position.y, this.position.z)
+    const shotPositionKeyFrames = []
+    shotPositionKeyFrames.push({
+      frame: frameTimingShot[0],
+      value: startPosition,
+    })
+    shotPositionKeyFrames.push({
+      frame: frameTimingShot[1],
+      value: new BABYLON.Vector3(startPosition.x + 0.6, startPosition.y + 0.4, startPosition.z + 1.4),
+    })
+    shotPositionKeyFrames.push({
+      frame: frameTimingShot[2],
+      value: new BABYLON.Vector3(startPosition.x + 0.6, startPosition.y + 0.61, startPosition.z + 2),
+    })
+    shotPositionKeyFrames.push({
+      frame: frameTimingShot[3],
+      value: startPosition,
+    })
+    shotPositionAnimation.setKeys(shotPositionKeyFrames)
+
+    const shotRotationAnimation = new BABYLON.Animation(
+      'shoot-rotation',
+      'rotation',
+      frameRate,
+      BABYLON.Animation.ANIMATIONTYPE_QUATERNION,
+      BABYLON.Animation.ANIMATIONLOOPMODE_RELATIVE
+    )
+    const shotRotationKeyFrames = []
+
+    shotRotationKeyFrames.push({
+      frame: frameTimingShot[0],
+      value: new BABYLON.Quaternion(this.rotation.x, this.rotation.y, this.rotation.z, this.rotation.w),
+    })
+    shotRotationKeyFrames.push({
+      frame: frameTimingShot[1],
+      value: BABYLON.Quaternion.FromEulerAngles(-0.12, 0, 0),
+    })
+    shotRotationKeyFrames.push({
+      frame: frameTimingShot[2],
+      value: BABYLON.Quaternion.FromEulerAngles(0.12, 0, 0),
+    })
+    shotRotationKeyFrames.push({
+      frame: frameTimingShot[3],
+      value: new BABYLON.Quaternion(),
+    })
+    shotRotationAnimation.setKeys(shotRotationKeyFrames)
+
+    animations.set('shootPosition', shotPositionAnimation)
+    animations.set('shootRotation', shotRotationAnimation)
+
+    // reload
+
+    const frameTimingReload = [0, 0.2, 1.3, 1.5].map((v) => frameRate * v)
+    const reloadPositionAnimation = new BABYLON.Animation(
+      'reload-position',
+      'position',
+      frameRate,
+      BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+      BABYLON.Animation.ANIMATIONLOOPMODE_RELATIVE
+    )
+
+    const reloadPositionKeyFrames = []
+    reloadPositionKeyFrames.push({
+      frame: frameTimingReload[0],
+      value: startPosition,
+    })
+    reloadPositionKeyFrames.push({
+      frame: frameTimingReload[1],
+      value: new BABYLON.Vector3(startPosition.x + 0.3, startPosition.y - 1.5, startPosition.z),
+    })
+    reloadPositionKeyFrames.push({
+      frame: frameTimingReload[2],
+      value: new BABYLON.Vector3(startPosition.x + 0.3, startPosition.y - 1.5, startPosition.z),
+    })
+    reloadPositionKeyFrames.push({
+      frame: frameTimingReload[3],
+      value: startPosition,
+    })
+    reloadPositionAnimation.setKeys(reloadPositionKeyFrames)
+
+    const reloadRotationAnimation = new BABYLON.Animation(
+      'reload-rotation',
+      'rotation',
+      frameRate,
+      BABYLON.Animation.ANIMATIONTYPE_QUATERNION,
+      BABYLON.Animation.ANIMATIONLOOPMODE_RELATIVE
+    )
+    const reloadRotationKeyFrames = []
+    reloadRotationKeyFrames.push({
+      frame: frameTimingReload[0],
+      value: new BABYLON.Quaternion(),
+    })
+    reloadRotationKeyFrames.push({
+      frame: frameTimingReload[1],
+      value: BABYLON.Quaternion.FromEulerAngles(-0.4, 0, 0),
+    })
+    reloadRotationKeyFrames.push({
+      frame: frameTimingReload[2],
+      value: BABYLON.Quaternion.FromEulerAngles(-0.4, 0, 0),
+    })
+    reloadRotationKeyFrames.push({
+      frame: frameTimingReload[3],
+      value: new BABYLON.Quaternion(),
+    })
+    reloadRotationAnimation.setKeys(reloadRotationKeyFrames)
+
+    animations.set('reloadPosition', reloadPositionAnimation)
+    animations.set('reloadRotation', reloadRotationAnimation)
   }
 }
 
