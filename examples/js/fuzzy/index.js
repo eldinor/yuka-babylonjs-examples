@@ -39,7 +39,7 @@ function init() {
   scene.fogColor = BABYLON.Color3.FromHexString('#a0a0a0')
   scene.fogDensity = 0.01
 
-  scene.debugLayer.show()
+  // scene.debugLayer.show()
 
   //
   const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 250, height: 250 }, scene)
