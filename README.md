@@ -5,6 +5,7 @@
 #### Live examples at https://yuka.babylonpress.org/examples/
 
 Yuka library source: https://github.com/Mugen87/yuka
+
 Babylon.js 3D engine source: https://github.com/BabylonJS/Babylon.js
 
 # Installation
