@@ -2,26 +2,26 @@
 
 ### Yuka Game AI + 3D rendering with Babylon.js.
 
-#### Live examplea at https://yuka.babylonpress.org/examples/
+#### Live examples at https://yuka.babylonpress.org/examples/
 
 Yuka library source: https://github.com/Mugen87/yuka
 Babylon.js 3D engine source: https://github.com/BabylonJS/Babylon.js
 
 # Installation
 
-# VS Code extensions to install
+## VS Code extensions to install
 
 https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
 
 https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer
 
-# How to run the examples
+## How to run the examples
 
-## JS
+### JS
 
 Open the `index.html` file located in `examples/js/example_dir` with LiveServer in VS Code. 
 
-### License
+## License
 
 All these examples are open source, MIT License.
 Babylon.js: Apache-2.0 License
