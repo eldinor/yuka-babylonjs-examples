@@ -25,6 +25,10 @@ Open the `index.html` file located in `examples/js/example_dir` with LiveServer 
 ## License
 
 All these examples are open source, MIT License.
+
 Babylon.js: Apache-2.0 License
+
 Yuka.js: MIT License
+
 3D Models: CC Attribution License (see readme.md in relevant folders)
+
