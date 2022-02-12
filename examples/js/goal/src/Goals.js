@@ -33,7 +33,7 @@ class RestGoal extends Goal {
 
     console.log('REST GOAL')
     //
-
+    owner.animations.get(WALK).stop()
     const idle = owner.animations.get(IDLE)
     idle.play()
     idle.loopAnimation = true
@@ -81,8 +81,8 @@ class GatherGoal extends CompositeGoal {
 
     owner.ui.fatigueLevel.value = owner.fatigueLevel
 
-    const idle = owner.animations.get(IDLE)
-    idle.stop()
+    //	const idle = owner.animations.get( IDLE );
+    //	idle.stop( );
   }
 
   execute() {
@@ -142,7 +142,7 @@ class FindNextCollectibleGoal extends Goal {
     const turn = owner.animations.get(this.animationId)
 
     turn.play()
-    turn.loopAnimation = true
+    turn.loopAnimation = false
   }
 
   execute() {
@@ -211,7 +211,7 @@ class SeekToCollectibleGoal extends Goal {
       // adjust animation speed based on the actual velocity of the girl
 
       const animation = owner.animations.get(WALK)
-      animation.speedRatio = Math.min(1.1, owner.getSpeed() / owner.maxSpeed)
+      animation.speedRatio = Math.min(0.75, owner.getSpeed() / owner.maxSpeed)
       //	console.log(animation.speedRatio)
     }
   }
@@ -223,8 +223,8 @@ class SeekToCollectibleGoal extends Goal {
 
     const owner = this.owner
 
-    const walk = owner.animations.get(WALK)
-    walk.stop()
+    //  const walk = owner.animations.get(WALK)
+    //  walk.stop()
   }
 }
 

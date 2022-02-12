@@ -2,40 +2,59 @@
  * @author Mugen87 / https://github.com/Mugen87
  */
 
-import { GoalEvaluator } from '../../../../lib/yuka.module.js'
+import { GoalEvaluator } from '../../../../lib/yuka.module.js';
 
-import { RestGoal, GatherGoal } from './Goals.js'
+import { RestGoal, GatherGoal } from './Goals.js';
 
 class RestEvaluator extends GoalEvaluator {
-  calculateDesirability(girl) {
-    return girl.tired() === true ? 1 : 0
-  }
 
-  setGoal(girl) {
-    const currentSubgoal = girl.brain.currentSubgoal()
+	calculateDesirability( girl ) {
 
-    if (currentSubgoal instanceof RestGoal === false) {
-      girl.brain.clearSubgoals()
+		return ( girl.tired() === true ) ? 1 : 0;
 
-      girl.brain.addSubgoal(new RestGoal(girl))
-    }
-  }
+	}
+
+	setGoal( girl ) {
+
+		const currentSubgoal = girl.brain.currentSubgoal();
+
+		if ( ( currentSubgoal instanceof RestGoal ) === false ) {
+
+			girl.brain.clearSubgoals();
+
+			girl.brain.addSubgoal( new RestGoal( girl ) );
+
+		}
+
+	}
+
 }
 
 class GatherEvaluator extends GoalEvaluator {
-  calculateDesirability() {
-    return 0.5
-  }
 
-  setGoal(girl) {
-    const currentSubgoal = girl.brain.currentSubgoal()
+	calculateDesirability() {
 
-    if (currentSubgoal instanceof GatherGoal === false) {
-      girl.brain.clearSubgoals()
+		return 0.5;
 
-      girl.brain.addSubgoal(new GatherGoal(girl))
-    }
-  }
+	}
+
+	setGoal( girl ) {
+
+		const currentSubgoal = girl.brain.currentSubgoal();
+
+		if ( ( currentSubgoal instanceof GatherGoal ) === false ) {
+
+			girl.brain.clearSubgoals();
+
+			girl.brain.addSubgoal( new GatherGoal( girl ) );
+
+		}
+
+	}
+
 }
 
-export { RestEvaluator, GatherEvaluator }
+export {
+	RestEvaluator,
+	GatherEvaluator
+};

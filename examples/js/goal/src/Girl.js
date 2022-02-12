@@ -63,8 +63,6 @@ class Girl extends Vehicle {
 
     this.brain.arbitrate()
 
-    //	this.mixer.update( delta );
-
     return this
   }
 

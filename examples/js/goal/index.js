@@ -36,7 +36,6 @@ function init() {
   camera.attachControl(canvas, true)
   camera.lowerRadiusLimit = 10
   camera.upperRadiusLimit = 30
-  camera.upperBetaLimit = 1.4
   camera.wheelDeltaPercentage = 0.02
 
   camera.setTarget(new BABYLON.Vector3.Zero())
@@ -74,7 +73,15 @@ function init() {
   pipeline.glowLayer.intensity = 0.5
 
   //
-
+  /*
+  const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
+    'cone',
+    { height: 0.5, diameterTop: 0, diameterBottom: 0.25 },
+    scene
+  )
+  vehicleMesh.rotation.x = Math.PI * 0.5
+  vehicleMesh.bakeCurrentTransformIntoVertices()
+*/
   const collectibleMat = new BABYLON.StandardMaterial('collectibleMat', scene)
   collectibleMat.emissiveColor = BABYLON.Color3.FromHexString('#0000cd')
 
@@ -126,7 +133,11 @@ function init() {
 
     const animations = new Map()
 
+    container.meshes[0].getChildren().forEach((child) => (child._isDirty = true))
+
     girl.setRenderComponent(container.meshes[0], sync)
+
+    //  container.meshes[0].parent = vehicleMesh
 
     animations.set('GATHER', container.animationGroups[0])
     animations.set('IDLE', container.animationGroups[1])
@@ -164,6 +175,9 @@ function animate() {
 
   entityManager.update(delta)
 
+  if (scene.getMeshByName('__root__')) {
+    scene.getMeshByName('__root__')._childUpdateId++
+  }
   scene.render()
 }
 
@@ -171,5 +185,7 @@ function sync(entity, renderComponent) {
   entity.worldMatrix.toArray(entityMatrix.m)
   entityMatrix.markAsUpdated()
   const matrix = renderComponent.getWorldMatrix()
+
+  //  console.log(scene)
   matrix.copyFrom(entityMatrix)
 }
