@@ -152,13 +152,8 @@ class Blaster extends GameEntity {
 
       // first calculate a ray that represents the actual look direction from the head position
       ray.origin.extractPositionFromMatrix(head.worldMatrix)
-      console.log(head.worldMatrix.elements)
-      // head.worldMatrix.elements[14] = -4
+
       owner.getDirection(ray.direction)
-      ray.origin.y += 0.001
-      ray.origin.x += 0.125
-      ray.direction.x += 0.125
-      ray.direction.y += 0.001
 
       // determine closest intersection point with world object
       const result = world.intersectRay(ray, intersectionPoint)
@@ -170,13 +165,14 @@ class Blaster extends GameEntity {
       // now let's change the origin to the weapon's position.
       target.copy(ray.origin).add(ray.direction.multiplyScalar(distance))
       ray.origin.extractPositionFromMatrix(this.worldMatrix)
+      ray.origin.x -= 0.25
+      ray.origin.y += 1.4
       ray.direction.subVectors(target, ray.origin).normalize()
       world.addBullet(owner, ray)
 
-      const muzzlePosition = ray.origin
-      this.muzzleSprite.position.x = muzzlePosition.x - 0.45
-      this.muzzleSprite.position.y = muzzlePosition.y + 1.7
-      this.muzzleSprite.position.z = muzzlePosition.z
+      this.muzzleSprite.position.x = ray.origin.x
+      this.muzzleSprite.position.y = ray.origin.y
+      this.muzzleSprite.position.z = ray.origin.z
 
       // adjust ammo
 

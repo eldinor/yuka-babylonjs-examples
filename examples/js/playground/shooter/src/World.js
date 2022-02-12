@@ -80,7 +80,6 @@ class World {
   }
 
   add(entity) {
-    console.log('Adding entity', entity, entity._renderComponent)
     this.entityManager.add(entity)
 
     if (entity._renderComponent !== null) {
@@ -159,7 +158,9 @@ class World {
           closestObstacle = obstacle
 
           intersectionPoint.copy(intersection.point)
-          if (normal) normal.copy(intersection.normal)
+          if (normal) {
+            normal.copy(intersection.normal)
+          }
         }
       }
     }
@@ -180,14 +181,16 @@ class World {
     scene.fogMode = BABYLON.Scene.FOGMODE_EXP2
     scene.fogColor = BABYLON.Color3.FromHexString('#a0a0a0')
     scene.fogDensity = 0.005
-    scene.debugLayer
-      .show({
-        embedMode: true,
-      })
-      .then(() => {
-        const host = document.getElementById('embed-host')
-        host.style.zIndex = '999999999'
-      })
+
+    // scene.debugLayer
+    //   .show({
+    //     embedMode: true,
+    //     overlay: true,
+    //   })
+    //   .then(() => {
+    //     const host = document.getElementById('embed-host')
+    //     host.style.zIndex = '999999999'
+    //   })
 
     const camera = new BABYLON.UniversalCamera('camera', new BABYLON.Vector3(0, 0, 0), scene, true)
     camera.minZ = 0.01

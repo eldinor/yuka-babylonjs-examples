@@ -19,8 +19,6 @@ class Bullet extends MovingEntity {
 
     const s = 1 + Math.random() * 3 // scale the shot line a bit
 
-    // this.scale.set(s, s, s)
-
     this.lifetime = 100
     this.currentTime = 0
   }

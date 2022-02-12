@@ -87,6 +87,7 @@ class AssetManager {
     targetMeshes[0].scaling = new BABYLON.Vector3(0.01, 0.01, 0.01)
     targetMesh.bakeCurrentTransformIntoVertices()
     targetMesh.renderingGroupId = 2
+    targetMesh.freezeWorldMatrix()
 
     // TODO: add shadow
     // mesh.castShadow = true
@@ -95,10 +96,13 @@ class AssetManager {
     gunMeshes[0].name = 'gun'
     const gunMesh = gunMeshes.find((m) => m.name === 'BaseMesh')
     gunMesh.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6)
-    gunMesh.position = new BABYLON.Vector3(0, 0, 0.4)
+    // gunMesh.position = new BABYLON.Vector3(0, 0, 0.4)
     gunMesh.rotation = new BABYLON.Vector3(0, 0, Math.PI / 2 - 0.1)
     gunMesh.bakeCurrentTransformIntoVertices()
     gunMesh.renderingGroupId = 2
+    gunMeshes.forEach((m) => {
+      m.freezeWorldMatrix()
+    })
 
     const spritemanager = new BABYLON.SpriteManager('sprite-manager', 'model/muzzle.png', 1, 128, this.scene)
     spritemanager.renderingGroupId = 1
@@ -126,13 +130,13 @@ class AssetManager {
 
     // bullet line
     const options = {
-      points: [new BABYLON.Vector3(0, 0, 0), new BABYLON.Vector3(0, 0, -1)],
+      points: [new BABYLON.Vector3(0, 0, 0), new BABYLON.Vector3(0, 0, 10)],
     }
     const bulletLine = BABYLON.MeshBuilder.CreateLines('bullet-line', options, this.scene)
-    // bulletLine.color = new BABYLON.Color3.FromHexString('#fbf8e6')
-    bulletLine.color = new BABYLON.Color3.FromHexString('#ff0000')
+    bulletLine.color = new BABYLON.Color3.FromHexString('#fbf8e6')
     bulletLine.setEnabled(false)
     bulletLine.renderingGroupId = 3
+    bulletLine.freezeWorldMatrix()
     models.set('bulletLine', bulletLine)
 
     // const box = BABYLON.MeshBuilder.CreateBox('box', { size: 1 })
