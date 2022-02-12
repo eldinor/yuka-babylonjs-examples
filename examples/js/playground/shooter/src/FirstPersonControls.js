@@ -68,8 +68,12 @@ class FirstPersonControls extends EventDispatcher {
     direction.x = Number(input.left) - Number(input.right)
     direction.normalize()
 
-    if (input.forward || input.backward) velocity.z -= direction.z * this.acceleration * delta
-    if (input.left || input.right) velocity.x -= direction.x * this.acceleration * delta
+    if (input.forward || input.backward) {
+      velocity.z -= direction.z * this.acceleration * delta
+    }
+    if (input.left || input.right) {
+      velocity.x -= direction.x * this.acceleration * delta
+    }
 
     owner.velocity.copy(velocity).applyRotation(owner.rotation)
 

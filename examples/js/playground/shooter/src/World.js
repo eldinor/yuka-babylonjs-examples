@@ -197,16 +197,17 @@ class World {
     camera.max = 1000
     this.camera = camera
 
-    new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
+    new BABYLON.HemisphericLight('light', new BABYLON.Vector3(-1, 1, 0))
 
-    this.dirLight = new BABYLON.DirectionalLight('dirLight', new BABYLON.Vector3(-1, -3, 1), scene)
-    this.dirLight.position = new BABYLON.Vector3(3, 9, 3)
+    this.dirLight = new BABYLON.DirectionalLight('dirLight', new BABYLON.Vector3(-1, -1, -1), scene)
+    this.dirLight.position = new BABYLON.Vector3(10, 9, 3)
 
     this.audios = this.assetManager.audios
 
-    this.shadowGenerator = new BABYLON.ShadowGenerator(1024, this.dirLight)
-
-    // scene
+    this.shadowGenerator = new BABYLON.ShadowGenerator(2048, this.dirLight)
+    this.shadowGenerator.useBlurExponentialShadowMap = true
+    this.shadowGenerator.useKernelBlur = true
+    this.shadowGenerator.blurKernel = 32
 
     window.addEventListener('resize', this.onWindowResize, false)
     this.ui.intro.addEventListener('click', this.onIntroClick, false)
@@ -214,6 +215,7 @@ class World {
 
   initGround() {
     const groundMesh = this.assetManager.models.get('ground')
+
     const vertices = groundMesh.getVerticesData(BABYLON.VertexBuffer.PositionKind)
     const indices = groundMesh.getIndices()
     const geometry = new YUKA.MeshGeometry(vertices, indices)
@@ -236,7 +238,9 @@ class World {
     const weaponMesh = this.assetManager.models.get('weapon')
     weapon.setRenderComponent(weaponMesh, sync)
 
-    this.shadowGenerator.addShadowCaster(weaponMesh)
+    weaponMesh.parent.getChildMeshes().forEach((m) => {
+      this.shadowGenerator.addShadowCaster(m)
+    })
 
     // TODO: audios
     this.audios.get('shot').attachToMesh(weaponMesh)

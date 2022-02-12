@@ -171,7 +171,7 @@ class Blaster extends GameEntity {
       world.addBullet(owner, ray)
 
       this.muzzleSprite.position.x = ray.origin.x - 0.2
-      this.muzzleSprite.position.y = ray.origin.y
+      this.muzzleSprite.position.y = ray.origin.y + 0.2
       this.muzzleSprite.position.z = ray.origin.z
 
       // adjust ammo

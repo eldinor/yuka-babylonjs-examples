@@ -88,6 +88,7 @@ class AssetManager {
     targetMesh.bakeCurrentTransformIntoVertices()
     targetMesh.renderingGroupId = 2
     targetMesh.freezeWorldMatrix()
+    targetMesh.alwaysSelectAsActiveMesh = true
 
     // TODO: add shadow
     // mesh.castShadow = true
@@ -96,13 +97,12 @@ class AssetManager {
     gunMeshes[0].name = 'gun'
     const gunMesh = gunMeshes.find((m) => m.name === 'BaseMesh')
     gunMesh.scaling = new BABYLON.Vector3(0.6, 0.6, 0.6)
-    // gunMesh.position = new BABYLON.Vector3(0, 0, 0.4)
+    gunMesh.position = new BABYLON.Vector3(0, 0, 0.4)
     gunMesh.rotation = new BABYLON.Vector3(0, 0, Math.PI / 2)
     gunMesh.bakeCurrentTransformIntoVertices()
     gunMesh.renderingGroupId = 2
-    gunMeshes.forEach((m) => {
-      m.freezeWorldMatrix()
-    })
+    gunMesh.freezeWorldMatrix()
+    gunMesh.alwaysSelectAsActiveMesh = true
 
     const spritemanager = new BABYLON.SpriteManager('sprite-manager', 'model/muzzle.png', 1, 128, this.scene)
     spritemanager.renderingGroupId = 1
@@ -139,13 +139,9 @@ class AssetManager {
     bulletLine.freezeWorldMatrix()
     models.set('bulletLine', bulletLine)
 
-    // const box = BABYLON.MeshBuilder.CreateBox('box', { size: 1 })
-    // box.renderingGroupId = 3
-    // models.set('bulletLine', box)
-
     // ground
 
-    const groundMesh = BABYLON.MeshBuilder.CreatePlane('ground', { width: 40, height: 40 }, this.scene)
+    const groundMesh = BABYLON.MeshBuilder.CreatePlane('ground', { width: 80, height: 80 }, this.scene)
 
     // Create and tweak the background material.
     var groundMaterial = new BABYLON.BackgroundMaterial('backgroundMaterial', this.scene)
@@ -157,10 +153,14 @@ class AssetManager {
     groundMaterial.opacityFresnel = false
     groundMaterial.shadowLevel = 0.4
 
+    groundMesh.receiveShadows = true
+
     groundMesh.material = groundMaterial
-    groundMesh.position.y = 1
+    groundMesh.position.y = -2
+    groundMesh.position.z = -40
     groundMesh.rotation = new BABYLON.Vector3(Math.PI / 2, Math.PI, 0)
     groundMesh.bakeCurrentTransformIntoVertices()
+
     models.set('ground', groundMesh)
   }
 }
