@@ -159,6 +159,11 @@ function init() {
 
     go(animations.get('IDLE'))
     //   go(animations.get('WALK'))
+
+    const loadingScreen = document.getElementById('loading-screen')
+
+    loadingScreen.classList.add('fade-out')
+    loadingScreen.addEventListener('transitionend', onTransitionEnd)
   }) // model import END
 
   window.addEventListener('resize', onWindowResize, false)
@@ -188,4 +193,7 @@ function sync(entity, renderComponent) {
 
   //  console.log(scene)
   matrix.copyFrom(entityMatrix)
+}
+function onTransitionEnd(event) {
+  event.target.remove()
 }

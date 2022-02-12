@@ -223,8 +223,8 @@ class SeekToCollectibleGoal extends Goal {
 
     const owner = this.owner
 
-    //  const walk = owner.animations.get(WALK)
-    //  walk.stop()
+    const walk = owner.animations.get(WALK)
+    walk.stop()
   }
 }
 
