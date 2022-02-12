@@ -134,7 +134,6 @@ function init() {
     const animations = new Map()
 
     container.meshes[0].getChildren().forEach((child) => (child._isDirty = true))
-    container.meshes.forEach((m) => m.freezeWorldMatrix())
 
     girl.setRenderComponent(container.meshes[0], sync)
 
@@ -185,14 +184,6 @@ function animate() {
 function sync(entity, renderComponent) {
   entity.worldMatrix.toArray(entityMatrix.m)
   entityMatrix.markAsUpdated()
-
-  // const scale = new BABYLON.Vector3()
-  // const rotation = new BABYLON.Quaternion()
-  // const position = new BABYLON.Vector3()
-  // entityMatrix.decompose(scale, rotation, position)
-  // renderComponent.rotationQuaternion = rotation
-  // renderComponent.position = position
-
   const matrix = renderComponent.getWorldMatrix()
 
   //  console.log(scene)
