@@ -42,7 +42,7 @@ class Soldier extends GameEntity {
 
     this.selectWeapon()
 
-    this.ui.currentWeapon.textContent = this.assaultRifle.visible ? 'Assault Rifle' : 'Shotgun'
+    this.ui.currentWeapon.textContent = this.assaultRifle.isEnabled() ? 'Assault Rifle' : 'Shotgun'
 
     return this
   }
