@@ -177,7 +177,7 @@ class Shotgun extends GameEntity {
       // now let's change the origin to the weapon's position.
       target.copy(ray.origin).add(ray.direction.multiplyScalar(distance))
       ray.origin.extractPositionFromMatrix(this.worldMatrix)
-      ray.origin.x += 0.5
+      // ray.origin.x += 0.5
       ray.direction.subVectors(target, ray.origin).normalize()
 
       for (let i = 0; i < 6; i++) {
@@ -192,9 +192,9 @@ class Shotgun extends GameEntity {
         world.addBullet(owner, r)
       }
 
-      this.muzzleSprite.position.x = ray.origin.x - 0.4
+      this.muzzleSprite.position.x = ray.origin.x
       this.muzzleSprite.position.y = ray.origin.y + 0.2
-      this.muzzleSprite.position.z = ray.origin.z - 0.4
+      this.muzzleSprite.position.z = ray.origin.z
 
       // adjust ammo
 

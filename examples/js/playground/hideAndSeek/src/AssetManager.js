@@ -199,13 +199,6 @@ class AssetManager {
     models.set('obstacle', obstacleMesh)
     models.set('obstacle-cage', obstacleCage)
 
-    //
-
-    BABYLON.ParticleHelper.CreateFromSnippetAsync('6XUKFF#1', this.scene, false).then((system) => {
-      this.explosionParticles = system
-      system.stop()
-    })
-
     const enemyMesh = BABYLON.MeshBuilder.CreateCylinder(
       'cone',
       { height: 1, diameterTop: 0, diameterBottom: 0.5, updatable: true },
@@ -227,7 +220,7 @@ class AssetManager {
     const extent = []
     const scatter = []
 
-    const scatterFactor = 0.5
+    const scatterFactor = 0.95
     const positions = enemyMesh.getVerticesData(BABYLON.VertexBuffer.PositionKind)
     const numberOfVertices = positions.length / 3
 
@@ -242,7 +235,7 @@ class AssetManager {
     }
 
     for (let i = 0; i < numberOfVertices; i++) {
-      const x = (5 + Math.random() * 5) / 80
+      const x = (5 + Math.random() * 5) / 40
       extent.push(new BABYLON.Vector3(x, x, x))
       extent.push(new BABYLON.Vector3(x, x, x))
       extent.push(new BABYLON.Vector3(x, x, x))
@@ -252,11 +245,6 @@ class AssetManager {
       if (enemyMeshToExplode.isExploding === true) {
         return
       }
-      const particlePosition = new BABYLON.Vector3()
-      enemyMeshToExplode.getWorldMatrix().decompose(null, null, particlePosition)
-      this.explosionParticles.emitter = particlePosition
-      this.explosionParticles.particleEmitterType = new BABYLON.MeshParticleEmitter(enemyMeshToExplode)
-      this.explosionParticles.start()
 
       const positions = enemyMeshToExplode.getVerticesData(BABYLON.VertexBuffer.PositionKind)
       const numberOfVertices = positions.length / 3
