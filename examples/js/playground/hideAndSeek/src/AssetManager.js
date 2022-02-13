@@ -1,3 +1,8 @@
+/**
+ * @author Mugen87 / https://github.com/Mugen87
+ * @author Examples with Babylon.js were made at https://github.com/eldinor/yuka-babylonjs-examples / roland@babylonjs.xyz
+ */
+
 import 'https://preview.babylonjs.com/babylon.js'
 import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 

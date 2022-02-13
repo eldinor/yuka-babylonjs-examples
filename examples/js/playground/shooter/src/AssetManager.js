@@ -1,3 +1,8 @@
+/**
+ * @author Mugen87 / https://github.com/Mugen87
+ * @author Examples with Babylon.js were made at https://github.com/eldinor/yuka-babylonjs-examples / roland@babylonjs.xyz
+ */
+
 import 'https://preview.babylonjs.com/babylon.js'
 import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
@@ -79,7 +84,7 @@ class AssetManager {
 
     // target
     const targetMeshes = (await BABYLON.SceneLoader.ImportMeshAsync(null, 'model/', 'target.glb', this.scene)).meshes
-    const gunMeshes = (await BABYLON.SceneLoader.ImportMeshAsync(null, 'model/', 'gun-orig.glb', this.scene)).meshes
+    const gunMeshes = (await BABYLON.SceneLoader.ImportMeshAsync(null, 'model/', 'gun.glb', this.scene)).meshes
 
     targetMeshes[0].name = 'target'
     const targetMesh = targetMeshes.find((m) => m.name === 'LowPoly.003__0')

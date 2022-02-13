@@ -1,11 +1,12 @@
-import * as YUKA from '../../../../../lib/yuka.module.js'
+/**
+ * @author Mugen87 / https://github.com/Mugen87
+ * @author Examples with Babylon.js were made at https://github.com/eldinor/yuka-babylonjs-examples / roland@babylonjs.xyz
+ */
 
-// import * as DAT from 'https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.module.js';
+import * as YUKA from '../../../../../lib/yuka.module.js'
 
 import 'https://preview.babylonjs.com/babylon.js'
 import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js'
-// import 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js'
-// import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
 import { AssetManager } from './AssetManager.js'
 import { Bullet } from './Bullet.js'

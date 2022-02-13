@@ -1,3 +1,8 @@
+/**
+ * @author Mugen87 / https://github.com/Mugen87
+ * @author Examples with Babylon.js were made at https://github.com/eldinor/yuka-babylonjs-examples / roland@babylonjs.xyz
+ */
+
 function createVisionHelper(vision, division = 8, scene) {
   const fieldOfView = vision.fieldOfView
   const range = vision.range

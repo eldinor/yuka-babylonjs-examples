@@ -1,3 +1,8 @@
+/**
+ * @author Mugen87 / https://github.com/Mugen87
+ * @author Examples with Babylon.js were made at https://github.com/eldinor/yuka-babylonjs-examples / roland@babylonjs.xyz
+ */
+
 import { MovingEntity, MathUtils, Ray, Vector3 } from '../../../../../lib/yuka.module.js'
 import world from './World.js'
 import { Enemy } from './Enemy.js'
@@ -39,7 +44,6 @@ class Bullet extends MovingEntity {
 
       if (obstacle !== null) {
         // calculate distance from origin to intersection point
-        console.log('HIT', obstacle)
 
         const distanceToIntersection = ray.origin.squaredDistanceTo(intersectionPoint)
         const validDistance = ray.origin.squaredDistanceTo(this.position)
