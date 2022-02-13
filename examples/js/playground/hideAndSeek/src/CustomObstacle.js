@@ -2,26 +2,20 @@
  * @author Mugen87 / https://github.com/Mugen87
  */
 
-import { GameEntity } from '../../../../build/yuka.module.js';
+import { GameEntity } from '../../../../../lib/yuka.module.js'
 
 class CustomObstacle extends GameEntity {
+  constructor(geometry) {
+    super()
 
-	constructor( geometry ) {
+    this.geometry = geometry
+  }
 
-		super();
+  handleMessage() {
+    // do nothing
 
-		this.geometry = geometry;
-
-	}
-
-	handleMessage() {
-
-		// do nothing
-
-		return true;
-
-	}
-
+    return true
+  }
 }
 
-export { CustomObstacle };
+export { CustomObstacle }

@@ -1,287 +1,293 @@
-/**
- * @author Mugen87 / https://github.com/Mugen87
- */
-
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.109/build/three.module.js';
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.109/examples/jsm/loaders/GLTFLoader.js';
+import 'https://preview.babylonjs.com/babylon.js'
+import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
 class AssetManager {
-
-	constructor() {
-
-		this.loadingManager = new THREE.LoadingManager();
-
-		this.audioLoader = new THREE.AudioLoader( this.loadingManager );
-		this.textureLoader = new THREE.TextureLoader( this.loadingManager );
-		this.gltfLoader = new GLTFLoader( this.loadingManager );
-
-		this.listener = new THREE.AudioListener();
-
-		this.animations = new Map();
-		this.audios = new Map();
-		this.models = new Map();
-
-	}
-
-	init() {
-
-		this._loadAudios();
-		this._loadModels();
-		this._loadAnimations();
-
-		const loadingManager = this.loadingManager;
-
-		return new Promise( ( resolve ) => {
-
-			loadingManager.onLoad = () => {
-
-				resolve();
-
-			};
-
-		} );
-
-	}
-
-	_loadAudios() {
-
-		const audioLoader = this.audioLoader;
-		const audios = this.audios;
-		const listener = this.listener;
-
-		const step1 = new THREE.Audio( listener );
-		const step2 = new THREE.Audio( listener );
-		const shot = new THREE.PositionalAudio( listener );
-		const shotReload = new THREE.PositionalAudio( listener );
-		const reload = new THREE.PositionalAudio( listener );
-		const impact1 = new THREE.PositionalAudio( listener );
-		const impact2 = new THREE.PositionalAudio( listener );
-		const impact3 = new THREE.PositionalAudio( listener );
-		const impact4 = new THREE.PositionalAudio( listener );
-		const impact5 = new THREE.PositionalAudio( listener );
-		const empty = new THREE.PositionalAudio( listener );
-		const dead = new THREE.PositionalAudio( listener );
-
-		shot.setVolume( 0.5 );
-		shotReload.setVolume( 0.3 );
-		reload.setVolume( 0.1 );
-		empty.setVolume( 0.3 );
-
-		audioLoader.load( './audio/step1.ogg', buffer => step1.setBuffer( buffer ) );
-		audioLoader.load( './audio/step2.ogg', buffer => step2.setBuffer( buffer ) );
-		audioLoader.load( './audio/shot.ogg', buffer => shot.setBuffer( buffer ) );
-		audioLoader.load( './audio/shot_reload.ogg', buffer => shotReload.setBuffer( buffer ) );
-		audioLoader.load( './audio/reload.ogg', buffer => reload.setBuffer( buffer ) );
-		audioLoader.load( './audio/impact1.ogg', buffer => impact1.setBuffer( buffer ) );
-		audioLoader.load( './audio/impact2.ogg', buffer => impact2.setBuffer( buffer ) );
-		audioLoader.load( './audio/impact3.ogg', buffer => impact3.setBuffer( buffer ) );
-		audioLoader.load( './audio/impact4.ogg', buffer => impact4.setBuffer( buffer ) );
-		audioLoader.load( './audio/impact5.ogg', buffer => impact5.setBuffer( buffer ) );
-		audioLoader.load( './audio/empty.ogg', buffer => empty.setBuffer( buffer ) );
-		audioLoader.load( './audio/dead.ogg', buffer => dead.setBuffer( buffer ) );
-
-		audios.set( 'step1', step1 );
-		audios.set( 'step2', step2 );
-		audios.set( 'shot', shot );
-		audios.set( 'shot_reload', shotReload );
-		audios.set( 'reload', reload );
-		audios.set( 'impact1', impact1 );
-		audios.set( 'impact2', impact2 );
-		audios.set( 'impact3', impact3 );
-		audios.set( 'impact4', impact4 );
-		audios.set( 'impact5', impact5 );
-		audios.set( 'empty', empty );
-		audios.set( 'dead', dead );
-
-	}
-
-	_loadModels() {
-
-		const gltfLoader = this.gltfLoader;
-		const textureLoader = this.textureLoader;
-		const models = this.models;
-
-		// weapon
-
-		gltfLoader.load( 'model/shotgun.glb', ( gltf ) => {
-
-			const weaponMesh = gltf.scene.getObjectByName( 'UntitledObjcleanergles' ).children[ 0 ];
-			weaponMesh.geometry.scale( 0.00045, 0.00045, 0.00045 );
-			weaponMesh.geometry.rotateX( Math.PI * - 0.5 );
-			weaponMesh.geometry.rotateY( Math.PI * - 0.5 );
-			weaponMesh.matrixAutoUpdate = false;
-
-			models.set( 'weapon', weaponMesh );
-
-			//
-
-			const texture = textureLoader.load( 'model/muzzle.png' );
-
-			const material = new THREE.SpriteMaterial( { map: texture } );
-			const sprite = new THREE.Sprite( material );
-
-			sprite.position.set( 0.15, 0.1, - 0.45 );
-			sprite.scale.set( 0.3, 0.3, 0.3 );
-			sprite.visible = false;
-
-			models.set( 'muzzle', sprite );
-			weaponMesh.add( sprite );
-
-		} );
-
-		// bullet hole
-
-		const texture = textureLoader.load( 'model/bulletHole.png' );
-		texture.minFilter = THREE.LinearFilter;
-		const bulletHoleGeometry = new THREE.PlaneBufferGeometry( 0.1, 0.1 );
-		const bulletHoleMaterial = new THREE.MeshLambertMaterial( { map: texture, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: - 4 } );
-
-		const bulletHole = new THREE.Mesh( bulletHoleGeometry, bulletHoleMaterial );
-		bulletHole.matrixAutoUpdate = false;
-
-		models.set( 'bulletHole', bulletHole );
-
-		// bullet line
-
-		const bulletLineGeometry = new THREE.BufferGeometry();
-		const bulletLineMaterial = new THREE.LineBasicMaterial( { color: 0xfbf8e6 } );
-
-		bulletLineGeometry.setFromPoints( [ new THREE.Vector3(), new THREE.Vector3( 0, 0, - 1 ) ] );
-
-		const bulletLine = new THREE.LineSegments( bulletLineGeometry, bulletLineMaterial );
-		bulletLine.matrixAutoUpdate = false;
-
-		models.set( 'bulletLine', bulletLine );
-
-		// ground
-
-		const groundGeometry = new THREE.PlaneBufferGeometry( 200, 200 );
-		groundGeometry.rotateX( - Math.PI / 2 );
-		const groundMaterial = new THREE.MeshPhongMaterial( { color: 0x999999 } );
-
-		const groundMesh = new THREE.Mesh( groundGeometry, groundMaterial );
-		groundMesh.matrixAutoUpdate = false;
-		groundMesh.receiveShadow = true;
-
-		models.set( 'ground', groundMesh );
-
-		// enemy
-
-		let enemyGeometry = new THREE.ConeBufferGeometry( 0.2, 1, 8, 4 );
-		enemyGeometry = enemyGeometry.toNonIndexed();
-		enemyGeometry.rotateX( Math.PI * 0.5 );
-		enemyGeometry.translate( 0, 0.5, 0 );
-		enemyGeometry.computeBoundingSphere();
-
-		const position = enemyGeometry.attributes.position;
-
-		const scatter = [];
-		const scatterFactor = 0.5;
-
-		for ( let i = 0; i < position.count; i += 3 ) {
-
-			const x = ( 1 - Math.random() * 2 ) * scatterFactor;
-			const y = ( 1 - Math.random() * 2 ) * scatterFactor;
-			const z = ( 1 - Math.random() * 2 ) * scatterFactor;
-
-			scatter.push( x, y, z );
-			scatter.push( x, y, z );
-			scatter.push( x, y, z );
-
-		}
-
-		enemyGeometry.addAttribute( 'scatter', new THREE.Float32BufferAttribute( scatter, 3 ) );
-
-		const extent = [];
-
-		for ( let i = 0; i < position.count; i += 3 ) {
-
-			const x = 5 + Math.random() * 5;
-
-			extent.push( x );
-			extent.push( x );
-			extent.push( x );
-
-		}
-
-		enemyGeometry.addAttribute( 'extent', new THREE.Float32BufferAttribute( extent, 1 ) );
-
-		const enemyMesh = new THREE.Mesh( enemyGeometry );
-		enemyMesh.castShadow = true;
-		enemyMesh.matrixAutoUpdate = false;
-
-		models.set( 'enemy', enemyMesh );
-
-		// obstacle
-
-		const obstacleGeometry = new THREE.BoxBufferGeometry( 4, 8, 4 );
-		obstacleGeometry.translate( 0, 4, 0 );
-		obstacleGeometry.computeBoundingSphere();
-		const obstacleMaterial = new THREE.MeshStandardMaterial( { color: 0x040404, dithering: true } );
-
-		const obstacleMesh = new THREE.Mesh( obstacleGeometry, obstacleMaterial );
-		obstacleMesh.castShadow = true;
-		obstacleMesh.matrixAutoUpdate = false;
-
-		models.set( 'obstacle', obstacleMesh );
-
-	}
-
-	_loadAnimations() {
-
-		const animations = this.animations;
-
-		// manually create some keyframes for testing
-
-		let positionKeyframes, rotationKeyframes;
-		let q0, q1, q2;
-
-		// shot
-
-		positionKeyframes = new THREE.VectorKeyframeTrack( '.position', [ 0, 0.05, 0.15, 0.3 ], [
-			0.25, - 0.3, - 1,
-			0.25, - 0.2, - 0.7,
-			0.25, - 0.305, - 1,
-		 	0.25, - 0.3, - 1 ]
-		);
-
-		q0 = new THREE.Quaternion();
-		q1 = new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ), 0.2 );
-		q2 = new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ), - 0.02 );
-
-		rotationKeyframes = new THREE.QuaternionKeyframeTrack( '.rotation', [ 0, 0.05, 0.15, 0.3 ], [
-			q0.x, q0.y, q0.z, q0.w,
-			q1.x, q1.y, q1.z, q1.w,
-			q2.x, q2.y, q2.z, q2.w,
-			q0.x, q0.y, q0.z, q0.w ]
-		);
-
-		const shotClip = new THREE.AnimationClip( 'Shot', 0.3, [ positionKeyframes, rotationKeyframes ] );
-		animations.set( 'shot', shotClip );
-
-		// reload
-
-		positionKeyframes = new THREE.VectorKeyframeTrack( '.position', [ 0, 0.2, 1.3, 1.5 ], [
-			0.25, - 0.3, - 1,
-			0.25, - 0.6, - 1,
-			0.25, - 0.6, - 1,
-			0.25, - 0.3, - 1 ]
-		);
-
-		q1 = new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3( 1, 0, 0 ), - 0.4 );
-
-		rotationKeyframes = new THREE.QuaternionKeyframeTrack( '.rotation', [ 0, 0.2, 1.3, 1.5 ], [
-			q0.x, q0.y, q0.z, q0.w,
-			q1.x, q1.y, q1.z, q1.w,
-			q1.x, q1.y, q1.z, q1.w,
-			q0.x, q0.y, q0.z, q0.w ]
-		);
-
-		const reloadClip = new THREE.AnimationClip( 'Reload', 1.5, [ positionKeyframes, rotationKeyframes ] );
-		animations.set( 'reload', reloadClip );
-
-	}
-
+  constructor() {
+    this.audios = new Map()
+    this.models = new Map()
+  }
+
+  async init(scene) {
+    this.scene = scene
+
+    this._loadAudios()
+    await this._loadModels()
+  }
+
+  _loadAudios() {
+    const audios = this.audios
+
+    const step1 = new BABYLON.Sound('step1', 'audio/step1.ogg', this.scene, null, {
+      loop: false,
+      autoplay: false,
+    })
+    const step2 = new BABYLON.Sound('step2', 'audio/step2.ogg', this.scene, null, {
+      loop: false,
+      autoplay: false,
+    })
+    const shot = new BABYLON.Sound('shot', 'audio/shot.ogg', this.scene, null, {
+      loop: false,
+      autoplay: false,
+    })
+    const shotReload = new BABYLON.Sound('shot', 'audio/shot_reload.ogg', this.scene, null, {
+      loop: false,
+      autoplay: false,
+    })
+    const reload = new BABYLON.Sound('reload', 'audio/reload.ogg', this.scene, null, {
+      loop: false,
+      autoplay: false,
+    })
+    const impact1 = new BABYLON.Sound('impact1', 'audio/impact1.ogg', this.scene, null, {
+      loop: false,
+      autoplay: false,
+    })
+    const impact2 = new BABYLON.Sound('impact2', 'audio/impact1.ogg', this.scene, null, {
+      loop: false,
+      autoplay: false,
+    })
+    const impact3 = new BABYLON.Sound('impact3', 'audio/impact1.ogg', this.scene, null, {
+      loop: false,
+      autoplay: false,
+    })
+    const impact4 = new BABYLON.Sound('impact4', 'audio/impact1.ogg', this.scene, null, {
+      loop: false,
+      autoplay: false,
+    })
+    const impact5 = new BABYLON.Sound('impact5', 'audio/impact1.ogg', this.scene, null, {
+      loop: false,
+      autoplay: false,
+    })
+    const empty = new BABYLON.Sound('empty', 'audio/empty.ogg', this.scene, null, {
+      loop: false,
+      autoplay: false,
+    })
+    const dead = new BABYLON.Sound('empty', 'audio/dead.ogg', this.scene, null, {
+      loop: false,
+      autoplay: false,
+    })
+
+    shot.setVolume(0.3)
+    reload.setVolume(0.1)
+    empty.setVolume(0.3)
+
+    audios.set('step1', step1)
+    audios.set('step2', step2)
+    audios.set('shot', shot)
+    audios.set('shot_reload', shotReload)
+    audios.set('reload', reload)
+    audios.set('impact1', impact1)
+    audios.set('impact2', impact2)
+    audios.set('impact3', impact3)
+    audios.set('impact4', impact4)
+    audios.set('impact5', impact5)
+    audios.set('empty', empty)
+    audios.set('dead', dead)
+  }
+
+  async _loadModels() {
+    const models = this.models
+
+    // weapon
+    const gunContainer = await BABYLON.SceneLoader.ImportMeshAsync(null, 'model/', 'shotgun.glb', this.scene)
+    const gunMeshes = gunContainer.meshes
+    gunMeshes[0].name = 'shotgun'
+    const gunMesh = gunMeshes.find((m) => m.name === 'node3')
+    // const gunMesh = gunMeshes[0]
+
+    gunMeshes[0].scaling = new BABYLON.Vector3(0.0008, 0.0008, 0.0008)
+    gunMeshes[0].position = new BABYLON.Vector3(0.3, -0.1, -0.2)
+    gunMeshes[0].rotation = new BABYLON.Vector3(0, -1.6, 0)
+    gunMesh.bakeCurrentTransformIntoVertices()
+    gunMesh.renderingGroupId = 2
+    gunMesh.freezeWorldMatrix()
+    gunMesh.alwaysSelectAsActiveMesh = true
+
+    models.set('weapon', gunMesh)
+
+    const spritemanager = new BABYLON.SpriteManager('sprite-manager', 'model/muzzle.png', 1, 128, this.scene)
+    spritemanager.renderingGroupId = 1
+    const sprite = new BABYLON.Sprite('muzzle', spritemanager)
+    sprite.position = new BABYLON.Vector3(0, 0.13, -0.4)
+    sprite.scaling = new BABYLON.Vector3(0.3, 0.3, 0.3)
+    sprite.isVisible = false
+
+    models.set('muzzle', sprite)
+
+    // bullet hole
+    const texture = new BABYLON.Texture('model/bulletHole.png', this.scene)
+    texture.hasAlpha = true
+    const bulletHoleMesh = new BABYLON.MeshBuilder.CreatePlane('bullet-hole', { size: 0.5 }, this.scene)
+    bulletHoleMesh.rotation = new BABYLON.Vector3(0, Math.PI, 0)
+    const bulletHoleMaterial = new BABYLON.StandardMaterial('bullet-hole', this.scene)
+    bulletHoleMaterial.diffuseTexture = texture
+    bulletHoleMaterial.backFaceCulling = false
+    // bulletHoleMaterial.disableDepthWrite = false
+    bulletHoleMesh.material = bulletHoleMaterial
+    bulletHoleMesh.renderingGroupId = 1
+    bulletHoleMesh.bakeCurrentTransformIntoVertices()
+    bulletHoleMesh.setEnabled(false)
+    models.set('bulletHole', bulletHoleMesh)
+
+    // bullet line
+    const options = {
+      points: [new BABYLON.Vector3(0, 0, 0), new BABYLON.Vector3(0, 0, 10)],
+    }
+    const bulletLine = BABYLON.MeshBuilder.CreateLines('bullet-line', options, this.scene)
+    bulletLine.color = new BABYLON.Color3.FromHexString('#fbf8e6')
+    bulletLine.setEnabled(false)
+    bulletLine.renderingGroupId = 3
+    bulletLine.freezeWorldMatrix()
+    models.set('bulletLine', bulletLine)
+
+    // ground
+
+    const groundMesh = BABYLON.MeshBuilder.CreatePlane('ground', { width: 200, height: 200 }, this.scene)
+
+    // Create and tweak the background material.
+    var groundMaterial = new BABYLON.BackgroundMaterial('backgroundMaterial', this.scene)
+    groundMaterial.diffuseTexture = new BABYLON.Texture(
+      'https://assets.babylonjs.com/environments/backgroundGround.png',
+      this.scene
+    )
+    groundMaterial.diffuseTexture.hasAlpha = true
+    groundMaterial.opacityFresnel = false
+    groundMaterial.shadowLevel = 0.4
+
+    groundMesh.receiveShadows = true
+    groundMesh.material = groundMaterial
+    groundMesh.rotation = new BABYLON.Vector3(Math.PI / 2, Math.PI, 0)
+    groundMesh.bakeCurrentTransformIntoVertices()
+
+    models.set('ground', groundMesh)
+
+    // obstacles
+
+    const obstacleMesh = BABYLON.MeshBuilder.CreateBox('obstacle', {
+      width: 4,
+      height: 8,
+      depth: 4,
+      // sideOrientation: BABYLON.Mesh.BACKSIDE,
+      // wrap: true,
+    })
+    obstacleMesh.position.y = 4
+
+    const obstacleMaterial = new BABYLON.StandardMaterial('obstacle', this.scene)
+    obstacleMaterial.emissiveColor = BABYLON.Color3.FromHexString('#444444')
+    obstacleMaterial.diffuseColor = BABYLON.Color3.FromHexString('#222222')
+    obstacleMaterial.needDepthPrePass = true
+
+    obstacleMaterial.disableDepthWrite = false
+
+    // obstacleMesh.visibility = 0.4
+    obstacleMesh.material = obstacleMaterial
+    obstacleMesh.renderingGroupId = 1
+    // obstacleMesh.convertToUnIndexedMesh()
+    obstacleMesh.bakeCurrentTransformIntoVertices()
+    obstacleMesh.freezeWorldMatrix()
+    obstacleMesh.setEnabled(false)
+
+    const obstacleCage = obstacleMesh.clone('obstacle-cage')
+    obstacleCage.makeGeometryUnique()
+    const indices = obstacleCage.getIndices()
+    const newIndices = indices.reverse()
+    obstacleCage.updateIndices(newIndices)
+    obstacleCage.scaling.scaleInPlace(1.001)
+    obstacleCage.material = null
+    obstacleCage.visibility = 0
+    obstacleCage.bakeCurrentTransformIntoVertices()
+
+    models.set('obstacle', obstacleMesh)
+    models.set('obstacle-cage', obstacleCage)
+
+    //
+
+    BABYLON.ParticleHelper.CreateFromSnippetAsync('6XUKFF#1', this.scene, false).then((system) => {
+      this.explosionParticles = system
+      system.stop()
+    })
+
+    const enemyMesh = BABYLON.MeshBuilder.CreateCylinder(
+      'cone',
+      { height: 1, diameterTop: 0, diameterBottom: 0.5, updatable: true },
+      this.scene
+    )
+    enemyMesh.position.y = 0.2
+    enemyMesh.rotation.x = Math.PI * 0.5
+    enemyMesh.convertToFlatShadedMesh()
+    enemyMesh.convertToUnIndexedMesh()
+    enemyMesh.bakeCurrentTransformIntoVertices()
+    enemyMesh.freezeWorldMatrix()
+    enemyMesh.renderingGroupId = 1
+    enemyMesh.alwaysSelectAsActiveMesh = true
+
+    const enemyMaterial = new BABYLON.StandardMaterial('enemy', this.scene)
+    enemyMaterial.diffuseColor = BABYLON.Color3.Red()
+    enemyMesh.material = enemyMaterial
+
+    const extent = []
+    const scatter = []
+
+    const scatterFactor = 0.5
+    const positions = enemyMesh.getVerticesData(BABYLON.VertexBuffer.PositionKind)
+    const numberOfVertices = positions.length / 3
+
+    for (let i = 0; i < numberOfVertices; i++) {
+      const x = (1 - Math.random() * 2) * scatterFactor
+      const y = (1 - Math.random() * 2) * scatterFactor
+      const z = (1 - Math.random() * 2) * scatterFactor
+
+      scatter.push(new BABYLON.Vector3(x, y, z))
+      scatter.push(new BABYLON.Vector3(x, y, z))
+      scatter.push(new BABYLON.Vector3(x, y, z))
+    }
+
+    for (let i = 0; i < numberOfVertices; i++) {
+      const x = (5 + Math.random() * 5) / 80
+      extent.push(new BABYLON.Vector3(x, x, x))
+      extent.push(new BABYLON.Vector3(x, x, x))
+      extent.push(new BABYLON.Vector3(x, x, x))
+    }
+
+    this.explodeEnemy = function (enemyMeshToExplode) {
+      if (enemyMeshToExplode.isExploding === true) {
+        return
+      }
+      const particlePosition = new BABYLON.Vector3()
+      enemyMeshToExplode.getWorldMatrix().decompose(null, null, particlePosition)
+      this.explosionParticles.emitter = particlePosition
+      this.explosionParticles.particleEmitterType = new BABYLON.MeshParticleEmitter(enemyMeshToExplode)
+      this.explosionParticles.start()
+
+      const positions = enemyMeshToExplode.getVerticesData(BABYLON.VertexBuffer.PositionKind)
+      const numberOfVertices = positions.length / 3
+      let time = 0
+      enemyMeshToExplode.isExploding = true
+      const explodeObserver = this.scene.onBeforeRenderObservable.add(() => {
+        for (var i = 0; i < numberOfVertices; i++) {
+          const v = new BABYLON.Vector3(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2])
+          const normalized = scatter[i].normalize()
+          const timeMultiplied = normalized.multiplyByFloats(time, time, time)
+          const scatterDirection = timeMultiplied.multiply(extent[i])
+          v.addInPlace(scatterDirection)
+
+          positions[i * 3] = v.x
+          positions[i * 3 + 1] = v.y
+          positions[i * 3 + 2] = v.z
+        }
+
+        enemyMeshToExplode.updateVerticesData(BABYLON.VertexBuffer.PositionKind, positions)
+        time += 0.09 * this.scene.getAnimationRatio()
+        enemyMeshToExplode.visibility = 1 - time
+        if (time > 1) {
+          this.scene.onBeforeRenderObservable.remove(explodeObserver)
+          enemyMeshToExplode.dispose()
+        }
+      })
+    }
+    //
+
+    models.set('enemy', enemyMesh)
+  }
 }
 
-export { AssetManager };
+export { AssetManager }

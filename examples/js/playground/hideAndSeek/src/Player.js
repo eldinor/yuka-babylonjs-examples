@@ -1,126 +1,105 @@
-/**
- * @author Mugen87 / https://github.com/Mugen87
- */
+import { MovingEntity, GameEntity, Quaternion, AABB, Ray, Vector3 } from '../../../../../lib/yuka.module.js'
+import { CustomObstacle } from './CustomObstacle.js'
 
-import { MovingEntity, GameEntity, Quaternion, AABB, Ray, Vector3 } from '../../../../build/yuka.module.js';
-import { CustomObstacle } from './CustomObstacle.js';
-import { Shotgun } from './Shotgun.js';
+import { Shotgun } from './Shotgun.js'
+import world from './World.js'
 
-import world from './World.js';
-
-const q = new Quaternion();
-const aabb = new AABB();
-const ray = new Ray();
-const intersectionPoint = new Vector3();
-const intersectionNormal = new Vector3();
-const reflectionVector = new Vector3();
+const q = new Quaternion()
+const aabb = new AABB()
+const ray = new Ray()
+const intersectionPoint = new Vector3()
+const intersectionNormal = new Vector3()
+const reflectionVector = new Vector3()
 
 class Player extends MovingEntity {
+  constructor(camera) {
+    super()
 
-	constructor() {
+    this.name = 'player'
+    this.camera = camera
 
-		super();
+    this.boundingRadius = 1
 
-		this.name = 'player';
+    this.headContainer = new GameEntity()
+    this.add(this.headContainer)
 
-		this.boundingRadius = 1;
+    this.head = new GameEntity()
+    this.head.position.set(0, 2, 0)
+    this.headContainer.add(this.head)
 
-		this.headContainer = new GameEntity();
-		this.add( this.headContainer );
+    this.weaponContainer = new GameEntity()
+    this.head.add(this.weaponContainer)
 
-		this.head = new GameEntity();
-		this.head.position.set( 0, 2, 0 );
-		this.headContainer.add( this.head );
+    this.weapon = new Shotgun(this)
+    this.weaponContainer.add(this.weapon)
 
-		this.weaponContainer = new GameEntity();
-		this.head.add( this.weaponContainer );
+    //
 
-		this.weapon = new Shotgun( this );
-		this.weapon.position.set( 0.25, - 0.3, - 1 );
-		this.weaponContainer.add( this.weapon );
+    this.forward.set(0, 0, -1)
+    this.maxSpeed = 8
+    this.updateOrientation = false
+  }
 
-		//
+  getDirection(result) {
+    q.multiplyQuaternions(this.rotation, this.head.rotation)
 
-		this.forward.set( 0, 0, - 1 );
-		this.maxSpeed = 8;
-		this.updateOrientation = false;
+    return result.copy(this.forward).applyRotation(q).normalize()
+  }
 
-	}
+  update(delta) {
+    const obstacles = world.obstacles
 
-	getDirection( result ) {
+    for (let i = 0, l = obstacles.length; i < l; i++) {
+      const obstacle = obstacles[i]
 
-		q.multiplyQuaternions( this.rotation, this.head.rotation );
+      if (obstacle instanceof CustomObstacle) {
+        // first check bounding volumes for intersection
 
-		return result.copy( this.forward ).applyRotation( q ).normalize();
+        const squaredDistance = this.position.squaredDistanceTo(obstacle.position)
+        const range = this.boundingRadius + obstacle.boundingRadius
 
-	}
+        if (squaredDistance <= range * range) {
+          // compute AABB in world space for obstacle
 
-	update( delta ) {
+          aabb.copy(obstacle.geometry.aabb).applyMatrix4(obstacle.worldMatrix)
 
-		const obstacles = world.obstacles;
+          // enhance the AABB with the bounding radius of the player
 
-		for ( let i = 0, l = obstacles.length; i < l; i ++ ) {
+          aabb.max.addScalar(this.boundingRadius)
+          aabb.min.subScalar(this.boundingRadius)
 
-			const obstacle = obstacles[ i ];
+          // setup ray
 
-			if ( obstacle instanceof CustomObstacle ) {
+          ray.origin.copy(this.position)
+          ray.direction.copy(this.velocity).normalize()
 
-				// first check bounding volumes for intersection
+          // perform ray/AABB intersection test
 
-				const squaredDistance = this.position.squaredDistanceTo( obstacle.position );
-				const range = this.boundingRadius + obstacle.boundingRadius;
+          if (ray.intersectAABB(aabb, intersectionPoint) !== null) {
+            // derive normal vector
 
-				if ( squaredDistance <= ( range * range ) ) {
+            aabb.getNormalFromSurfacePoint(intersectionPoint, intersectionNormal)
 
-					// compute AABB in world space for obstacle
+            // compute reflection vector
 
-					aabb.copy( obstacle.geometry.aabb ).applyMatrix4( obstacle.worldMatrix );
+            reflectionVector.copy(ray.direction).reflect(intersectionNormal)
 
-					// enhance the AABB with the bounding radius of the player
+            // compute new velocity vector
 
-					aabb.max.addScalar( this.boundingRadius );
-					aabb.min.subScalar( this.boundingRadius );
+            const speed = this.getSpeed()
 
-					// setup ray
+            this.velocity.addVectors(ray.direction, reflectionVector).normalize()
 
-					ray.origin.copy( this.position );
-					ray.direction.copy( this.velocity ).normalize();
+            const f = 1 - Math.abs(intersectionNormal.dot(ray.direction))
 
-					// perform ray/AABB intersection test
+            this.velocity.multiplyScalar(speed * f)
+          }
+        }
+      }
+    }
 
-					if ( ray.intersectAABB( aabb, intersectionPoint ) !== null ) {
-
-						// derive normal vector
-
-						aabb.getNormalFromSurfacePoint( intersectionPoint, intersectionNormal );
-
-						// compute reflection vector
-
-						reflectionVector.copy( ray.direction ).reflect( intersectionNormal );
-
-						// compute new velocity vector
-
-						const speed = this.getSpeed();
-
-						this.velocity.addVectors( ray.direction, reflectionVector ).normalize();
-
-						const f = 1 - Math.abs( intersectionNormal.dot( ray.direction ) );
-
-						this.velocity.multiplyScalar( speed * f );
-
-					}
-
-				}
-
-			}
-
-		}
-
-		return super.update( delta );
-
-	}
-
+    return super.update(delta)
+  }
 }
 
-
-export { Player };
+export { Player }

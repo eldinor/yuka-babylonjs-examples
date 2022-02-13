@@ -1,4 +1,4 @@
-import 'https://preview.babylonjs.com/babylon.max.js'
+import 'https://preview.babylonjs.com/babylon.js'
 import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
 class AssetManager {
@@ -89,9 +89,6 @@ class AssetManager {
     targetMesh.renderingGroupId = 2
     targetMesh.freezeWorldMatrix()
     targetMesh.alwaysSelectAsActiveMesh = true
-
-    // TODO: add shadow
-    // mesh.castShadow = true
 
     // weapon
     gunMeshes[0].name = 'gun'

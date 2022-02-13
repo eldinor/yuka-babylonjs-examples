@@ -2,245 +2,217 @@
  * @author Mugen87 / https://github.com/Mugen87
  */
 
-import { SteeringBehavior, ArriveBehavior, EvadeBehavior, SeekBehavior, BoundingSphere, Vector3, Matrix4, Ray } from '../../../../build/yuka.module.js';
-import { CustomObstacle } from './CustomObstacle.js';
+import {
+  SteeringBehavior,
+  ArriveBehavior,
+  EvadeBehavior,
+  SeekBehavior,
+  BoundingSphere,
+  Vector3,
+  Matrix4,
+  Ray,
+} from '../../../../../lib/yuka.module.js'
 
-const hidingSpot = new Vector3();
-const offset = new Vector3();
-const obstaclesArray = new Array();
+import { CustomObstacle } from './CustomObstacle.js'
 
-const inverse = new Matrix4();
-const localPositionOfHidingSpot = new Vector3();
-const localPositionOfObstacle = new Vector3();
-const localPositionOfClosestObstacle = new Vector3();
-const intersectionPoint = new Vector3();
-const boundingSphere = new BoundingSphere();
+const hidingSpot = new Vector3()
+const offset = new Vector3()
+const obstaclesArray = new Array()
 
-const ray = new Ray( new Vector3( 0, 0, 0 ), new Vector3( 0, 0, 1 ) );
+const inverse = new Matrix4()
+const localPositionOfHidingSpot = new Vector3()
+const localPositionOfObstacle = new Vector3()
+const localPositionOfClosestObstacle = new Vector3()
+const intersectionPoint = new Vector3()
+const boundingSphere = new BoundingSphere()
+
+const ray = new Ray(new Vector3(0, 0, 0), new Vector3(0, 0, 1))
 
 class HideBehavior extends SteeringBehavior {
+  constructor(entityManager, pursuer, distanceFromHidingSpot = 2, deceleration = 1.5) {
+    super()
 
-	constructor( entityManager, pursuer, distanceFromHidingSpot = 2, deceleration = 1.5 ) {
+    this.entityManager = entityManager
+    this.pursuer = pursuer
+    this.distanceFromHidingSpot = distanceFromHidingSpot
+    this.deceleration = deceleration
+    this.dBoxMinLength = 3
 
-		super();
+    this._arrive = new ArriveBehavior()
+    this._arrive.tolerance = 1.5
+    this._evade = new EvadeBehavior()
+    this._seek = new SeekBehavior()
 
-		this.entityManager = entityManager;
-		this.pursuer = pursuer;
-		this.distanceFromHidingSpot = distanceFromHidingSpot;
-		this.deceleration = deceleration;
-		this.dBoxMinLength = 3;
+    this._waypoint = null
+    this._bestHidingSpot = new Vector3()
+    this._dBoxLength = 0
+  }
 
-		this._arrive = new ArriveBehavior();
-		this._arrive.tolerance = 1.5;
-		this._evade = new EvadeBehavior();
-		this._seek = new SeekBehavior();
+  calculate(vehicle, force /*, delta */) {
+    let closestDistanceSquared = Infinity
 
-		this._waypoint = null;
-		this._bestHidingSpot = new Vector3();
-		this._dBoxLength = 0;
+    const obstacles = this.entityManager.entities.values()
+    obstaclesArray.length = 0
 
-	}
+    for (let obstacle of obstacles) {
+      if (obstacle instanceof CustomObstacle) {
+        obstaclesArray.push(obstacle)
 
-	calculate( vehicle, force /*, delta */ ) {
+        this._getHidingPosition(obstacle, this.pursuer, hidingSpot)
 
-		let closestDistanceSquared = Infinity;
+        const squaredDistance = hidingSpot.squaredDistanceTo(vehicle.position)
 
-		const obstacles = this.entityManager.entities.values();
-		obstaclesArray.length = 0;
+        if (squaredDistance < closestDistanceSquared) {
+          closestDistanceSquared = squaredDistance
 
-		for ( let obstacle of obstacles ) {
+          this._bestHidingSpot.copy(hidingSpot)
+        }
+      }
+    }
 
-			if ( obstacle instanceof CustomObstacle ) {
+    if (closestDistanceSquared === Infinity) {
+      // if no suitable obstacles found then evade the pursuer
 
-				obstaclesArray.push( obstacle );
+      this._evade.pursuer = this.pursuer
+      this._evade.calculate(vehicle, force)
+    } else {
+      // check if the way to the hiding spot is blocked by an obstacle
 
-				this._getHidingPosition( obstacle, this.pursuer, hidingSpot );
+      this._obstacleAvoidance(vehicle)
 
-				const squaredDistance = hidingSpot.squaredDistanceTo( vehicle.position );
+      if (this._waypoint) {
+        // seek to an alternative waypoint
 
-				if ( squaredDistance < closestDistanceSquared ) {
+        this._seek.target = this._waypoint
+        this._seek.calculate(vehicle, force)
+      } else {
+        // otherwise arrive at the hiding spot
 
-					closestDistanceSquared = squaredDistance;
+        this._arrive.target = this._bestHidingSpot
+        this._arrive.deceleration = this.deceleration
+        this._arrive.calculate(vehicle, force)
+      }
+    }
 
-					this._bestHidingSpot.copy( hidingSpot );
+    return force
+  }
 
-				}
+  _obstacleAvoidance(vehicle) {
+    let closestObstacle = null
 
-			}
+    // this will be used to track the distance to the closest obstacle
 
-		}
+    let distanceToClosestObstacle = Infinity
 
-		if ( closestDistanceSquared === Infinity ) {
+    // the obstacles in the game world
 
-			// if no suitable obstacles found then evade the pursuer
+    const obstacles = obstaclesArray
 
-			this._evade.pursuer = this.pursuer;
-			this._evade.calculate( vehicle, force );
+    // the detection box length is proportional to the agent's velocity
 
-		} else {
+    this._dBoxLength = this.dBoxMinLength + (vehicle.getSpeed() / vehicle.maxSpeed) * this.dBoxMinLength
 
-			// check if the way to the hiding spot is blocked by an obstacle
+    vehicle.worldMatrix.getInverse(inverse)
 
-			this._obstacleAvoidance( vehicle );
+    for (let i = 0, l = obstacles.length; i < l; i++) {
+      const obstacle = obstacles[i]
 
-			if ( this._waypoint ) {
+      if (obstacle === vehicle) continue
 
-				// seek to an alternative waypoint
+      // calculate this obstacle's position in local space of the vehicle
 
-				this._seek.target = this._waypoint;
-				this._seek.calculate( vehicle, force );
+      localPositionOfObstacle.copy(obstacle.position).applyMatrix4(inverse)
 
-			} else {
+      // if the local position has a positive z value then it must lay behind the agent.
+      // besides the absolute z value must be smaller than the length of the detection box
 
-				// otherwise arrive at the hiding spot
+      if (localPositionOfObstacle.z > 0 && Math.abs(localPositionOfObstacle.z) < this._dBoxLength) {
+        // if the distance from the x axis to the object's position is less
+        // than its radius + half the width of the detection box then there is a potential intersection
 
-				this._arrive.target = this._bestHidingSpot;
-				this._arrive.deceleration = this.deceleration;
-				this._arrive.calculate( vehicle, force );
+        const expandedRadius = obstacle.boundingRadius + vehicle.boundingRadius
 
-			}
+        if (Math.abs(localPositionOfObstacle.x) < expandedRadius) {
+          // do intersection test in local space of the vehicle
 
-		}
+          boundingSphere.center.copy(localPositionOfObstacle)
+          boundingSphere.radius = expandedRadius
 
-		return force;
+          ray.intersectBoundingSphere(boundingSphere, intersectionPoint)
 
-	}
+          // compare distances
 
-	_obstacleAvoidance( vehicle ) {
+          if (intersectionPoint.z < distanceToClosestObstacle) {
+            // save new minimum distance
 
-		let closestObstacle = null;
+            distanceToClosestObstacle = intersectionPoint.z
 
-		// this will be used to track the distance to the closest obstacle
+            // save closest obstacle
 
-		let distanceToClosestObstacle = Infinity;
+            closestObstacle = obstacle
 
-		// the obstacles in the game world
+            // save local position for force calculation
 
-		const obstacles = obstaclesArray;
+            localPositionOfClosestObstacle.copy(localPositionOfObstacle)
+          }
+        }
+      }
+    }
 
-		// the detection box length is proportional to the agent's velocity
+    // if there an obstacle was detected, calculate a proper waypoint next to the obstacle
 
-		this._dBoxLength = this.dBoxMinLength + ( vehicle.getSpeed() / vehicle.maxSpeed ) * this.dBoxMinLength;
+    if (closestObstacle !== null) {
+      this._waypoint = localPositionOfClosestObstacle.clone()
 
-		vehicle.worldMatrix.getInverse( inverse );
+      // check if it's better to steer left or right next to the obstacle
 
-		for ( let i = 0, l = obstacles.length; i < l; i ++ ) {
+      const sign = Math.sign(localPositionOfClosestObstacle.x) || 1
 
-			const obstacle = obstacles[ i ];
+      // check if the best hiding spot is behind the vehicle
 
-			if ( obstacle === vehicle ) continue;
+      localPositionOfHidingSpot.copy(this._bestHidingSpot).applyMatrix4(inverse)
 
-			// calculate this obstacle's position in local space of the vehicle
+      // if so flip the z-coordinate of the waypoint in order to avoid conflicts
 
-			localPositionOfObstacle.copy( obstacle.position ).applyMatrix4( inverse );
+      if (localPositionOfHidingSpot.z < 0) this._waypoint.z *= -1
 
-			// if the local position has a positive z value then it must lay behind the agent.
-			// besides the absolute z value must be smaller than the length of the detection box
+      // compute the optimal x-coordinate so the vehicle steers next to the obstacle
 
-			if ( localPositionOfObstacle.z > 0 && Math.abs( localPositionOfObstacle.z ) < this._dBoxLength ) {
+      this._waypoint.x -= (closestObstacle.boundingRadius + vehicle.boundingRadius) * sign
 
-				// if the distance from the x axis to the object's position is less
-				// than its radius + half the width of the detection box then there is a potential intersection
+      this._waypoint.applyMatrix4(vehicle.worldMatrix)
+    }
 
-				const expandedRadius = obstacle.boundingRadius + vehicle.boundingRadius;
+    // proceed if there is an active waypoint
 
-				if ( Math.abs( localPositionOfObstacle.x ) < expandedRadius ) {
+    if (this._waypoint !== null) {
+      const distanceSq = this._waypoint.squaredDistanceTo(vehicle.position)
 
-					// do intersection test in local space of the vehicle
+      // if we are close enough, delete the current waypoint
 
-					boundingSphere.center.copy( localPositionOfObstacle );
-					boundingSphere.radius = expandedRadius;
+      if (distanceSq < 1) {
+        this._waypoint = null
+      }
+    }
+  }
 
-					ray.intersectBoundingSphere( boundingSphere, intersectionPoint );
+  _getHidingPosition(obstacle, pursuer, hidingSpot) {
+    // calculate the ideal spacing of the vehicle to the hiding spot
 
-					// compare distances
+    const spacing = obstacle.boundingRadius + this.distanceFromHidingSpot
 
-					if ( intersectionPoint.z < distanceToClosestObstacle ) {
+    // calculate the heading toward the object from the pursuer
 
-						// save new minimum distance
+    offset.subVectors(obstacle.position, pursuer.position).normalize()
 
-						distanceToClosestObstacle = intersectionPoint.z;
+    // scale it to size
 
-						// save closest obstacle
+    offset.multiplyScalar(spacing)
 
-						closestObstacle = obstacle;
+    // add the offset to the obstacles position to get the hiding spot
 
-						// save local position for force calculation
-
-						localPositionOfClosestObstacle.copy( localPositionOfObstacle );
-
-					}
-
-				}
-
-			}
-
-		}
-
-		// if there an obstacle was detected, calculate a proper waypoint next to the obstacle
-
-		if ( closestObstacle !== null ) {
-
-			this._waypoint = localPositionOfClosestObstacle.clone();
-
-			// check if it's better to steer left or right next to the obstacle
-
-			const sign = Math.sign( localPositionOfClosestObstacle.x ) || 1;
-
-			// check if the best hiding spot is behind the vehicle
-
-			localPositionOfHidingSpot.copy( this._bestHidingSpot ).applyMatrix4( inverse );
-
-			// if so flip the z-coordinate of the waypoint in order to avoid conflicts
-
-			if ( localPositionOfHidingSpot.z < 0 ) this._waypoint.z *= - 1;
-
-			// compute the optimal x-coordinate so the vehicle steers next to the obstacle
-
-			this._waypoint.x -= ( closestObstacle.boundingRadius + vehicle.boundingRadius ) * sign;
-
-			this._waypoint.applyMatrix4( vehicle.worldMatrix );
-
-		}
-
-		// proceed if there is an active waypoint
-
-		if ( this._waypoint !== null ) {
-
-			const distanceSq = this._waypoint.squaredDistanceTo( vehicle.position );
-
-			// if we are close enough, delete the current waypoint
-
-			if ( distanceSq < 1 ) {
-
-				this._waypoint = null;
-
-			}
-
-		}
-
-	}
-
-	_getHidingPosition( obstacle, pursuer, hidingSpot ) {
-
-		// calculate the ideal spacing of the vehicle to the hiding spot
-
-		const spacing = obstacle.boundingRadius + this.distanceFromHidingSpot;
-
-		// calculate the heading toward the object from the pursuer
-
-		offset.subVectors( obstacle.position, pursuer.position ).normalize();
-
-		// scale it to size
-
-		offset.multiplyScalar( spacing );
-
-		// add the offset to the obstacles position to get the hiding spot
-
-		hidingSpot.addVectors( obstacle.position, offset );
-
-	}
-
+    hidingSpot.addVectors(obstacle.position, offset)
+  }
 }
 
-export { HideBehavior };
+export { HideBehavior }

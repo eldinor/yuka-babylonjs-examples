@@ -1,10 +1,6 @@
-/**
- * @author Mugen87 / https://github.com/Mugen87
- */
-
-import { MovingEntity, MathUtils, Ray, Vector3 } from '../../../../build/yuka.module.js'
-import { Enemy } from './Enemy.js'
+import { MovingEntity, MathUtils, Ray, Vector3 } from '../../../../../lib/yuka.module.js'
 import world from './World.js'
+import { Enemy } from './Enemy.js'
 
 const intersectionPoint = new Vector3()
 const normal = new Vector3()
@@ -23,8 +19,6 @@ class Bullet extends MovingEntity {
     this.velocity.copy(ray.direction).multiplyScalar(this.maxSpeed)
 
     const s = 1 + Math.random() * 3 // scale the shot line a bit
-
-    this.scale.set(s, s, s)
 
     this.lifetime = 1
     this.currentTime = 0
@@ -45,6 +39,7 @@ class Bullet extends MovingEntity {
 
       if (obstacle !== null) {
         // calculate distance from origin to intersection point
+        console.log('HIT', obstacle)
 
         const distanceToIntersection = ray.origin.squaredDistanceTo(intersectionPoint)
         const validDistance = ray.origin.squaredDistanceTo(this.position)
@@ -63,9 +58,11 @@ class Bullet extends MovingEntity {
           this.owner.sendMessage(obstacle, 'hit')
 
           // add visual feedback
-
           if (obstacle instanceof Enemy === false) {
             world.addBulletHole(intersectionPoint, normal, audio)
+          } else {
+            // enemy hit
+            world.assetManager.explodeEnemy(obstacle._renderComponent)
           }
 
           // remove bullet from world
