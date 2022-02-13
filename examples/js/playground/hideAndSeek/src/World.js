@@ -28,7 +28,7 @@ const cameraEntityMatrix = new BABYLON.Matrix()
 class World {
   constructor() {
     this.maxBulletHoles = 48
-    this.enemyCount = 10
+    this.enemyCount = 4
     this.minSpawningDistance = 10
 
     this.entityManager = new YUKA.EntityManager()
