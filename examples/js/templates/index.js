@@ -1,7 +1,3 @@
-/**
- * @author Examples with Babylon.js were made at https://github.com/eldinor/yuka-babylonjs-examples / roland@babylonjs.xyz
- */
-
 import * as YUKA from '../../../../lib/yuka.module.js'
 // import * as DAT from 'https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.module.js';
 
