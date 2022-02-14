@@ -446,7 +446,7 @@ class World {
 }
 
 function sync(entity, renderComponent) {
-  renderComponent.getWorldMatrix().copyFrom(BABYLON.Matrix.FromValues(...entity.worldMatrix.elements))
+  BABYLON.Matrix.FromValues(...entity.worldMatrix.elements).decomposeToTransformNode(renderComponent)
 }
 
 function syncCamera(entity, renderComponent) {

@@ -106,6 +106,7 @@ class AssetManager {
     gunMesh.renderingGroupId = 2
     gunMesh.freezeWorldMatrix()
     gunMesh.alwaysSelectAsActiveMesh = true
+    gunMesh.parent = null
 
     models.set('weapon', gunMesh)
 

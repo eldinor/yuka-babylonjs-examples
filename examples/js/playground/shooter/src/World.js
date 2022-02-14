@@ -224,9 +224,7 @@ class World {
     const weaponMesh = this.assetManager.models.get('weapon')
     weapon.setRenderComponent(weaponMesh, sync)
 
-    weaponMesh.parent.getChildMeshes().forEach((m) => {
-      this.shadowGenerator.addShadowCaster(m)
-    })
+    this.shadowGenerator.addShadowCaster(weaponMesh)
 
     // audios
     this.audios.get('shot').attachToMesh(weaponMesh)
@@ -281,7 +279,7 @@ class World {
 }
 
 function sync(entity, renderComponent) {
-  renderComponent.getWorldMatrix().copyFrom(BABYLON.Matrix.FromValues(...entity.worldMatrix.elements))
+  BABYLON.Matrix.FromValues(...entity.worldMatrix.elements).decomposeToTransformNode(renderComponent)
 }
 
 function syncCamera(entity, renderComponent) {
