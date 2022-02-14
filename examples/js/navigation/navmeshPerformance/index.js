@@ -270,7 +270,7 @@ function updateInstancing() {
   for (let i = 0, l = vehicles.length; i < l; i++) {
     const vehicle = vehicles[i]
     const vehicleMesh = vehicleMeshes[i]
-    vehicleMesh.getWorldMatrix().copyFrom(BABYLON.Matrix.FromValues(...vehicle.worldMatrix.elements))
+    BABYLON.Matrix.FromValues(...vehicle.worldMatrix.elements).decomposeToTransformNode(vehicleMesh)
   }
 }
 

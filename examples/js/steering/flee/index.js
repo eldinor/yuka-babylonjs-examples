@@ -90,5 +90,5 @@ function animate() {
 }
 
 function sync(entity, renderComponent) {
-  renderComponent.getWorldMatrix().copyFrom(BABYLON.Matrix.FromValues(...entity.worldMatrix.elements))
+  BABYLON.Matrix.FromValues(...entity.worldMatrix.elements).decomposeToTransformNode(renderComponent)
 }
