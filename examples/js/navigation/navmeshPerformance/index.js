@@ -269,12 +269,8 @@ function updatePathfinding() {
 function updateInstancing() {
   for (let i = 0, l = vehicles.length; i < l; i++) {
     const vehicle = vehicles[i]
-    vehicle.worldMatrix.toArray(entityMatrix.m)
-    entityMatrix.markAsUpdated()
-
     const vehicleMesh = vehicleMeshes[i]
-    const matrix = vehicleMesh.getWorldMatrix()
-    matrix.copyFrom(entityMatrix)
+    vehicleMesh.getWorldMatrix().copyFrom(BABYLON.Matrix.FromValues(...vehicle.worldMatrix.elements))
   }
 }
 

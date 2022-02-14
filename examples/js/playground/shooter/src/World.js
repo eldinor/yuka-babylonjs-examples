@@ -281,19 +281,11 @@ class World {
 }
 
 function sync(entity, renderComponent) {
-  entity.worldMatrix.toArray(entityMatrix.m)
-  entityMatrix.markAsUpdated()
-  const matrix = renderComponent.getWorldMatrix()
-  matrix.copyFrom(entityMatrix)
+  renderComponent.getWorldMatrix().copyFrom(BABYLON.Matrix.FromValues(...entity.worldMatrix.elements))
 }
 
 function syncCamera(entity, renderComponent) {
-  entity.worldMatrix.toArray(cameraEntityMatrix.m)
-  cameraEntityMatrix.invert()
-  cameraEntityMatrix.markAsUpdated()
-
-  const matrix = renderComponent.getViewMatrix()
-  matrix.copyFrom(cameraEntityMatrix)
+  renderComponent.getViewMatrix().copyFrom(BABYLON.Matrix.FromValues(...entity.worldMatrix.elements).invert())
 }
 
 function onIntroClick() {

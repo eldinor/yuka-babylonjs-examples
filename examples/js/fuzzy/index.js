@@ -223,10 +223,7 @@ function animate() {
 }
 
 function sync(entity, renderComponent) {
-  entity.worldMatrix.toArray(entityMatrix.m)
-  entityMatrix.markAsUpdated()
-  const matrix = renderComponent.getWorldMatrix()
-  matrix.copyFrom(entityMatrix)
+  renderComponent.getWorldMatrix().copyFrom(BABYLON.Matrix.FromValues(...entity.worldMatrix.elements))
 }
 
 function onTransitionEnd(event) {
@@ -267,103 +264,3 @@ function createPolarHelper(scene) {
 
   return polarHelper
 }
-
-/*
-
-PolarGridHelper( radius : Number, radials : Number, circles : Number, divisions : Number, color1 : Color, color2 : Color )
-radius -- The radius of the polar grid. This can be any positive number. Default is 10.
-radials -- The number of radial lines. This can be any positive integer. Default is 16.
-circles -- The number of circles. This can be any positive integer. Default is 8.
-divisions -- The number of line segments used for each circle. This can be any positive integer that is 3 or greater. Default is 64.
-color1 -- The first color used for grid elements. This can be a Color, a hexadecimal value and an CSS-Color name. Default is 0x444444
-color2 -- The second color used for grid elements. This can be a Color, a hexadecimal value and an CSS-Color name. Default is 0x888888
-
-Creates a new PolarGridHelper of radius 'radius' with 'radials' number of radials and 'circles' number of circles, where each circle is smoothed into 'divisions' number of line segments. Colors are optional.
-
-
-import { LineSegments } from '../objects/LineSegments.js';
-import { LineBasicMaterial } from '../materials/LineBasicMaterial.js';
-import { Float32BufferAttribute } from '../core/BufferAttribute.js';
-import { BufferGeometry } from '../core/BufferGeometry.js';
-import { Color } from '../math/Color.js';
-
-class PolarGridHelper extends LineSegments {
-
-	constructor( radius = 10, radials = 16, circles = 8, divisions = 64, color1 = 0x444444, color2 = 0x888888 ) {
-
-		color1 = new Color( color1 );
-		color2 = new Color( color2 );
-
-		const vertices = [];
-		const colors = [];
-
-		// create the radials
-
-		for ( let i = 0; i <= radials; i ++ ) {
-
-			const v = ( i / radials ) * ( Math.PI * 2 );
-
-			const x = Math.sin( v ) * radius;
-			const z = Math.cos( v ) * radius;
-
-			vertices.push( 0, 0, 0 );
-			vertices.push( x, 0, z );
-
-			const color = ( i & 1 ) ? color1 : color2;
-
-			colors.push( color.r, color.g, color.b );
-			colors.push( color.r, color.g, color.b );
-
-		}
-
-		// create the circles
-
-		for ( let i = 0; i <= circles; i ++ ) {
-
-			const color = ( i & 1 ) ? color1 : color2;
-
-			const r = radius - ( radius / circles * i );
-
-			for ( let j = 0; j < divisions; j ++ ) {
-
-				// first vertex
-
-				let v = ( j / divisions ) * ( Math.PI * 2 );
-
-				let x = Math.sin( v ) * r;
-				let z = Math.cos( v ) * r;
-
-				vertices.push( x, 0, z );
-				colors.push( color.r, color.g, color.b );
-
-				// second vertex
-
-				v = ( ( j + 1 ) / divisions ) * ( Math.PI * 2 );
-
-				x = Math.sin( v ) * r;
-				z = Math.cos( v ) * r;
-
-				vertices.push( x, 0, z );
-				colors.push( color.r, color.g, color.b );
-
-			}
-
-		}
-
-		const geometry = new BufferGeometry();
-		geometry.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
-		geometry.setAttribute( 'color', new Float32BufferAttribute( colors, 3 ) );
-
-		const material = new LineBasicMaterial( { vertexColors: true, toneMapped: false } );
-
-		super( geometry, material );
-
-		this.type = 'PolarGridHelper';
-
-	}
-
-}
-
-
-export { PolarGridHelper };
-*/

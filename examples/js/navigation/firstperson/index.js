@@ -137,13 +137,8 @@ function animate() {
   scene.render()
 }
 
-function syncCamera(entity, camera) {
-  entity.worldMatrix.toArray(entityMatrix.m)
-  entityMatrix.invert()
-  entityMatrix.markAsUpdated()
-
-  const matrix = camera.getViewMatrix()
-  matrix.copyFrom(entityMatrix)
+function syncCamera(entity, renderComponent) {
+  renderComponent.getViewMatrix().copyFrom(BABYLON.Matrix.FromValues(...entity.worldMatrix.elements).invert())
 }
 
 function onTransitionEnd(event) {

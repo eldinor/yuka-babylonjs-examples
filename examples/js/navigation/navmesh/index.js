@@ -158,9 +158,5 @@ function findPathTo(target) {
 }
 
 function sync(entity, renderComponent) {
-  entity.worldMatrix.toArray(entityMatrix.m)
-  entityMatrix.markAsUpdated()
-
-  const matrix = renderComponent.getWorldMatrix()
-  matrix.copyFrom(entityMatrix)
+  renderComponent.getWorldMatrix().copyFrom(BABYLON.Matrix.FromValues(...entity.worldMatrix.elements))
 }
