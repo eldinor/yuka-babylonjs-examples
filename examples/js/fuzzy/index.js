@@ -63,7 +63,6 @@ function init() {
 
   createPolarHelper()
 
-  // TODO: make async
   BABYLON.SceneLoader.ImportMesh(
     null,
     'model/',
@@ -234,7 +233,6 @@ function onTransitionEnd(event) {
   event.target.remove()
 }
 
-// TODO: make configurable
 function createPolarHelper(scene) {
   const polarHelper = new BABYLON.TransformNode('polarHelper', scene)
 

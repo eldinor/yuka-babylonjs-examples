@@ -71,22 +71,13 @@ class World {
     const delta = this.time.update().getDelta()
 
     this.controls.update(delta)
-
     this.entityManager.update(delta)
 
-    // if (this.mixer) this.mixer.update(delta)
-
-    // this.camera.rotation.x = delta
     this.scene.render()
   }
 
   add(entity) {
     this.entityManager.add(entity)
-
-    if (entity._renderComponent !== null) {
-      // TODO
-      // this.scene.add(entity._renderComponent)
-    }
 
     if (entity.geometry) {
       this.obstacles.push(entity)
@@ -173,6 +164,10 @@ class World {
     const canvas = document.getElementById('renderCanvas')
     this.engine = new BABYLON.Engine(canvas, true, {}, true)
 
+    if (BABYLON.Engine.audioEngine) {
+      BABYLON.Engine.audioEngine.useCustomUnlockedButton = true
+    }
+
     this.scene = new BABYLON.Scene(this.engine)
     const scene = this.scene
 
@@ -182,16 +177,6 @@ class World {
     scene.fogMode = BABYLON.Scene.FOGMODE_EXP2
     scene.fogColor = BABYLON.Color3.FromHexString('#a0a0a0')
     scene.fogDensity = 0.005
-
-    // scene.debugLayer
-    //   .show({
-    //     embedMode: true,
-    //     overlay: true,
-    //   })
-    //   .then(() => {
-    //     const host = document.getElementById('embed-host')
-    //     host.style.zIndex = '999999999'
-    //   })
 
     const camera = new BABYLON.UniversalCamera('camera', new BABYLON.Vector3(0, 0, 0), scene, true)
     camera.minZ = 0.01
@@ -243,7 +228,7 @@ class World {
       this.shadowGenerator.addShadowCaster(m)
     })
 
-    // TODO: audios
+    // audios
     this.audios.get('shot').attachToMesh(weaponMesh)
     this.audios.get('reload').attachToMesh(weaponMesh)
     this.audios.get('empty').attachToMesh(weaponMesh)
@@ -312,6 +297,10 @@ function syncCamera(entity, renderComponent) {
 }
 
 function onIntroClick() {
+  if (BABYLON.Engine.audioEngine) {
+    BABYLON.Engine.audioEngine.unlock()
+  }
+
   this.controls.connect()
 }
 

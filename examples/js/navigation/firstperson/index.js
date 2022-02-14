@@ -24,6 +24,10 @@ function init() {
   const canvas = document.getElementById('renderCanvas')
   engine = new BABYLON.Engine(canvas, true, {}, true)
 
+  if (BABYLON.Engine.audioEngine) {
+    BABYLON.Engine.audioEngine.useCustomUnlockedButton = true
+  }
+
   scene = new BABYLON.Scene(engine)
   scene.clearColor = BABYLON.Color3.FromHexString('#a0a0a0')
   scene.useRightHandedSystem = true
@@ -41,8 +45,6 @@ function init() {
   const groundMaterial = new BABYLON.StandardMaterial('grid', scene)
   groundMaterial.diffuseColor = BABYLON.Color3.FromHexString('#999999')
   ground.material = groundMaterial
-  // TODO: remove
-  ground.visibility = 0.2
 
   //
 
@@ -81,6 +83,10 @@ function init() {
       intro.addEventListener(
         'click',
         () => {
+          if (BABYLON.Engine.audioEngine) {
+            BABYLON.Engine.audioEngine.unlock()
+          }
+
           controls.connect()
         },
         false

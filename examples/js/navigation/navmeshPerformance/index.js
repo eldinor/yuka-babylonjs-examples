@@ -211,6 +211,7 @@ function onPathFound(vehicle, path) {
   if (pathHelper) {
     pathHelper.dispose()
   }
+
   pathHelper = new BABYLON.MeshBuilder.CreateLines(
     `path-helper`,
     {

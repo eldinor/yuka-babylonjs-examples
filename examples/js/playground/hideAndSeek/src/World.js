@@ -267,7 +267,10 @@ class World {
   initScene() {
     const canvas = document.getElementById('renderCanvas')
     this.engine = new BABYLON.Engine(canvas, true, {}, true)
-    BABYLON.Engine.audioEngine.useCustomUnlockedButton = true
+
+    if (BABYLON.Engine.audioEngine) {
+      BABYLON.Engine.audioEngine.useCustomUnlockedButton = true
+    }
 
     this.scene = new BABYLON.Scene(this.engine)
     const scene = this.scene
@@ -278,16 +281,6 @@ class World {
     scene.fogMode = BABYLON.Scene.FOGMODE_EXP2
     scene.fogColor = BABYLON.Color3.FromHexString('#a0a0a0')
     scene.fogDensity = 0.005
-
-    // scene.debugLayer
-    //   .show({
-    //     embedMode: true,
-    //     overlay: true,
-    //   })
-    //   .then(() => {
-    //     const host = document.getElementById('embed-host')
-    //     host.style.zIndex = '999999999'
-    //   })
 
     const camera = new BABYLON.UniversalCamera('camera', new BABYLON.Vector3(0, 0, 0), scene, true)
     camera.minZ = 0.01
@@ -409,11 +402,7 @@ class World {
     const weaponMesh = this.assetManager.models.get('weapon')
     weapon.setRenderComponent(weaponMesh, sync)
 
-    // weaponMesh.parent.getChildMeshes().forEach((m) => {
-    //   this.shadowGenerator.addShadowCaster(m)
-    // })
-
-    // TODO: audios
+    // audios
     this.audios.get('shot').attachToMesh(weaponMesh)
     this.audios.get('reload').attachToMesh(weaponMesh)
     this.audios.get('empty').attachToMesh(weaponMesh)
@@ -474,10 +463,11 @@ function syncCamera(entity, renderComponent) {
 }
 
 function onIntroClick() {
+  if (BABYLON.Engine.audioEngine) {
+    BABYLON.Engine.audioEngine.unlock()
+  }
+
   if (this.gameOver === false) {
-    if (!BABYLON.Engine.audioEngine.unlocked) {
-      BABYLON.Engine.audioEngine.unlock()
-    }
     this.controls.connect()
     this.started = true
   }
