@@ -147,19 +147,7 @@ function init() {
         const vehicleMesh = vehicleMeshPrefab.clone(`vehixle-${i}`)
         vehicleMeshes[i] = vehicleMesh
 
-        const pathHelper = BABYLON.MeshBuilder.CreateLines(
-          `path-helper`,
-          {
-            points: [],
-            updatable: true,
-          },
-          scene
-        )
-        pathHelper.parent = pathHelperParent
-        pathHelpers.push(pathHelper)
-
         // vehicle
-
         const vehicle = new CustomVehicle()
         vehicle.navMesh = navigationMesh
         vehicle.maxSpeed = 1.5
@@ -207,7 +195,6 @@ function onPathFound(vehicle, path) {
   const index = vehicles.indexOf(vehicle)
   let pathHelper = pathHelpers[index]
 
-  // TODO: do not dispose, but update the lines
   if (pathHelper) {
     pathHelper.dispose()
   }
@@ -222,6 +209,7 @@ function onPathFound(vehicle, path) {
   )
   pathHelper.parent = pathHelperParent
   pathHelper.color = BABYLON.Color3.Red()
+  pathHelpers[index] = pathHelper
 
   // update path and steering
 
