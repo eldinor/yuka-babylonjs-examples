@@ -49,7 +49,7 @@ function createConvexRegionHelper(navMesh, scene) {
   }
 
   const indices = []
-  for (let i = 0; i < positions.length; i++) {
+  for (let i = 0; i < positions.length / 3; i++) {
     indices.push(i)
   }
 
