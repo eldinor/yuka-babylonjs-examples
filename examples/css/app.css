@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css?family=Jura');
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  padding-top: 3.5rem;
+}
+
+.jumbotron {
+  text-align: center;
+  background-image: url(../images/gamer.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 0;
+  color: #ffffff;
+  margin-bottom: 4rem;
+}
+
+.vertical-center {
+  min-height: 50%;
+  min-height: 50vh;
+  display: flex;
+  align-items: center;
+}
+
+.lead {
+  font-size: 2rem;
+}
+
+hr.divider {
+  margin: 5rem 0;
+}
+
+.teaser h2 {
+  text-align: center;
+}
+.teaser p {
+  text-align: center;
+}
+
+.navbar {
+  border-bottom: 1px solid #ccc;
+}
+
+.navbar-brand {
+  padding: 0;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(238, 8, 8, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
+}
+
+@media (max-width: 576px) {
+  .showcase-images {
+    width: 300px;
+    height: 150px;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .navbar {
+    background-color: #fff !important;
+    border-bottom: 1px solid #ccc;
+  }
+}
+
+/* dark mode */
+
+@media (prefers-color-scheme: dark) {
+  body {
+    color: #ccc;
+    background-color: #181818;
+  }
+  .navbar {
+    background-color: rgb(24, 22, 22) !important;
+    border-bottom: 1px solid #212121;
+  }
+  hr {
+    border-top: 1px solid #666;
+  }
+  a.nav-link {
+    color: #ccc;
+  }
+  a.nav-link:hover {
+    color: #ee0808;
+  }
+  .jumbotron {
+    background-color: #181818;
+  }
+
+  .card {
+    background-color: #181818;
+  }
+  footer {
+    background-color: rgb(24, 22, 22);
+    border-top: 1px solid #212121;
+  }
+}
