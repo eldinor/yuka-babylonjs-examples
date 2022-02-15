@@ -34,7 +34,7 @@ class AssetManager {
       loop: false,
       autoplay: false,
     })
-    const shotReload = new BABYLON.Sound('shot', 'audio/shot_reload.ogg', this.scene, null, {
+    const shotReload = new BABYLON.Sound('shot_reload', 'audio/shot_reload.ogg', this.scene, null, {
       loop: false,
       autoplay: false,
     })
@@ -106,7 +106,7 @@ class AssetManager {
     gunMesh.renderingGroupId = 2
     gunMesh.freezeWorldMatrix()
     gunMesh.alwaysSelectAsActiveMesh = true
-    gunMesh.parent = null
+    // gunMesh.parent = null
 
     models.set('weapon', gunMesh)
 
@@ -172,22 +172,14 @@ class AssetManager {
       width: 4,
       height: 8,
       depth: 4,
-      // sideOrientation: BABYLON.Mesh.BACKSIDE,
-      // wrap: true,
     })
     obstacleMesh.position.y = 4
 
     const obstacleMaterial = new BABYLON.StandardMaterial('obstacle', this.scene)
     obstacleMaterial.emissiveColor = BABYLON.Color3.FromHexString('#444444')
     obstacleMaterial.diffuseColor = BABYLON.Color3.FromHexString('#222222')
-    obstacleMaterial.needDepthPrePass = true
-
-    obstacleMaterial.disableDepthWrite = false
-
-    // obstacleMesh.visibility = 0.4
     obstacleMesh.material = obstacleMaterial
     obstacleMesh.renderingGroupId = 1
-    // obstacleMesh.convertToUnIndexedMesh()
     obstacleMesh.bakeCurrentTransformIntoVertices()
     obstacleMesh.freezeWorldMatrix()
     obstacleMesh.setEnabled(false)

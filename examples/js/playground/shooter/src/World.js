@@ -279,8 +279,12 @@ class World {
 }
 
 function sync(entity, renderComponent) {
-  BABYLON.Matrix.FromValues(...entity.worldMatrix.elements).decomposeToTransformNode(renderComponent)
+  renderComponent.getWorldMatrix().copyFrom(BABYLON.Matrix.FromValues(...entity.worldMatrix.elements))
 }
+
+// function sync(entity, renderComponent) {
+//   BABYLON.Matrix.FromValues(...entity.worldMatrix.elements).decomposeToTransformNode(renderComponent)
+// }
 
 function syncCamera(entity, renderComponent) {
   renderComponent.getViewMatrix().copyFrom(BABYLON.Matrix.FromValues(...entity.worldMatrix.elements).invert())

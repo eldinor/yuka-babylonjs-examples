@@ -106,7 +106,7 @@ class AssetManager {
     gunMesh.renderingGroupId = 2
     gunMesh.freezeWorldMatrix()
     gunMesh.alwaysSelectAsActiveMesh = true
-    gunMesh.parent = null
+    // gunMesh.parent = null
 
     const spritemanager = new BABYLON.SpriteManager('sprite-manager', 'model/muzzle.png', 1, 128, this.scene)
     spritemanager.renderingGroupId = 1
