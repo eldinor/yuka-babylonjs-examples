@@ -147,7 +147,7 @@ function init() {
         const vehicleMesh = vehicleMeshPrefab.clone(`vehixle-${i}`)
         vehicleMeshes[i] = vehicleMesh
 
-        const pathHelper = new BABYLON.MeshBuilder.CreateLines(
+        const pathHelper = BABYLON.MeshBuilder.CreateLines(
           `path-helper`,
           {
             points: [],
@@ -212,7 +212,7 @@ function onPathFound(vehicle, path) {
     pathHelper.dispose()
   }
 
-  pathHelper = new BABYLON.MeshBuilder.CreateLines(
+  pathHelper = BABYLON.MeshBuilder.CreateLines(
     `path-helper`,
     {
       points: path,
