@@ -122,7 +122,7 @@ class AssetManager {
     // bullet hole
     const texture = new BABYLON.Texture('model/bulletHole.png', this.scene)
     texture.hasAlpha = true
-    const bulletHoleMesh = new BABYLON.MeshBuilder.CreatePlane('bullet-hole', { size: 0.5 }, this.scene)
+    const bulletHoleMesh = BABYLON.MeshBuilder.CreatePlane('bullet-hole', { size: 0.5 }, this.scene)
     bulletHoleMesh.rotation = new BABYLON.Vector3(0, Math.PI, 0)
     const bulletHoleMaterial = new BABYLON.StandardMaterial('bullet-hole', this.scene)
     bulletHoleMaterial.diffuseTexture = texture

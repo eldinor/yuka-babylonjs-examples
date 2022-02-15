@@ -33,7 +33,7 @@ function createGraphHelper(scene, graph, nodeSize = 1, nodeColor = '#4e84c4', ed
         position.push(new BABYLON.Vector3(fromNode.position.x, fromNode.position.y, fromNode.position.z))
         position.push(new BABYLON.Vector3(toNode.position.x, toNode.position.y, toNode.position.z))
 
-        const pathHelper = new BABYLON.MeshBuilder.CreateLines(
+        const pathHelper = BABYLON.MeshBuilder.CreateLines(
           'path-helper',
           {
             points: position,

@@ -136,7 +136,7 @@ function findPathTo(target) {
   if (pathHelper) {
     pathHelper.dispose()
   }
-  pathHelper = new BABYLON.MeshBuilder.CreateLines(
+  pathHelper = BABYLON.MeshBuilder.CreateLines(
     'path-helper',
     {
       points: path,
