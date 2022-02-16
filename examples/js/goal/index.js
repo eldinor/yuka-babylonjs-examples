@@ -123,6 +123,7 @@ function init() {
     })
 
     // blend all animations
+
     for (let aniCounter = 0; aniCounter < container.animationGroups.length; aniCounter++) {
       for (let index = 0; index < container.animationGroups[aniCounter].targetedAnimations.length; index++) {
         let animation = container.animationGroups[aniCounter].targetedAnimations[index].animation
