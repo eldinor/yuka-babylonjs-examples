@@ -24,15 +24,14 @@ function init() {
 
   const camera = new BABYLON.ArcRotateCamera(
     'camera',
-    BABYLON.Tools.ToRadians(90),
-    BABYLON.Tools.ToRadians(0),
+    BABYLON.Tools.ToRadians(70),
+    BABYLON.Tools.ToRadians(60),
     15,
     BABYLON.Vector3.Zero(),
     scene
   )
 
   camera.target = new BABYLON.Vector3(0, 0, 0)
-  camera.upperBetaLimit = 1.2
   camera.attachControl(canvas, true)
 
   const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
@@ -59,6 +58,8 @@ function init() {
   const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 10, height: 10 }, scene)
   ground.position.y = -1
   ground.material = new BABYLON.GridMaterial('grid', scene)
+  ground.material.backFaceCulling = false
+  ground.visibility = 0.4
 
   //
 
@@ -120,6 +121,7 @@ function animate() {
   const elapsedTime = time.getElapsed()
 
   target.z = Math.cos(elapsedTime * 0.2) * 5
+  target.y = Math.cos(elapsedTime * 0.4) * 3
   target.x = Math.sin(elapsedTime * 0.2) * 5
 
   entityManager.update(deltaTime)

@@ -33,7 +33,6 @@ function init() {
   )
 
   camera.target = new BABYLON.Vector3(0, 0, 0)
-  camera.upperBetaLimit = 1.2
   camera.attachControl(canvas, true)
 
   new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
@@ -42,6 +41,7 @@ function init() {
   ground.position.y = -1
   ground.material = new BABYLON.GridMaterial('grid', scene)
   ground.visibility = 0.5
+  ground.material.backFaceCulling = false
 
   //
 

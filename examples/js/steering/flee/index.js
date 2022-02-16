@@ -33,13 +33,15 @@ function init() {
     BABYLON.Vector3.Zero(),
     scene
   )
+  camera.upperBetaLimit = Math.PI / 4
+  camera.lowerBetaLimit = Math.PI / 4
 
   camera.target = new BABYLON.Vector3(0, 0, 0)
   camera.attachControl(canvas, true)
 
   new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
 
-  const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 40, height: 20 }, scene)
+  const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 40, height: 40 }, scene)
   ground.position.y = -1
   ground.material = new BABYLON.GridMaterial('grid', scene)
 
@@ -51,12 +53,18 @@ function init() {
   vehicleMesh.rotation.x = Math.PI * 0.5
   vehicleMesh.bakeCurrentTransformIntoVertices()
 
+  //
+
+  const pointerMesh = BABYLON.MeshBuilder.CreateSphere('pointer', scene)
+
   scene.onPointerMove = () => {
     var pickResult = scene.pick(scene.pointerX, scene.pointerY)
     if (pickResult?.pickedPoint) {
       target.x = pickResult.pickedPoint.x
       // target.y = pickResult.pickedPoint.y;
       target.z = pickResult.pickedPoint.z
+      pointerMesh.position.x = target.x
+      pointerMesh.position.z = target.z
     }
   }
 

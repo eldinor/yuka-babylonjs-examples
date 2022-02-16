@@ -25,8 +25,8 @@ function init() {
 
   const camera = new BABYLON.ArcRotateCamera(
     'camera',
-    BABYLON.Tools.ToRadians(90),
-    BABYLON.Tools.ToRadians(0),
+    BABYLON.Tools.ToRadians(120),
+    BABYLON.Tools.ToRadians(40),
     25,
     BABYLON.Vector3.Zero(),
     scene
@@ -41,7 +41,8 @@ function init() {
   const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 30, height: 20 }, scene)
   ground.position.y = -1
   ground.material = new BABYLON.GridMaterial('grid', scene)
-
+  ground.material.backFaceCulling = false
+  ground.visibility = 0.4
   // game setup
 
   entityManager = new YUKA.EntityManager()

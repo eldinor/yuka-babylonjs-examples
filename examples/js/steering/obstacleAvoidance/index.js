@@ -26,9 +26,9 @@ function init() {
 
   const camera = new BABYLON.ArcRotateCamera(
     'camera',
-    BABYLON.Tools.ToRadians(0),
-    BABYLON.Tools.ToRadians(0),
-    35,
+    BABYLON.Tools.ToRadians(140),
+    BABYLON.Tools.ToRadians(40),
+    50,
     BABYLON.Vector3.Zero(),
     scene
   )
@@ -44,6 +44,7 @@ function init() {
 
   ground.material = new BABYLON.GridMaterial('grid', scene)
   ground.material.backFaceCulling = true
+  ground.visibility = 0.4
 
   const wayPointsMat = new BABYLON.StandardMaterial('wayPointsMat', scene)
   wayPointsMat.disableLighting = true
@@ -67,7 +68,7 @@ function init() {
   const path = new YUKA.Path()
   path.loop = true
   path.add(new YUKA.Vector3(10, 0, 10))
-  path.add(new YUKA.Vector3(10, 0, -10))
+  path.add(new YUKA.Vector3(10, 10, -10))
   path.add(new YUKA.Vector3(-10, 0, -10))
   path.add(new YUKA.Vector3(-10, 0, 10))
 
@@ -116,7 +117,7 @@ function sync(entity, renderComponent) {
 
 function setupObstacles() {
   const mesh1 = BABYLON.MeshBuilder.CreateBox('mesh1', { size: 2 }, scene)
-  const mesh2 = BABYLON.MeshBuilder.CreateBox('mesh1', { size: 2 }, scene)
+  const mesh2 = BABYLON.MeshBuilder.CreateBox('mesh1', { width: 2, height: 6, depth: 2 }, scene)
   const mesh3 = BABYLON.MeshBuilder.CreateBox('mesh1', { size: 2 }, scene)
 
   const meshMat = new BABYLON.StandardMaterial('meshMat', scene)
@@ -128,8 +129,8 @@ function setupObstacles() {
   mesh3.material = meshMat
 
   mesh1.position.set(-10, 0, 0)
-  mesh2.position.set(11, 0, 0)
-  mesh3.position.set(4, 0, -10)
+  mesh2.position.set(11, 6, 0)
+  mesh3.position.set(4, 8, -10)
 
   const obstacle1 = new YUKA.GameEntity()
   obstacle1.position.copy(mesh1.position)
