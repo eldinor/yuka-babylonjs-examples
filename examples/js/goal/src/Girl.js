@@ -12,21 +12,12 @@ class Girl extends Vehicle {
     this.maxTurnRate = Math.PI * 0.5
     this.maxSpeed = 1.5
 
-    // this.mixer = mixer;
-    // this.animations = animations;
-
-    //	const idle = this.animations.get( 'IDLE' );
-    //	idle.enabled = true;
-
     this.ui = {
       currentGoal: document.getElementById('currentGoal'),
       currentSubgoal: document.getElementById('currentSubgoal'),
       fatigueLevel: document.getElementById('tired'),
-      // tiredVar: document.getElementById( 'tired' )
-      //	fatigueLevel: (document.getElementById( 'tired' )
     }
 
-    //	console.log(document.getElementById( 'tired' ))
     // goal-driven agent design
 
     this.brain = new Think(this)

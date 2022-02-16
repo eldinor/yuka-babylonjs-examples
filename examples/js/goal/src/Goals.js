@@ -33,7 +33,9 @@ class RestGoal extends Goal {
 
     console.log('REST GOAL')
     //
-    owner.animations.get(WALK).stop()
+    const walk = owner.animations.get(WALK)
+    walk.stop()
+
     const idle = owner.animations.get(IDLE)
     idle.play()
     idle.loopAnimation = true
@@ -160,8 +162,8 @@ class FindNextCollectibleGoal extends Goal {
   terminate() {
     const owner = this.owner
 
-    const turn = owner.animations.get(this.animationId)
-    turn.stop()
+    //   const turn = owner.animations.get(this.animationId)
+    //  turn.stop()
   }
 }
 
@@ -222,9 +224,6 @@ class SeekToCollectibleGoal extends Goal {
     this.owner.velocity.set(0, 0, 0)
 
     const owner = this.owner
-
-    const walk = owner.animations.get(WALK)
-    walk.stop()
   }
 }
 
