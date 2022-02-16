@@ -25,8 +25,8 @@ function init() {
 
   const camera = new BABYLON.ArcRotateCamera(
     'camera',
-    BABYLON.Tools.ToRadians(90),
-    BABYLON.Tools.ToRadians(0),
+    BABYLON.Tools.ToRadians(30),
+    BABYLON.Tools.ToRadians(40),
     15,
     BABYLON.Vector3.Zero(),
     scene
@@ -41,6 +41,7 @@ function init() {
   const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 10, height: 10 }, scene)
   ground.position.y = -1
   ground.material = new BABYLON.GridMaterial('grid', scene)
+  ground.visibility = 0.5
 
   //
 
@@ -115,6 +116,7 @@ function animate() {
   const elapsedTime = time.getElapsed()
 
   target.x = Math.cos(elapsedTime) * Math.sin(elapsedTime * 0.2) * 6
+  target.y = Math.cos(elapsedTime) * Math.sin(elapsedTime * 0.2) * 12 + 2
   target.z = Math.sin(elapsedTime * 0.8) * 6
 
   //	console.log(target.x)
