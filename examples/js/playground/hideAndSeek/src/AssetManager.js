@@ -71,9 +71,14 @@ class AssetManager {
       autoplay: false,
     })
 
-    shot.setVolume(0.3)
+    shot.setVolume(1.8)
     reload.setVolume(0.1)
     empty.setVolume(0.3)
+    impact1.setVolume(0.3)
+    impact2.setVolume(0.3)
+    impact3.setVolume(0.3)
+    impact4.setVolume(0.3)
+    impact5.setVolume(0.3)
 
     audios.set('step1', step1)
     audios.set('step2', step2)
