@@ -27,7 +27,7 @@ export const createVehicle = (scene, options) => {
 
     // add the bullet here
 
-    // const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(name, { height, diameterTop, diameterBottom }, scene)
+    const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(name, { height, diameterTop, diameterBottom }, scene)
 
     vehicleMesh.rotation.x = Math.PI * 0.5
     vehicleMesh.bakeCurrentTransformIntoVertices()
