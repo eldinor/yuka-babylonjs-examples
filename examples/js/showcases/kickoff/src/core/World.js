@@ -159,7 +159,6 @@ class World {
    * Inits the game environment. Entry point of the application.
    */
   async init() {
-    debugger
     this.assetManager = new AssetManager(this)
 
     await this.assetManager.init()
