@@ -3,6 +3,7 @@ import * as DAT from 'https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.m
 
 import 'https://preview.babylonjs.com/babylon.js'
 import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js'
+import { createVehicle } from '../../creator.js'
 // import 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js'
 // import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
@@ -45,13 +46,7 @@ function init() {
 
   //
 
-  const pursuerMesh = BABYLON.MeshBuilder.CreateCylinder(
-    'cone',
-    { height: 0.5, diameterTop: 0, diameterBottom: 0.25 },
-    scene
-  )
-  pursuerMesh.rotation.x = Math.PI * 0.5
-  pursuerMesh.bakeCurrentTransformIntoVertices()
+  const pursuerMesh = createVehicle(scene)
 
   const evaderMesh = BABYLON.MeshBuilder.CreateBox('box', { size: 0.2 }, scene)
 

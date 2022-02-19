@@ -11,6 +11,7 @@ import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.j
 
 import { createGraphHelper } from '../../graph/GraphHelper.js'
 import { createConvexRegionHelper } from '../common/NavMeshHelper.js'
+import { createVehicle } from '../../creator.js'
 
 let engine, scene, plane, pathHelper, graphHelper, navMeshGroup, vehicleMesh
 let entityManager, time, vehicle, target
@@ -50,9 +51,7 @@ function init() {
 
   //
 
-  vehicleMesh = BABYLON.MeshBuilder.CreateCylinder('cone', { height: 2, diameterTop: 0, diameterBottom: 1 }, scene)
-  vehicleMesh.rotation.x = Math.PI * 0.5
-  vehicleMesh.bakeCurrentTransformIntoVertices()
+  vehicleMesh = createVehicle(scene, { size: 1.5, y: 1 })
 
   window.addEventListener('resize', onWindowResize, false)
 

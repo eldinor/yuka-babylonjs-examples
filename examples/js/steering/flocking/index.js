@@ -3,6 +3,7 @@ import * as DAT from 'https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.m
 
 import 'https://preview.babylonjs.com/babylon.js'
 import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js'
+import { createVehicle } from '../../creator.js'
 // import 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js'
 // import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
@@ -62,14 +63,12 @@ function init() {
   cohesionBehavior.weight = params.cohesion
   separationBehavior.weight = params.separation
 
+  const vehicleMeshPrefab = createVehicle(scene, { size: 2 })
+  vehicleMeshPrefab.setEnabled(false)
+
   for (let i = 0; i < 50; i++) {
-    const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
-      'cone',
-      { height: 0.5, diameterTop: 0, diameterBottom: 0.25 },
-      scene
-    )
-    vehicleMesh.rotation.x = Math.PI * 0.5
-    vehicleMesh.bakeCurrentTransformIntoVertices()
+    const vehicleMesh = vehicleMeshPrefab.clone('vehicle')
+    vehicleMesh.setEnabled(true)
 
     const vehicle = new YUKA.Vehicle()
     vehicle.maxSpeed = 1.5

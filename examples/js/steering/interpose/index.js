@@ -3,6 +3,7 @@ import * as YUKA from '../../../../lib/yuka.module.js'
 
 import 'https://preview.babylonjs.com/babylon.js'
 import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js'
+import { createVehicle } from '../../creator.js'
 // import 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js'
 // import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
@@ -49,13 +50,7 @@ function init() {
 
   // meshes
 
-  const pursuerMesh = BABYLON.MeshBuilder.CreateCylinder(
-    'cone',
-    { height: 0.75, diameterTop: 0, diameterBottom: 0.5 },
-    scene
-  )
-  pursuerMesh.rotation.x = Math.PI * 0.5
-  pursuerMesh.bakeCurrentTransformIntoVertices()
+  const pursuerMesh = createVehicle(scene, { size: 0.8 })
 
   const entityMesh1 = BABYLON.MeshBuilder.CreateBox('entityMesh1', { size: 0.2 }, scene)
   const entityMesh2 = BABYLON.MeshBuilder.CreateBox('entityMesh2', { size: 0.2 }, scene)

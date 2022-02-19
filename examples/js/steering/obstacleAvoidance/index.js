@@ -3,6 +3,7 @@ import * as YUKA from '../../../../lib/yuka.module.js'
 
 import 'https://preview.babylonjs.com/babylon.js'
 import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js'
+import { createVehicle } from '../../creator.js'
 // import 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js'
 // import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
@@ -50,14 +51,7 @@ function init() {
   wayPointsMat.disableLighting = true
   wayPointsMat.emissiveColor = BABYLON.Color3.Magenta()
 
-  const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
-    'cone',
-    { height: 1, diameterTop: 0, diameterBottom: 0.5 },
-    scene
-  )
-  vehicleMesh.rotation.x = Math.PI * 0.5
-  vehicleMesh.bakeCurrentTransformIntoVertices()
-
+  const vehicleMesh = createVehicle(scene, { size: 2 })
   window.addEventListener('resize', onWindowResize, false)
 
   // game setup

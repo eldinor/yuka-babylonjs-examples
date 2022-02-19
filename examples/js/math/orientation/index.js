@@ -1,6 +1,7 @@
 import 'https://preview.babylonjs.com/babylon.js'
 
 import * as YUKA from '../../../../../lib/yuka.module.js'
+import { createVehicle } from '../../creator.js'
 
 let engine, scene
 
@@ -35,13 +36,7 @@ function init() {
   light.diffuse = BABYLON.Color3.Teal()
   //
 
-  const entityMesh = BABYLON.MeshBuilder.CreateCylinder(
-    'cone',
-    { height: 0.5, diameterTop: 0, diameterBottom: 0.25 },
-    scene
-  )
-  entityMesh.rotation.x = Math.PI * 0.5
-  entityMesh.bakeCurrentTransformIntoVertices()
+  const entityMesh = createVehicle(scene, { size: 0.5 })
 
   const targetMesh = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 0.1, segments: 16 })
 

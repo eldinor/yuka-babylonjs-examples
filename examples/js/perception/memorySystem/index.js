@@ -14,6 +14,7 @@ import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.j
 import { CustomEntity } from './src/CustomEntity.js'
 import { Obstacle } from '../common/Obstacle.js'
 import { createVisionHelper } from '../common/VisionHelper.js'
+import { createVehicle } from '../../creator.js'
 
 let engine, scene, targetMaterial
 let entityManager, time, entity, target
@@ -62,13 +63,7 @@ function init() {
   obstacleMesh.material = new BABYLON.StandardMaterial('obstacle', scene)
   obstacleMesh.material.backFaceCulling = false
 
-  const entityMesh = BABYLON.MeshBuilder.CreateCylinder(
-    'cone',
-    { height: 0.5, diameterTop: 0, diameterBottom: 0.25 },
-    scene
-  )
-  entityMesh.rotation.x = Math.PI * 0.5
-  entityMesh.bakeCurrentTransformIntoVertices()
+  const entityMesh = createVehicle(scene)
 
   const targetMesh = BABYLON.MeshBuilder.CreateSphere('target', { diameter: 0.15, segments: 8 }, scene)
   targetMaterial = new BABYLON.StandardMaterial('target', scene)
