@@ -43,5 +43,16 @@ class Carrier extends YUKA.Vehicle {
 
     this.target.position.fromSpherical(radius, phi, theta)
   }
+  update(delta) {
+    this.currentDelta = delta
+
+    this.stateMachine.update()
+    this.currentTime += delta
+
+    super.update(delta)
+
+    return this
+  }
 }
+
 export { Carrier }

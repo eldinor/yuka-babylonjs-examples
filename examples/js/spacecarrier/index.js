@@ -196,10 +196,8 @@ function animate() {
   requestAnimationFrame(animate)
 
   const delta = time.update().getDelta()
-  vehicle.stateMachine.update(delta)
 
   entityManager.update(delta)
-  vehicle.currentTime += delta
 
   scene.render()
 }
