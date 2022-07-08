@@ -46,7 +46,7 @@ function init() {
   ground.position.y = -1
   ground.material = new BABYLON.GridMaterial('grid', scene)
 
-  const vehicleMesh = createVehicle(scene)
+  const vehicleMesh = createVehicle(scene, { size: 2 })
 
   const pointerMesh = BABYLON.MeshBuilder.CreateSphere('pointer', scene)
 

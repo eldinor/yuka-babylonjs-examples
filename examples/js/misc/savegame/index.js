@@ -1,6 +1,7 @@
 import 'https://preview.babylonjs.com/babylon.js'
 
 import * as YUKA from '../../../../../lib/yuka.module.js'
+import { createVehicle } from '../../creator.js'
 
 import { CustomEntity } from './src/CustomEntity.js'
 import { CustomVehicle } from './src/CustomVehicle.js'
@@ -29,9 +30,7 @@ function init() {
 
   //
 
-  vehicleMesh = BABYLON.MeshBuilder.CreateCylinder('cone', { height: 0.5, diameterTop: 0, diameterBottom: 0.25 }, scene)
-  vehicleMesh.rotation.x = Math.PI * 0.5
-  vehicleMesh.bakeCurrentTransformIntoVertices()
+  vehicleMesh = createVehicle(scene, { size: 0.5 })
 
   const sphere = BABYLON.MeshBuilder.CreateSphere('sphere', {
     diameter: 5,

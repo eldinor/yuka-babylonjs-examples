@@ -3,6 +3,7 @@ import * as YUKA from '../../../../lib/yuka.module.js'
 
 import 'https://preview.babylonjs.com/babylon.js'
 import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js'
+import { createVehicle } from '../../creator.js'
 // import 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js'
 // import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
@@ -50,13 +51,13 @@ function init() {
 
   //
 
+  const vehicleMeshPrefab = createVehicle(scene, { size: 0.8 })
+  vehicleMeshPrefab.setEnabled(false)
+
   for (let i = 0; i < 50; i++) {
-    const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
-      'cone',
-      { height: 0.5, diameterTop: 0, diameterBottom: 0.25 },
-      scene
-    )
-    vehicleMesh.rotation.x = Math.PI * 0.5
+    const vehicleMesh = vehicleMeshPrefab.clone('vehicle')
+    vehicleMesh.setEnabled(true)
+
     vehicleMesh.bakeCurrentTransformIntoVertices()
 
     const vehicle = new YUKA.Vehicle()

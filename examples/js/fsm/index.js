@@ -6,6 +6,8 @@ import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.j
 // import 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js'
 import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
+import { createVehicle } from '../creator.js'
+
 import { Girl } from './src/Girl.js'
 
 let engine, scene
@@ -55,14 +57,7 @@ function init() {
   )
   pipeline.samples = 4
 
-  const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
-    'cone',
-    { height: 1, diameterTop: 0, diameterBottom: 0.5 },
-    scene
-  )
-  vehicleMesh.rotation.x = Math.PI * 0.5
-  vehicleMesh.position.y = 1
-  vehicleMesh.bakeCurrentTransformIntoVertices()
+  const vehicleMesh = createVehicle(scene, { size: 0.5, y: 1 })
 
   vehicleMesh.material = new BABYLON.StandardMaterial('vmesh')
 

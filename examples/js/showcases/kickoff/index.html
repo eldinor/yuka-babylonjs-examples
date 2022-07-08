@@ -1,0 +1,57 @@
+<html lang="en">
+  <head>
+    <title>Yuka | First-Person Controls</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" type="text/css" href="../../../css/styles.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico" />
+    <style>
+      #score {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #000000;
+        color: aqua;
+      }
+
+      #score .blue {
+        width: 32px;
+        height: 32px;
+        background-color: #0000ff;
+      }
+
+      #score .item {
+        font-size: 18px;
+        margin: 0px 4px;
+      }
+
+      #score .red {
+        width: 32px;
+        height: 32px;
+        background-color: #ff0000;
+      }
+    </style>
+  </head>
+  <body>
+    <section id="loading-screen">
+      <div class="spinner">
+        <div class="rect1"></div>
+        <div class="rect2"></div>
+        <div class="rect3"></div>
+        <div class="rect4"></div>
+        <div class="rect5"></div>
+      </div>
+    </section>
+    <section id="score">
+      <div class="blue"></div>
+      <div class="item" id="goals-blue">0</div>
+      <div class="item">:</div>
+      <div class="item" id="goals-red">0</div>
+      <div class="red"></div>
+    </section>
+    <script type="module" src="index.js"></script>
+  </body>
+</html>

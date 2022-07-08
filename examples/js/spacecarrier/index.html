@@ -1,0 +1,71 @@
+<html lang="en">
+  <head>
+    <title>Yuka | Space Carrier - State Machine</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="../../css/styles.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="https://mugen87.github.io/yuka/favicon.ico" />
+    <style>
+      #status {
+        position: absolute;
+        display: flex;
+        align-items: left;
+        justify-content: left;
+        font-size: 28px;
+        color: #15c2e9;
+        text-align: left;
+        line-height: 24px;
+        width: 100%;
+        bottom: 0;
+      }
+      #status > div {
+        background-color: rgba(0, 0, 44, 0.72);
+        width: 400px;
+        padding: 16px;
+      }
+      #status > div > span {
+        display: inline-block;
+      }
+      #currentState {
+        color: #aee116;
+      }
+      #currentSpeed {
+        color: #b80918;
+      }
+      #currentGoods {
+        color: #40f30e;
+      }
+      #storedGoods {
+        color: #ecb720;
+      }
+    </style>
+  </head>
+  <body>
+    <section id="info">
+      <p>
+        Another example of Autonomous State-driven Agent Design.<br />
+        This small spaceship collects red artefacts inside the sphere. After collecting 2 artefacts the spaceship goes
+        to the base to unload cargo.
+      </p>
+    </section>
+    <section id="status">
+      <div>
+        <span>Current State:</span>
+        <span id="currentState"></span><br />
+        <span>Current Time:</span>
+        <span id="currentTime"></span><br />
+        <span>Current Speed:</span>
+        <span id="currentSpeed"></span><br />
+        <span>Collected:</span>
+        <span id="currentGoods"></span><br />
+        <span>Stored:</span>
+        <span id="storedGoods"></span>
+      </div>
+    </section>
+    <section id="carrier">
+      <div></div>
+    </section>
+    <canvas id="renderCanvas" style="width: 100%; height: 100%; touch-action: none"></canvas>
+    <script type="module" src="index.js"></script>
+  </body>
+</html>

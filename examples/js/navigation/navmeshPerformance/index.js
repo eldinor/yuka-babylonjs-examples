@@ -16,6 +16,7 @@ import { createConvexRegionHelper } from '../common/NavMeshHelper.js'
 
 import { CustomVehicle } from './src/CustomVehicle.js'
 import { PathPlanner } from './src/PathPlanner.js'
+import { createVehicle } from '../../creator.js'
 
 let engine,
   scene,
@@ -127,18 +128,12 @@ function init() {
       spatialIndexHelper.setEnabled(false)
 
       // create vehicles
-      const vehicleMeshPrefab = BABYLON.MeshBuilder.CreateCylinder(
-        'cone',
-        { height: 1, diameterTop: 0, diameterBottom: 0.5 },
-        scene
-      )
-      vehicleMeshPrefab.rotation.x = Math.PI * 0.5
-      vehicleMeshPrefab.bakeCurrentTransformIntoVertices()
+      const vehicleMeshPrefab = createVehicle(scene, { size: 0.8, y: 1 })
 
       const vehicleMeshMaterial = new BABYLON.StandardMaterial('vehicle', scene)
-      vehicleMeshMaterial.emissiveColor = BABYLON.Color3.Red()
-      vehicleMeshMaterial.disableLighting = true
+      vehicleMeshMaterial.diffuseColor = BABYLON.Color3.Red()
       vehicleMeshPrefab.material = vehicleMeshMaterial
+      vehicleMeshPrefab.setEnabled(false)
 
       pathHelperParent = new BABYLON.TransformNode('path-helper-parent', scene)
       pathHelperParent.setEnabled(false)
@@ -146,6 +141,7 @@ function init() {
       for (let i = 0; i < vehicleCount; i++) {
         const vehicleMesh = vehicleMeshPrefab.clone(`vehixle-${i}`)
         vehicleMeshes[i] = vehicleMesh
+        vehicleMesh.setEnabled(true)
 
         // vehicle
         const vehicle = new CustomVehicle()

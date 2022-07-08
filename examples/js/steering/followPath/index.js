@@ -3,6 +3,7 @@ import * as DAT from 'https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.m
 
 import 'https://preview.babylonjs.com/babylon.js'
 import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js'
+import { createVehicle } from '../../creator.js'
 // import 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js'
 // import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
@@ -50,14 +51,7 @@ function init() {
   light.diffuse = BABYLON.Color3.Red()
   //
 
-  const vehicleMesh = BABYLON.MeshBuilder.CreateCylinder(
-    'cone',
-    { height: 0.5, diameterTop: 0, diameterBottom: 0.25 },
-    scene
-  )
-  vehicleMesh.rotation.x = Math.PI * 0.5
-  vehicleMesh.bakeCurrentTransformIntoVertices()
-
+  const vehicleMesh = createVehicle(scene)
   // dat.gui
 
   const gui = new DAT.GUI({ width: 300 })

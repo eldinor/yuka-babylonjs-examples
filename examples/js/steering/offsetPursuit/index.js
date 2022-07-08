@@ -3,6 +3,7 @@ import * as YUKA from '../../../../lib/yuka.module.js'
 
 import 'https://preview.babylonjs.com/babylon.js'
 import 'https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js'
+import { createVehicle } from '../../creator.js'
 // import 'https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js'
 // import 'https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js'
 
@@ -38,21 +39,9 @@ function init() {
   light.diffuse = BABYLON.Color3.Green()
   //
 
-  const leaderMesh = BABYLON.MeshBuilder.CreateCylinder(
-    'cone',
-    { height: 0.5, diameterTop: 0, diameterBottom: 0.25 },
-    scene
-  )
-  leaderMesh.rotation.x = Math.PI * 0.5
-  leaderMesh.bakeCurrentTransformIntoVertices()
+  const leaderMesh = createVehicle(scene, { size: 0.8 })
 
-  const followerMeshTemplate = BABYLON.MeshBuilder.CreateCylinder(
-    'cone',
-    { height: 0.5, diameterTop: 0, diameterBottom: 0.25 },
-    scene
-  )
-  followerMeshTemplate.rotation.x = Math.PI * 0.5
-  followerMeshTemplate.bakeCurrentTransformIntoVertices()
+  const followerMeshTemplate = createVehicle(scene, { size: 0.5 })
   followerMeshTemplate.isVisible = false
 
   const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 10, height: 10 }, scene)
