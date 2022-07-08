@@ -34,8 +34,14 @@ function init() {
 
   //	scene.debugLayer.show();
 
-  const camera = new BABYLON.UniversalCamera('UniversalCamera', new BABYLON.Vector3(0, 12, 10), scene)
-
+  const camera = new BABYLON.ArcRotateCamera(
+    'camera',
+    BABYLON.Tools.ToRadians(90),
+    BABYLON.Tools.ToRadians(0),
+    30,
+    BABYLON.Vector3.Zero(),
+    scene
+  )
   camera.target = new BABYLON.Vector3(0, 0, 0)
   camera.attachControl(canvas, true)
 

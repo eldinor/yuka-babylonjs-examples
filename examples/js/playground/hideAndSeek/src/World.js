@@ -215,7 +215,7 @@ class World {
 
     const minSqDistance = this.minSpawningDistance * this.minSpawningDistance
 
-    let maxiter = 10000
+    let maxiter = 50000
     do {
       const spawningPointIndex = Math.ceil(Math.random() * this.spawningPoints.length - 1)
       spawningPoint = this.spawningPoints[spawningPointIndex]

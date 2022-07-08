@@ -17,7 +17,15 @@ function init() {
   scene.clearColor = new BABYLON.Color4(0, 0, 0, 1)
   scene.useRightHandedSystem = true
 
-  const camera = new BABYLON.ArcRotateCamera('camera', 0, 0.6, 10, BABYLON.Vector3(), scene)
+  const camera = new BABYLON.ArcRotateCamera(
+    'camera',
+    BABYLON.Tools.ToRadians(30),
+    BABYLON.Tools.ToRadians(40),
+    8,
+    BABYLON.Vector3.Zero(),
+    scene
+  )
+
   camera.target = new BABYLON.Vector3(0, 0, 0)
   camera.attachControl()
 

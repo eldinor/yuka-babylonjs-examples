@@ -22,29 +22,32 @@ function createGraphHelper(scene, graph, nodeSize = 1, nodeColor = '#4e84c4', ed
 
     // edges
     const edges = []
+    const lines = []
     for (let node of nodes) {
       graph.getEdgesOfNode(node.index, edges)
 
+      const position = []
       for (let edge of edges) {
-        const position = []
         const fromNode = graph.getNode(edge.from)
         const toNode = graph.getNode(edge.to)
 
         position.push(new BABYLON.Vector3(fromNode.position.x, fromNode.position.y, fromNode.position.z))
         position.push(new BABYLON.Vector3(toNode.position.x, toNode.position.y, toNode.position.z))
-
-        const pathHelper = BABYLON.MeshBuilder.CreateLines(
-          'path-helper',
-          {
-            points: position,
-            updatable: false,
-          },
-          scene
-        )
-        pathHelper.color = BABYLON.Color3.Green()
-        pathHelper.parent = parent
       }
+
+      lines.push(position)
     }
+
+    const pathHelper = BABYLON.MeshBuilder.CreateLineSystem(
+      'path-helper',
+      {
+        lines,
+        updatable: false,
+      },
+      scene
+    )
+    pathHelper.color = BABYLON.Color3.Green()
+    pathHelper.parent = parent
   }
 
   return parent

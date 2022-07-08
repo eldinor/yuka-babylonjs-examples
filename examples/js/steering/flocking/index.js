@@ -34,7 +34,7 @@ function init() {
     'camera',
     BABYLON.Tools.ToRadians(90),
     BABYLON.Tools.ToRadians(0),
-    30,
+    120,
     BABYLON.Vector3.Zero(),
     scene
   )
@@ -44,7 +44,7 @@ function init() {
 
   new BABYLON.HemisphericLight('light', new BABYLON.Vector3(1, 1, 0))
 
-  const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 40, height: 20 }, scene)
+  const ground = BABYLON.MeshBuilder.CreateGround('ground', { width: 80, height: 80 }, scene)
   ground.position.y = -1
   ground.material = new BABYLON.GridMaterial('grid', scene)
   //
